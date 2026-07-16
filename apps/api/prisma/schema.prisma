@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ATTORNEY
+  CASE_MANAGER
+  PHYSICIAN
+  REVIEWER
+  BILLING
+  ADMIN
+}
+
+enum CaseStatus {
+  INTAKE
+  PROCESSING
+  PHYSICIAN_REVIEW
+  COMPLETED
+  ON_HOLD
+}
+
+enum Priority {
+  STANDARD
+  URGENT
+}
+
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  name String
+  role Role @default(ATTORNEY)
+  firm String?
+  createdAt DateTime @default(now())
+  assignedCases Case[] @relation("ReviewerCases")
+  createdCases Case[] @relation("CreatorCases")
+  messages Message[]
+  auditLogs AuditLog[]
+}
+
+model Case {
+  id String @id @default(cuid())
+  caseNumber String @unique
+  clientName String
+  matterName String
+  service String
+  status CaseStatus @default(INTAKE)
+  priority Priority @default(STANDARD)
+  dueAt DateTime?
+  progress Int @default(10)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  creatorId String
+  creator User @relation("CreatorCases", fields: [creatorId], references: [id])
+  reviewerId String?
+  reviewer User? @relation("ReviewerCases", fields: [reviewerId], references: [id])
+  documents Document[]
+  messages Message[]
+  milestones Milestone[]
+  invoices Invoice[]
+}
+
+model Document {
+  id String @id @default(cuid())
+  name String
+  storageKey String
+  mimeType String
+  size Int
+  pageCount Int?
+  ocrStatus String @default("QUEUED")
+  caseId String
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Milestone {
+  id String @id @default(cuid())
+  label String
+  completed Boolean @default(false)
+  completedAt DateTime?
+  caseId String
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id String @id @default(cuid())
+  body String
+  read Boolean @default(false)
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  caseId String?
+  case Case? @relation(fields: [caseId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Invoice {
+  id String @id @default(cuid())
+  number String @unique
+  amount Decimal
+  status String @default("PENDING")
+  dueAt DateTime
+  caseId String
+  case Case @relation(fields: [caseId], references: [id])
+}
+
+model AuditLog {
+  id String @id @default(cuid())
+  action String
+  entity String
+  entityId String?
+  metadata Json?
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}

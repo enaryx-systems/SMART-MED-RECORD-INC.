@@ -1,0 +1,14 @@
+{
+  "name": "smart-med-records",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "concurrently -n WEB,API -c cyan,green \"npm run dev -w @smartmed/web\" \"npm run start:dev -w @smartmed/api\"",
+    "build": "npm run build -w @smartmed/api && npm run build -w @smartmed/web",
+    "test": "npm run test -w @smartmed/api",
+    "lint": "npm run lint -w @smartmed/web",
+    "db:generate": "npm run prisma:generate -w @smartmed/api"
+  },
+  "devDependencies": { "concurrently": "^9.2.0" }
+}
