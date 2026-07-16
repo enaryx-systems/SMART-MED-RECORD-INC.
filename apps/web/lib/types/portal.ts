@@ -1,5 +1,4 @@
-export type Role =
-  "attorney" | "case-manager" | "physician" | "reviewer" | "billing" | "admin";
+export type Role = "attorney" | "case-manager" | "physician" | "reviewer" | "billing" | "admin";
 
 export type CaseRecord = {
   id: string;

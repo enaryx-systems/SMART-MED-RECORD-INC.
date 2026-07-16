@@ -2,14 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import {
-  ArrowRight,
-  CheckCircle2,
-  Eye,
-  EyeOff,
-  LockKeyhole,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowRight, CheckCircle2, Eye, EyeOff, LockKeyhole, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { login } from "@/lib/api/client";
 import { Role } from "@/lib/types/portal";
@@ -52,8 +45,7 @@ export default function LoginPage() {
             Your cases, records, and insights—together.
           </h1>
           <p className="mt-6 leading-7 text-white/65">
-            Track every matter from secure intake through physician-reviewed
-            delivery.
+            Track every matter from secure intake through physician-reviewed delivery.
           </p>
           <div className="mt-10 space-y-4">
             {[
@@ -84,9 +76,7 @@ export default function LoginPage() {
           </p>
           <form className="mt-8 space-y-5" onSubmit={submit}>
             <div>
-              <label className="mb-2 block text-sm font-semibold">
-                Workspace role
-              </label>
+              <label className="mb-2 block text-sm font-semibold">Workspace role</label>
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value as Role)}
@@ -101,9 +91,7 @@ export default function LoginPage() {
               </select>
             </div>
             <div>
-              <label className="mb-2 block text-sm font-semibold">
-                Email address
-              </label>
+              <label className="mb-2 block text-sm font-semibold">Email address</label>
               <input
                 required
                 type="email"
@@ -143,8 +131,7 @@ export default function LoginPage() {
               disabled={loading}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald px-5 py-4 font-semibold text-white disabled:opacity-60"
             >
-              {loading ? "Signing in…" : "Sign in securely"}{" "}
-              <ArrowRight size={18} />
+              {loading ? "Signing in…" : "Sign in securely"} <ArrowRight size={18} />
             </button>
           </form>
           <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-400">

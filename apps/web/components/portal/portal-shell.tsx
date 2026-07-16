@@ -27,26 +27,11 @@ import { Role } from "@/lib/types/portal";
 const items = [
   ["/portal/dashboard", "Overview", Gauge, "all"],
   ["/portal/cases", "Cases", FileStack, "all"],
-  [
-    "/portal/upload",
-    "Secure upload",
-    UploadCloud,
-    "attorney,case-manager,admin",
-  ],
-  [
-    "/portal/intelligence",
-    "AI workspace",
-    Bot,
-    "attorney,case-manager,physician,reviewer,admin",
-  ],
+  ["/portal/upload", "Secure upload", UploadCloud, "attorney,case-manager,admin"],
+  ["/portal/intelligence", "AI workspace", Bot, "attorney,case-manager,physician,reviewer,admin"],
   ["/portal/reports", "Reports", FileBarChart, "all"],
   ["/portal/messages", "Messages", MessageSquare, "all"],
-  [
-    "/portal/billing",
-    "Billing",
-    CreditCard,
-    "attorney,case-manager,billing,admin",
-  ],
+  ["/portal/billing", "Billing", CreditCard, "attorney,case-manager,billing,admin"],
   ["/portal/team", "Team & access", Users, "case-manager,admin"],
   ["/portal/admin", "Administration", Shield, "admin"],
   ["/portal/settings", "Settings", Settings, "all"],
@@ -59,10 +44,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setRole((localStorage.getItem("smr_role") as Role) || "attorney");
   }, []);
-  const visible = useMemo(
-    () => items.filter((x) => x[3] === "all" || x[3].includes(role)),
-    [role],
-  );
+  const visible = useMemo(() => items.filter((x) => x[3] === "all" || x[3].includes(role)), [role]);
   function changeRole(r: Role) {
     setRole(r);
     localStorage.setItem("smr_role", r);
@@ -112,10 +94,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
                 Administrator
               </option>
             </select>
-            <ChevronDown
-              size={14}
-              className="pointer-events-none absolute right-3 top-3"
-            />
+            <ChevronDown size={14} className="pointer-events-none absolute right-3 top-3" />
           </div>
         </div>
         <nav className="thin-scroll flex-1 space-y-1 overflow-auto p-3">
@@ -150,10 +129,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
               <Menu />
             </button>
             <div className="relative hidden sm:block">
-              <Search
-                size={17}
-                className="absolute left-3 top-2.5 text-slate-400"
-              />
+              <Search size={17} className="absolute left-3 top-2.5 text-slate-400" />
               <input
                 className="w-64 rounded-lg border border-mint bg-white py-2 pl-10 pr-3 text-sm outline-none focus:ring-1 focus:ring-emerald"
                 placeholder="Search cases, records…"

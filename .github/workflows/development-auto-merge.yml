@@ -1,0 +1,35 @@
+name: Development Auto Merge
+
+on:
+  pull_request_target:
+    branches: [development]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  enable-auto-merge:
+    name: Enable after automated review
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Enable squash auto-merge
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const pullRequestId = context.payload.pull_request.node_id;
+            await github.graphql(
+              `mutation EnableAutoMerge($pullRequestId: ID!) {
+                enablePullRequestAutoMerge(input: {
+                  pullRequestId: $pullRequestId,
+                  mergeMethod: SQUASH
+                }) {
+                  pullRequest { number autoMergeRequest { enabledAt } }
+                }
+              }`,
+              { pullRequestId },
+            );
+            core.notice("Auto-merge enabled. GitHub will merge only after required P1/P2 checks pass.");

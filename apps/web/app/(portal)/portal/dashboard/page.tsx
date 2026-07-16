@@ -24,12 +24,7 @@ const stats = [
 ] as const;
 export default function Dashboard() {
   const { data = [] } = useQuery({ queryKey: ["cases"], queryFn: getCases });
-  const cardTints = [
-    "bg-[#F7F9F9]",
-    "bg-[#DCE9E2]",
-    "bg-[#F7F9F9]",
-    "bg-[#EAF2EE]",
-  ];
+  const cardTints = ["bg-[#F7F9F9]", "bg-[#DCE9E2]", "bg-[#F7F9F9]", "bg-[#EAF2EE]"];
   return (
     <>
       <PageHeading
@@ -63,9 +58,7 @@ export default function Dashboard() {
               <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-pine/10 bg-cream text-pine shadow-sm">
                 <I size={19} />
               </span>
-              <span className="text-[11px] font-semibold text-emerald">
-                {c}
-              </span>
+              <span className="text-[11px] font-semibold text-emerald">{c}</span>
             </div>
             <div className="mt-5 text-3xl font-bold text-pine">{b}</div>
             <div className="mt-1 text-xs text-slate-600">{a}</div>
@@ -77,9 +70,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between border-b border-mint bg-mint px-5 py-4">
             <div>
               <b className="text-sm text-pine">Active cases</b>
-              <span className="ml-2 text-xs text-slate-500">
-                Most recently updated
-              </span>
+              <span className="ml-2 text-xs text-slate-500">Most recently updated</span>
             </div>
             <Link
               href="/portal/cases"
@@ -94,16 +85,13 @@ export default function Dashboard() {
           <section className="rounded-2xl border border-emerald/30 bg-pine p-6 text-white shadow-card">
             <div className="flex items-center gap-2 text-mint">
               <Sparkles size={18} />
-              <span className="text-xs font-bold uppercase tracking-wider">
-                AI case signal
-              </span>
+              <span className="text-xs font-bold uppercase tracking-wider">AI case signal</span>
             </div>
             <h3 className="mt-5 font-sans text-lg font-semibold">
               Three treatment gaps need review.
             </h3>
             <p className="mt-3 text-sm leading-6 text-white/60">
-              SMR-2026-1274 contains gaps longer than 45 days between documented
-              visits.
+              SMR-2026-1274 contains gaps longer than 45 days between documented visits.
             </p>
             <Link
               href="/portal/intelligence"

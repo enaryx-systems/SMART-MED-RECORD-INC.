@@ -60,8 +60,8 @@ export default function Pricing() {
               Pricing that grows with your caseload.
             </h1>
             <p className="mx-auto mt-5 max-w-2xl leading-7 text-slate-600">
-              Start case by case, add portal access as your team grows, or
-              secure dedicated capacity for high-volume programs.
+              Start case by case, add portal access as your team grows, or secure dedicated capacity
+              for high-volume programs.
             </p>
           </div>
         </section>
@@ -102,9 +102,7 @@ export default function Pricing() {
                 </div>
 
                 <div className="relative mt-5 rounded-2xl border border-emerald/15 bg-white/45 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
-                  <b className="text-3xl font-extrabold tracking-tight text-pine">
-                    {plan.price}
-                  </b>
+                  <b className="text-3xl font-extrabold tracking-tight text-pine">{plan.price}</b>
                   <span className="ml-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                     pricing
                   </span>
@@ -145,9 +143,9 @@ export default function Pricing() {
             <div>
               <b className="text-sm">Transparent scoping before work begins</b>
               <p className="mt-2 text-sm leading-6 text-white/65">
-                Final pricing depends on page volume, service type, turnaround,
-                reviewer specialty, and integration requirements. You receive a
-                written scope before protected records are processed.
+                Final pricing depends on page volume, service type, turnaround, reviewer specialty,
+                and integration requirements. You receive a written scope before protected records
+                are processed.
               </p>
             </div>
           </div>

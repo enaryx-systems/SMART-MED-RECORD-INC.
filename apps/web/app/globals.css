@@ -410,11 +410,7 @@ textarea:focus {
 }
 
 .hero-verification-card {
-  background: linear-gradient(
-    145deg,
-    rgba(247, 249, 249, 0.88),
-    rgba(220, 233, 226, 0.76)
-  );
+  background: linear-gradient(145deg, rgba(247, 249, 249, 0.88), rgba(220, 233, 226, 0.76));
   border: 1px solid rgba(0, 133, 111, 0.34);
   color: #00453a;
   box-shadow:

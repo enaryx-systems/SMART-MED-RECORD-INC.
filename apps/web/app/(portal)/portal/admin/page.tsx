@@ -11,18 +11,10 @@ export default function Admin() {
         ["Queue health", "Healthy"],
       ]}
       items={[
-        [
-          "Role updated: Alex Joseph",
-          "By Jordan Smith · 10:42 AM",
-          "Audit log",
-        ],
+        ["Role updated: Alex Joseph", "By Jordan Smith · 10:42 AM", "Audit log"],
         ["Records export completed", "SMR-2026-1269 · 9:18 AM", "Audit log"],
         ["OCR queue autoscaled", "System · 8:50 AM", "System"],
-        [
-          "New firm workspace created",
-          "Hamilton & Pierce · Yesterday",
-          "Organization",
-        ],
+        ["New firm workspace created", "Hamilton & Pierce · Yesterday", "Organization"],
       ]}
     />
   );

@@ -6,12 +6,6 @@ import { DashboardModule } from "./modules/dashboard/dashboard.module";
 import { ServicesModule } from "./modules/services/services.module";
 
 @Module({
-  imports: [
-    HealthModule,
-    AuthModule,
-    CasesModule,
-    DashboardModule,
-    ServicesModule,
-  ],
+  imports: [HealthModule, AuthModule, CasesModule, DashboardModule, ServicesModule],
 })
 export class AppModule {}

@@ -1,8 +1,5 @@
 export const services = [
-  [
-    "Medical Chronology",
-    "A source-cited, searchable timeline of every relevant medical event.",
-  ],
+  ["Medical Chronology", "A source-cited, searchable timeline of every relevant medical event."],
   [
     "Narrative Summary",
     "Physician-reviewed summaries that make complex records immediately clear.",
@@ -11,14 +8,8 @@ export const services = [
     "Demand Letter Drafting",
     "Evidence-grounded demand packages with injuries, treatment, and damages.",
   ],
-  [
-    "Deposition Summary",
-    "Key testimony, contradictions, and page-level references at a glance.",
-  ],
-  [
-    "Medical Billing Analysis",
-    "Surface duplicate charges, coding issues, and cost discrepancies.",
-  ],
+  ["Deposition Summary", "Key testimony, contradictions, and page-level references at a glance."],
+  ["Medical Billing Analysis", "Surface duplicate charges, coding issues, and cost discrepancies."],
   [
     "Life Care Plan Support",
     "Document future medical needs and support defensible cost projections.",

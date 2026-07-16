@@ -77,9 +77,7 @@ export class CasesService {
   ];
   findAll(q?: string) {
     return q
-      ? this.cases.filter((c) =>
-          JSON.stringify(c).toLowerCase().includes(q.toLowerCase()),
-        )
+      ? this.cases.filter((c) => JSON.stringify(c).toLowerCase().includes(q.toLowerCase()))
       : this.cases;
   }
   findOne(id: string) {

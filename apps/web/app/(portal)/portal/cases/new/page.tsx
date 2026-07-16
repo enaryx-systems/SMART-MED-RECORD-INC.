@@ -60,10 +60,7 @@ export default function NewCase() {
           </label>
           <label className="text-xs font-semibold">
             Due date
-            <input
-              type="date"
-              className="mt-2 w-full rounded-lg border p-3 text-sm outline-none"
-            />
+            <input type="date" className="mt-2 w-full rounded-lg border p-3 text-sm outline-none" />
           </label>
           <label className="text-xs font-semibold">
             Reference / docket number

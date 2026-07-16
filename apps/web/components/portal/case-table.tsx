@@ -9,27 +9,18 @@ export function CaseTable({ cases }: { cases: CaseRecord[] }) {
       <table className="w-full min-w-[820px] text-left">
         <thead>
           <tr className="border-b bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400">
-            {[
-              "Case / matter",
-              "Service",
-              "Status",
-              "Progress",
-              "Due date",
-              "Updated",
-              "",
-            ].map((x) => (
-              <th className="px-5 py-3 font-semibold" key={x}>
-                {x}
-              </th>
-            ))}
+            {["Case / matter", "Service", "Status", "Progress", "Due date", "Updated", ""].map(
+              (x) => (
+                <th className="px-5 py-3 font-semibold" key={x}>
+                  {x}
+                </th>
+              ),
+            )}
           </tr>
         </thead>
         <tbody>
           {cases.map((c) => (
-            <tr
-              className="border-b last:border-0 hover:bg-slate-50/60"
-              key={c.id}
-            >
+            <tr className="border-b last:border-0 hover:bg-slate-50/60" key={c.id}>
               <td className="px-5 py-4">
                 <Link
                   href={`/portal/cases/${c.id}`}
@@ -37,9 +28,7 @@ export function CaseTable({ cases }: { cases: CaseRecord[] }) {
                 >
                   {c.caseNumber}
                 </Link>
-                <span className="mt-1 block text-xs text-slate-500">
-                  {c.matterName}
-                </span>
+                <span className="mt-1 block text-xs text-slate-500">{c.matterName}</span>
               </td>
               <td className="px-5 py-4 text-xs">{c.service}</td>
               <td className="px-5 py-4">
@@ -53,15 +42,11 @@ export function CaseTable({ cases }: { cases: CaseRecord[] }) {
                       style={{ width: `${c.progress}%` }}
                     />
                   </div>
-                  <span className="text-[11px] text-slate-400">
-                    {c.progress}%
-                  </span>
+                  <span className="text-[11px] text-slate-400">{c.progress}%</span>
                 </div>
               </td>
               <td className="px-5 py-4 text-xs">{c.dueAt}</td>
-              <td className="px-5 py-4 text-xs text-slate-400">
-                {c.updatedAt}
-              </td>
+              <td className="px-5 py-4 text-xs text-slate-400">{c.updatedAt}</td>
               <td className="px-5 py-4">
                 <Link href={`/portal/cases/${c.id}`}>
                   <ArrowUpRight size={17} className="text-slate-400" />

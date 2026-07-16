@@ -49,9 +49,7 @@ export function PublicHeader() {
                 key={item.label}
                 onClick={() => setSelected(item.label)}
                 className={`flex items-center gap-1 px-3 py-2.5 transition-colors duration-200 ${
-                  active
-                    ? "font-semibold text-emerald"
-                    : "text-ink hover:text-emerald"
+                  active ? "font-semibold text-emerald" : "text-ink hover:text-emerald"
                 }`}
               >
                 {item.label}
@@ -100,9 +98,7 @@ export function PublicHeader() {
                     setOpen(false);
                   }}
                   className={`flex items-center justify-between px-4 py-3 transition-colors ${
-                    active
-                      ? "font-semibold text-emerald"
-                      : "text-ink hover:text-emerald"
+                    active ? "font-semibold text-emerald" : "text-ink hover:text-emerald"
                   }`}
                 >
                   {item.label}

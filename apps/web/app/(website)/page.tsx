@@ -37,11 +37,7 @@ const trustPoints = [
   [LockKeyhole, "Secure & encrypted", "Protection by design"],
   [Headphones, "Dedicated support", "A real team, always"],
   [FileSearch, "Source-linked findings", "Every insight stays traceable"],
-  [
-    ShieldCheck,
-    "Audit-ready workflow",
-    "Accountability from intake to delivery",
-  ],
+  [ShieldCheck, "Audit-ready workflow", "Accountability from intake to delivery"],
   [BadgeCheck, "Quality verified", "Human review before delivery"],
 ] as const;
 
@@ -129,9 +125,8 @@ export default function Home() {
               <span className="text-emerald">Stronger legal outcomes.</span>
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-slate-600">
-              Save time, control costs, and build stronger cases with
-              AI-assisted, physician-reviewed medical record analysis and
-              litigation support.
+              Save time, control costs, and build stronger cases with AI-assisted,
+              physician-reviewed medical record analysis and litigation support.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
@@ -154,10 +149,7 @@ export default function Home() {
                 [Clock3, "24–48 hour turnaround"],
                 [Users, "Trusted by attorneys"],
               ].map(([I, t]) => (
-                <div
-                  className="flex items-center gap-2 text-pine"
-                  key={t as string}
-                >
+                <div className="flex items-center gap-2 text-pine" key={t as string}>
                   <I size={22} />
                   <span>{t as string}</span>
                 </div>
@@ -198,25 +190,23 @@ export default function Home() {
           <div className="absolute -bottom-28 right-8 h-60 w-60 rounded-full bg-gold/10 blur-3xl" />
           <div className="trust-marquee relative overflow-hidden py-2 max-sm:py-1">
             <div className="trust-track flex w-max">
-              {[...trustPoints, ...trustPoints].map(
-                ([Icon, title, detail], index) => (
-                  <article
-                    aria-hidden={index >= trustPoints.length}
-                    className="w-[270px] shrink-0 border-r border-white/10 p-3 text-white md:w-[300px]"
-                    key={`${title}-${index}`}
-                  >
-                    <div className="group flex min-h-[156px] flex-col items-center justify-center rounded-2xl border border-transparent px-5 py-5 text-center transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:border-gold/35 hover:bg-[linear-gradient(145deg,rgba(255,255,255,0.14),rgba(0,133,111,0.22))] hover:shadow-[0_18px_40px_rgba(0,25,21,0.28),inset_0_1px_0_rgba(255,255,255,0.18)]">
-                      <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-gold/30 bg-white/10 text-gold shadow-[0_10px_24px_rgba(0,0,0,0.14)] backdrop-blur transition-all duration-300 group-hover:-translate-y-1 group-hover:border-gold/60 group-hover:bg-gold/15 group-hover:shadow-[0_12px_26px_rgba(196,151,61,0.18)]">
-                        <Icon size={23} />
-                      </span>
-                      <b className="mt-4 text-sm text-white">{title}</b>
-                      <span className="mt-1.5 text-xs leading-5 text-white/60 transition-colors group-hover:text-white/75">
-                        {detail}
-                      </span>
-                    </div>
-                  </article>
-                ),
-              )}
+              {[...trustPoints, ...trustPoints].map(([Icon, title, detail], index) => (
+                <article
+                  aria-hidden={index >= trustPoints.length}
+                  className="w-[270px] shrink-0 border-r border-white/10 p-3 text-white md:w-[300px]"
+                  key={`${title}-${index}`}
+                >
+                  <div className="group flex min-h-[156px] flex-col items-center justify-center rounded-2xl border border-transparent px-5 py-5 text-center transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:border-gold/35 hover:bg-[linear-gradient(145deg,rgba(255,255,255,0.14),rgba(0,133,111,0.22))] hover:shadow-[0_18px_40px_rgba(0,25,21,0.28),inset_0_1px_0_rgba(255,255,255,0.18)]">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-gold/30 bg-white/10 text-gold shadow-[0_10px_24px_rgba(0,0,0,0.14)] backdrop-blur transition-all duration-300 group-hover:-translate-y-1 group-hover:border-gold/60 group-hover:bg-gold/15 group-hover:shadow-[0_12px_26px_rgba(196,151,61,0.18)]">
+                      <Icon size={23} />
+                    </span>
+                    <b className="mt-4 text-sm text-white">{title}</b>
+                    <span className="mt-1.5 text-xs leading-5 text-white/60 transition-colors group-hover:text-white/75">
+                      {detail}
+                    </span>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </div>
@@ -233,8 +223,8 @@ export default function Home() {
               The medical record partner your case deserves.
             </h2>
             <p className="mt-5 leading-7 text-slate-600">
-              From first upload to final deliverable, every workflow is designed
-              for accuracy, traceability, and speed.
+              From first upload to final deliverable, every workflow is designed for accuracy,
+              traceability, and speed.
             </p>
           </div>
           <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-2 lg:grid-cols-4 lg:gap-7">
@@ -251,9 +241,7 @@ export default function Home() {
                   <h3 className="home-service-title mt-6 font-sans text-base font-bold text-pine">
                     {name}
                   </h3>
-                  <p className="home-service-copy mt-3 text-sm leading-6 text-slate-600">
-                    {desc}
-                  </p>
+                  <p className="home-service-copy mt-3 text-sm leading-6 text-slate-600">{desc}</p>
                 </article>
               );
             })}
@@ -266,38 +254,22 @@ export default function Home() {
             <span className="text-xs font-bold uppercase tracking-[.2em] text-emerald">
               Simple by design
             </span>
-            <h2 className="mt-3 text-4xl text-pine">
-              From records to answers in four steps.
-            </h2>
+            <h2 className="mt-3 text-4xl text-pine">From records to answers in four steps.</h2>
           </div>
           <div className="mt-14 grid gap-8 md:grid-cols-4">
             {[
-              [
-                "01",
-                "Secure upload",
-                "Drag and drop files or connect your record source.",
-              ],
+              ["01", "Secure upload", "Drag and drop files or connect your record source."],
               [
                 "02",
                 "AI organization",
                 "OCR, deduplication, indexing, and clinical entity extraction.",
               ],
-              [
-                "03",
-                "Expert review",
-                "A qualified reviewer validates accuracy and context.",
-              ],
-              [
-                "04",
-                "Ready to use",
-                "Download, collaborate, search, and cite every finding.",
-              ],
+              ["03", "Expert review", "A qualified reviewer validates accuracy and context."],
+              ["04", "Ready to use", "Download, collaborate, search, and cite every finding."],
             ].map(([n, a, b]) => (
               <div key={n}>
                 <span className="text-5xl font-bold text-emerald/20">{n}</span>
-                <h3 className="mt-2 font-sans text-lg font-bold text-pine">
-                  {a}
-                </h3>
+                <h3 className="mt-2 font-sans text-lg font-bold text-pine">{a}</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-600">{b}</p>
               </div>
             ))}
@@ -317,21 +289,15 @@ export default function Home() {
           <div className="grid grid-cols-3 gap-3 px-3 py-5 text-center">
             <div>
               <b className="text-xl">99%</b>
-              <span className="block text-[11px] text-white/55">
-                accuracy goal
-              </span>
+              <span className="block text-[11px] text-white/55">accuracy goal</span>
             </div>
             <div>
               <b className="text-xl">1,000+</b>
-              <span className="block text-[11px] text-white/55">
-                cases reviewed
-              </span>
+              <span className="block text-[11px] text-white/55">cases reviewed</span>
             </div>
             <div>
               <b className="text-xl">500+</b>
-              <span className="block text-[11px] text-white/55">
-                firms served
-              </span>
+              <span className="block text-[11px] text-white/55">firms served</span>
             </div>
           </div>
         </div>
@@ -343,9 +309,9 @@ export default function Home() {
             AI-powered intelligence, grounded in human expertise.
           </h2>
           <p className="mt-6 leading-7 text-slate-600">
-            Our platform transforms thousands of disorganized pages into a
-            clear, reviewable case story. Every important conclusion keeps its
-            source, so your team can move quickly without losing defensibility.
+            Our platform transforms thousands of disorganized pages into a clear, reviewable case
+            story. Every important conclusion keeps its source, so your team can move quickly
+            without losing defensibility.
           </p>
           <ul className="mt-7 space-y-4">
             {[
@@ -377,13 +343,10 @@ export default function Home() {
               <span className="text-xs font-bold uppercase tracking-[.2em] text-gold">
                 Security & confidentiality
               </span>
-              <h2 className="mt-3 text-3xl">
-                Your most sensitive records stay protected.
-              </h2>
+              <h2 className="mt-3 text-3xl">Your most sensitive records stay protected.</h2>
               <p className="mt-4 max-w-2xl text-sm leading-6 text-white/65">
-                Encryption in transit and at rest, least-privilege access,
-                secure upload workflows, audit logging, and configurable
-                retention controls.
+                Encryption in transit and at rest, least-privilege access, secure upload workflows,
+                audit logging, and configurable retention controls.
               </p>
             </div>
             <Link

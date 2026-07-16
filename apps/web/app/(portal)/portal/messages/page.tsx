@@ -47,8 +47,7 @@ export default function Messages() {
               I flagged the April treatment gap and added both source records.
             </div>
             <div className="ml-auto max-w-md rounded-2xl bg-pine p-4 text-sm text-white">
-              Thanks. Please confirm whether the discharge note documents home
-              exercise compliance.
+              Thanks. Please confirm whether the discharge note documents home exercise compliance.
             </div>
             {sent && (
               <div className="ml-auto max-w-md rounded-2xl bg-pine p-4 text-sm text-white">

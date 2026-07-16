@@ -1,0 +1,15 @@
+schema-version: 1
+blocking-severities: [P1, P2]
+informational-severities: [P3]
+database:
+  forbid-unsafe-raw-sql: true
+  require-transaction-for-multiple-writes: true
+  require-transaction-for-query-builder-writes: true
+dependencies:
+  P1: critical
+  P2: high
+  P3: [moderate, low]
+merge:
+  base-branch: development
+  method: squash
+  require-check: P1-P2 Gate Summary

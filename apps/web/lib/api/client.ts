@@ -12,11 +12,7 @@ export async function getCases() {
   }
 }
 
-export async function login(payload: {
-  email: string;
-  password: string;
-  role: string;
-}) {
+export async function login(payload: { email: string; password: string; role: string }) {
   const response = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

@@ -1,11 +1,5 @@
 import { PageHeading } from "./page-heading";
-import {
-  ArrowUpRight,
-  CheckCircle2,
-  Clock3,
-  FileText,
-  Search,
-} from "lucide-react";
+import { ArrowUpRight, CheckCircle2, Clock3, FileText, Search } from "lucide-react";
 export function ModulePage({
   eyebrow,
   title,
@@ -38,10 +32,7 @@ export function ModulePage({
         <div className="flex items-center justify-between border-b border-mint bg-mint p-5">
           <b className="text-sm">Recent</b>
           <div className="relative">
-            <Search
-              size={14}
-              className="absolute left-3 top-2.5 text-slate-400"
-            />
+            <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
             <input
               className="rounded-lg border bg-cream py-2 pl-8 pr-3 text-xs"
               placeholder="Search…"

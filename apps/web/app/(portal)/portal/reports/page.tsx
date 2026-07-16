@@ -11,26 +11,10 @@ export default function Reports() {
         ["Approval rate", "98%"],
       ]}
       items={[
-        [
-          "Medical Chronology v2",
-          "SMR-2026-1274 · Updated today",
-          "Needs review",
-        ],
-        [
-          "Demand Package — Final",
-          "SMR-2026-1269 · Delivered Jul 15",
-          "Delivered",
-        ],
-        [
-          "Billing Analysis Draft",
-          "SMR-2026-1264 · Updated Jul 14",
-          "In progress",
-        ],
-        [
-          "Narrative Summary v1",
-          "SMR-2026-1273 · Updated Jul 14",
-          "Needs review",
-        ],
+        ["Medical Chronology v2", "SMR-2026-1274 · Updated today", "Needs review"],
+        ["Demand Package — Final", "SMR-2026-1269 · Delivered Jul 15", "Delivered"],
+        ["Billing Analysis Draft", "SMR-2026-1264 · Updated Jul 14", "In progress"],
+        ["Narrative Summary v1", "SMR-2026-1273 · Updated Jul 14", "Needs review"],
       ]}
     />
   );

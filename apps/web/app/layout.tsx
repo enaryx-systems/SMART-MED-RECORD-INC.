@@ -8,9 +8,7 @@ export const metadata: Metadata = {
     "AI-assisted, physician-reviewed medical record solutions for stronger legal outcomes.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body>

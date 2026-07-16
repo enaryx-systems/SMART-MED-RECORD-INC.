@@ -1,13 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import {
-  CheckCircle2,
-  File,
-  LockKeyhole,
-  ShieldCheck,
-  Trash2,
-  UploadCloud,
-} from "lucide-react";
+import { CheckCircle2, File, LockKeyhole, ShieldCheck, Trash2, UploadCloud } from "lucide-react";
 import { PageHeading } from "@/components/portal/page-heading";
 export default function Upload() {
   const input = useRef<HTMLInputElement>(null);
@@ -25,9 +18,7 @@ export default function Upload() {
       />
       <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
         <section className="rounded-2xl border bg-white p-6">
-          <label className="mb-2 block text-xs font-semibold">
-            Assign to case
-          </label>
+          <label className="mb-2 block text-xs font-semibold">Assign to case</label>
           <select className="mb-6 w-full rounded-lg border p-3 text-sm">
             <option>SMR-2026-1274 · Robinson v. Northstar</option>
             <option>SMR-2026-1273 · Kim — Personal Injury</option>
@@ -52,9 +43,7 @@ export default function Upload() {
             <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-mint text-emerald">
               <UploadCloud />
             </span>
-            <b className="mt-5 block text-sm text-pine">
-              Drag and drop medical records here
-            </b>
+            <b className="mt-5 block text-sm text-pine">Drag and drop medical records here</b>
             <span className="mt-2 block text-xs text-slate-400">
               or click to browse from your device
             </span>
@@ -62,10 +51,7 @@ export default function Upload() {
           {files.length > 0 && (
             <div className="mt-6 space-y-2">
               {files.map((f, i) => (
-                <div
-                  className="flex items-center gap-3 rounded-xl border p-4"
-                  key={f.name + i}
-                >
+                <div className="flex items-center gap-3 rounded-xl border p-4" key={f.name + i}>
                   <File size={19} className="text-emerald" />
                   <div className="min-w-0 flex-1">
                     <b className="block truncate text-xs">{f.name}</b>
@@ -73,9 +59,7 @@ export default function Upload() {
                       {(f.size / 1024 / 1024).toFixed(2)} MB · Ready
                     </span>
                   </div>
-                  <button
-                    onClick={() => setFiles((x) => x.filter((_, n) => n !== i))}
-                  >
+                  <button onClick={() => setFiles((x) => x.filter((_, n) => n !== i))}>
                     <Trash2 size={16} className="text-slate-400" />
                   </button>
                 </div>
@@ -87,13 +71,11 @@ export default function Upload() {
             onClick={() => setDone(true)}
             className="mt-6 w-full rounded-xl bg-emerald py-4 text-sm font-semibold text-white disabled:bg-slate-200 disabled:text-slate-400"
           >
-            Encrypt and upload {files.length || ""}{" "}
-            {files.length === 1 ? "file" : "files"}
+            Encrypt and upload {files.length || ""} {files.length === 1 ? "file" : "files"}
           </button>
           {done && (
             <div className="mt-4 flex items-center gap-3 rounded-xl bg-emerald/10 p-4 text-sm text-emerald">
-              <CheckCircle2 /> Upload complete. OCR and indexing have been
-              queued.
+              <CheckCircle2 /> Upload complete. OCR and indexing have been queued.
             </div>
           )}
         </section>
@@ -102,29 +84,21 @@ export default function Upload() {
             <LockKeyhole className="text-gold" />
             <b className="mt-5 block text-sm">Protected at every step</b>
             <p className="mt-3 text-xs leading-6 text-white/60">
-              Files are encrypted in transit and at rest. Access is logged and
-              limited to your authorized case team.
+              Files are encrypted in transit and at rest. Access is logged and limited to your
+              authorized case team.
             </p>
           </div>
           {[
             ["Automatic OCR", "Scanned pages become searchable."],
-            [
-              "Quality validation",
-              "Low-resolution and rotated pages are flagged.",
-            ],
-            [
-              "Duplicate detection",
-              "Redundant records are identified automatically.",
-            ],
+            ["Quality validation", "Low-resolution and rotated pages are flagged."],
+            ["Duplicate detection", "Redundant records are identified automatically."],
           ].map((x) => (
             <div className="rounded-xl border bg-white p-4" key={x[0]}>
               <div className="flex gap-2">
                 <ShieldCheck size={16} className="text-emerald" />
                 <b className="text-xs">{x[0]}</b>
               </div>
-              <p className="mt-2 text-[11px] leading-5 text-slate-500">
-                {x[1]}
-              </p>
+              <p className="mt-2 text-[11px] leading-5 text-slate-500">{x[1]}</p>
             </div>
           ))}
         </aside>

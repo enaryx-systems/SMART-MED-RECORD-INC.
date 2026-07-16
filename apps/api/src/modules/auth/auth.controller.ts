@@ -5,9 +5,7 @@ import { LoginDto } from "./dto/login.dto";
 export class AuthController {
   @Post("login") login(@Body() body: LoginDto) {
     return {
-      accessToken: Buffer.from(`${body.email}:${body.role}`).toString(
-        "base64url",
-      ),
+      accessToken: Buffer.from(`${body.email}:${body.role}`).toString("base64url"),
       user: {
         id: "usr_demo",
         name: body.email.split("@")[0].replace(/[._-]/g, " "),

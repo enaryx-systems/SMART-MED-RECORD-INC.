@@ -1,0 +1,27 @@
+name: CI quality-gate failure
+description: Track a blocking P1/P2 finding from GitHub Actions.
+title: "[CI] "
+labels: [ci-failure]
+body:
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - P1 - critical/security/data loss
+        - P2 - major quality or functional failure
+    validations:
+      required: true
+  - type: input
+    id: run
+    attributes:
+      label: Failed workflow URL
+    validations:
+      required: true
+  - type: textarea
+    id: finding
+    attributes:
+      label: Finding and remediation
+      description: Include the failed check, annotation, owner, and expected fix.
+    validations:
+      required: true

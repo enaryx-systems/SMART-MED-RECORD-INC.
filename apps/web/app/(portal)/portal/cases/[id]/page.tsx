@@ -12,11 +12,7 @@ import {
 } from "lucide-react";
 import { demoCases } from "@/lib/data/cases";
 import { StatusPill } from "@/components/portal/status-pill";
-export default async function CaseDetail({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function CaseDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const c = demoCases.find((x) => x.id === id) || demoCases[0];
   return (
@@ -51,29 +47,22 @@ export default async function CaseDetail({
           <section className="rounded-2xl border bg-white p-6">
             <div className="flex items-center justify-between">
               <b className="text-sm text-pine">Case progress</b>
-              <span className="text-sm font-bold text-emerald">
-                {c.progress}%
-              </span>
+              <span className="text-sm font-bold text-emerald">{c.progress}%</span>
             </div>
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
-              <div
-                className="h-full bg-emerald"
-                style={{ width: `${c.progress}%` }}
-              />
+              <div className="h-full bg-emerald" style={{ width: `${c.progress}%` }} />
             </div>
             <div className="mt-7 grid grid-cols-4 gap-2">
-              {["Intake", "AI processing", "Medical review", "Delivery"].map(
-                (x, i) => (
-                  <div key={x}>
-                    <span
-                      className={`flex h-7 w-7 items-center justify-center rounded-full text-xs ${i < 3 ? "bg-emerald text-white" : "bg-slate-100 text-slate-400"}`}
-                    >
-                      {i < 2 ? <Check size={14} /> : i + 1}
-                    </span>
-                    <b className="mt-2 block text-[11px]">{x}</b>
-                  </div>
-                ),
-              )}
+              {["Intake", "AI processing", "Medical review", "Delivery"].map((x, i) => (
+                <div key={x}>
+                  <span
+                    className={`flex h-7 w-7 items-center justify-center rounded-full text-xs ${i < 3 ? "bg-emerald text-white" : "bg-slate-100 text-slate-400"}`}
+                  >
+                    {i < 2 ? <Check size={14} /> : i + 1}
+                  </span>
+                  <b className="mt-2 block text-[11px]">{x}</b>
+                </div>
+              ))}
             </div>
           </section>
           <section className="overflow-hidden rounded-2xl border bg-white">
@@ -85,10 +74,7 @@ export default async function CaseDetail({
               ["AI Medical Chronology v2.docx", "Updated 2 hours ago"],
               ["Treatment Gap Report.pdf", "3 flagged periods"],
             ].map((x, i) => (
-              <div
-                className="flex items-center gap-4 border-b px-6 py-4 last:border-0"
-                key={x[0]}
-              >
+              <div className="flex items-center gap-4 border-b px-6 py-4 last:border-0" key={x[0]}>
                 <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-mint text-pine">
                   <FileText size={19} />
                 </span>

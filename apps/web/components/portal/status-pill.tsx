@@ -8,9 +8,7 @@ export function StatusPill({ status }: { status: string }) {
           ? "bg-blue-50 text-blue-700"
           : "bg-amber-50 text-amber-700";
   return (
-    <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${c}`}
-    >
+    <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${c}`}>
       {status}
     </span>
   );

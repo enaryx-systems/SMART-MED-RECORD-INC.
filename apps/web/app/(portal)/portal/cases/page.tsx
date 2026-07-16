@@ -10,10 +10,7 @@ export default function Cases() {
   const [q, setQ] = useState("");
   const { data = [] } = useQuery({ queryKey: ["cases"], queryFn: getCases });
   const filtered = useMemo(
-    () =>
-      data.filter((c: any) =>
-        JSON.stringify(c).toLowerCase().includes(q.toLowerCase()),
-      ),
+    () => data.filter((c: any) => JSON.stringify(c).toLowerCase().includes(q.toLowerCase())),
     [data, q],
   );
   return (
@@ -34,10 +31,7 @@ export default function Cases() {
       <div className="overflow-hidden rounded-2xl border bg-white">
         <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center">
           <div className="relative flex-1">
-            <Search
-              size={16}
-              className="absolute left-3 top-3 text-slate-400"
-            />
+            <Search size={16} className="absolute left-3 top-3 text-slate-400" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}

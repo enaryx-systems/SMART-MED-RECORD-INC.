@@ -53,8 +53,8 @@ export default function Intelligence() {
           </div>
           <div className="flex-1 p-6">
             <div className="max-w-xl rounded-2xl bg-slate-100 p-4 text-sm leading-6">
-              Summarize the claimant’s lumbar spine treatment and identify any
-              gaps longer than 30 days.
+              Summarize the claimant’s lumbar spine treatment and identify any gaps longer than 30
+              days.
             </div>
             {answer && (
               <div className="mt-5 max-w-2xl rounded-2xl border border-emerald/20 bg-emerald/[.035] p-5">
@@ -63,12 +63,10 @@ export default function Intelligence() {
                   <div>
                     <b className="text-sm text-pine">Record-based answer</b>
                     <p className="mt-3 text-sm leading-7 text-slate-600">
-                      The claimant received conservative lumbar treatment from
-                      January through March 2025, followed by an epidural
-                      injection on April 18. A{" "}
-                      <mark className="bg-amber-100">47-day treatment gap</mark>{" "}
-                      appears between the March 2 physical therapy discharge and
-                      April 18 injection.
+                      The claimant received conservative lumbar treatment from January through March
+                      2025, followed by an epidural injection on April 18. A{" "}
+                      <mark className="bg-amber-100">47-day treatment gap</mark> appears between the
+                      March 2 physical therapy discharge and April 18 injection.
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       <button className="rounded-lg border bg-white px-3 py-2 text-[11px] font-semibold text-emerald">
@@ -97,16 +95,12 @@ export default function Intelligence() {
                 className="flex-1 px-3 text-sm outline-none"
                 placeholder="Ask a question about this case…"
               />
-              <button
-                className="rounded-lg bg-emerald p-3 text-white"
-                aria-label="Ask"
-              >
+              <button className="rounded-lg bg-emerald p-3 text-white" aria-label="Ask">
                 <Send size={17} />
               </button>
             </div>
             <p className="mt-2 text-center text-[10px] text-slate-400">
-              AI output must be verified by an authorized reviewer before legal
-              use.
+              AI output must be verified by an authorized reviewer before legal use.
             </p>
           </form>
         </section>
@@ -126,9 +120,7 @@ export default function Intelligence() {
                   <FileText size={16} className="text-emerald" />
                   <b className="text-xs">{x[0]}</b>
                 </div>
-                <span className="mt-2 block text-[11px] text-slate-400">
-                  {x[1]}
-                </span>
+                <span className="mt-2 block text-[11px] text-slate-400">{x[1]}</span>
               </div>
             ))}
           </div>

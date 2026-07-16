@@ -72,8 +72,7 @@ const core: Feature[] = [
   },
   {
     name: "Medical Billing Summary",
-    description:
-      "Itemized summaries of charges, codes, and billing across every provider.",
+    description: "Itemized summaries of charges, codes, and billing across every provider.",
     icon: BriefcaseMedical,
   },
   {
@@ -141,14 +140,12 @@ const ai: Feature[] = [
   },
   {
     name: "Missing Record Detection",
-    description:
-      "Automatically surface unexplained date gaps and likely missing provider records.",
+    description: "Automatically surface unexplained date gaps and likely missing provider records.",
     icon: TimerReset,
   },
   {
     name: "Duplicate Record Detection",
-    description:
-      "Identify redundant documents and repeated pages before they inflate review time.",
+    description: "Identify redundant documents and repeated pages before they inflate review time.",
     icon: Boxes,
   },
   {
@@ -165,8 +162,7 @@ const ai: Feature[] = [
   },
   {
     name: "Treatment Gap Detection",
-    description:
-      "Identify and cite gaps in a client’s course of treatment for reviewer attention.",
+    description: "Identify and cite gaps in a client’s course of treatment for reviewer attention.",
     icon: Clock3,
   },
   {
@@ -203,14 +199,12 @@ const collaboration: Feature[] = [
   },
   {
     name: "Attorney Collaboration",
-    description:
-      "Share comments, redline requests, assignments, and notes without email chains.",
+    description: "Share comments, redline requests, assignments, and notes without email chains.",
     icon: Users,
   },
   {
     name: "Real-Time Messaging",
-    description:
-      "Secure case-specific conversations keep attorneys, staff, and reviewers aligned.",
+    description: "Secure case-specific conversations keep attorneys, staff, and reviewers aligned.",
     icon: MessageSquareText,
   },
   {
@@ -247,8 +241,7 @@ const security: Feature[] = [
   },
   {
     name: "Complete Audit Logs",
-    description:
-      "Track who viewed, uploaded, edited, approved, downloaded, or shared each item.",
+    description: "Track who viewed, uploaded, edited, approved, downloaded, or shared each item.",
     icon: Fingerprint,
   },
   {
@@ -259,8 +252,7 @@ const security: Feature[] = [
   },
   {
     name: "Automated Invoicing",
-    description:
-      "Generate accurate usage and case-based invoices directly from completed work.",
+    description: "Generate accurate usage and case-based invoices directly from completed work.",
     icon: BriefcaseMedical,
   },
   {
@@ -273,49 +265,42 @@ const security: Feature[] = [
 const insights: Feature[] = [
   {
     name: "Analytics Dashboard",
-    description:
-      "Monitor volume, productivity, turnaround, reviewer edit rates, and hours saved.",
+    description: "Monitor volume, productivity, turnaround, reviewer edit rates, and hours saved.",
     icon: BarChart3,
   },
   {
     name: "Client Satisfaction Reports",
-    description:
-      "Capture feedback and track delivery quality across services, matters, and teams.",
+    description: "Capture feedback and track delivery quality across services, matters, and teams.",
     icon: BadgeCheck,
   },
   {
     name: "Reviewer Productivity",
-    description:
-      "Measure verification speed, exception rates, workloads, and quality trends.",
+    description: "Measure verification speed, exception rates, workloads, and quality trends.",
     icon: Gauge,
   },
 ];
 const roadmap: Feature[] = [
   {
     name: "Case Value Insights",
-    description:
-      "AI-assisted case insights presented with attorney-facing disclaimers.",
+    description: "AI-assisted case insights presented with attorney-facing disclaimers.",
     icon: BarChart3,
     badge: "Coming soon",
   },
   {
     name: "IME Coordination",
-    description:
-      "Scheduling and workflow management for independent medical examinations.",
+    description: "Scheduling and workflow management for independent medical examinations.",
     icon: Stethoscope,
     badge: "Coming soon",
   },
   {
     name: "Mobile App",
-    description:
-      "Secure case access and updates from a dedicated mobile experience.",
+    description: "Secure case access and updates from a dedicated mobile experience.",
     icon: Smartphone,
     badge: "Coming soon",
   },
   {
     name: "Multi-language Translation",
-    description:
-      "Translation support for records, summaries, and case documentation.",
+    description: "Translation support for records, summaries, and case documentation.",
     icon: Languages,
     badge: "Coming soon",
   },
@@ -327,8 +312,7 @@ const roadmap: Feature[] = [
   },
   {
     name: "White-Label Portal",
-    description:
-      "Enterprise firms can present the portal using their own approved branding.",
+    description: "Enterprise firms can present the portal using their own approved branding.",
     icon: Boxes,
     badge: "Roadmap",
   },
@@ -411,9 +395,8 @@ export default function Features() {
                 See the chronology in minutes. Trust the final in court.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Instant AI drafts give your team answers now. Licensed medical
-                reviewers verify, refine, and certify the court-ready final—all
-                in one secure workspace.
+                Instant AI drafts give your team answers now. Licensed medical reviewers verify,
+                refine, and certify the court-ready final—all in one secure workspace.
               </p>
               <div className="mt-8 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
                 <Link
@@ -421,10 +404,7 @@ export default function Features() {
                   className="inline-flex min-w-0 items-center justify-center gap-2 rounded-xl bg-emerald px-6 py-4 text-center font-semibold text-cream shadow-lg max-sm:gap-1 max-sm:rounded-lg max-sm:!px-2 max-sm:!py-2.5 max-sm:!text-[9px] max-sm:leading-tight"
                 >
                   Explore the portal
-                  <ArrowRight
-                    className="shrink-0 max-sm:h-3 max-sm:w-3"
-                    size={17}
-                  />
+                  <ArrowRight className="shrink-0 max-sm:h-3 max-sm:w-3" size={17} />
                 </Link>
                 <Link
                   href="/contact"
@@ -449,9 +429,7 @@ export default function Features() {
                     <FileCheck2 size={19} />
                   </span>
                   <div>
-                    <b className="block text-sm text-pine">
-                      From chronology to proof
-                    </b>
+                    <b className="block text-sm text-pine">From chronology to proof</b>
                     <span className="mt-1 block text-xs text-[#527068]">
                       Faster draft. Human-reviewed final.
                     </span>
@@ -508,8 +486,8 @@ export default function Features() {
               </span>
               <h2 className="mt-3 text-4xl">What we’re building next.</h2>
               <p className="mt-4 leading-7 text-cream/65">
-                These capabilities are planned or under evaluation and are not
-                presented as currently available functionality.
+                These capabilities are planned or under evaluation and are not presented as
+                currently available functionality.
               </p>
             </div>
             <FeatureGrid items={roadmap} />
@@ -526,8 +504,8 @@ export default function Features() {
                   Put a live case workspace in front of your team.
                 </h2>
                 <p className="mt-4 text-slate-600">
-                  Upload a sample record set and see the instant-draft and
-                  verified-final workflow in action.
+                  Upload a sample record set and see the instant-draft and verified-final workflow
+                  in action.
                 </p>
               </div>
               <Link

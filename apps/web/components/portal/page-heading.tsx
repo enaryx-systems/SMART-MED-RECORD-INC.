@@ -18,9 +18,7 @@ export function PageHeading({
           </span>
         )}
         <h1 className="mt-1 text-3xl text-pine">{title}</h1>
-        {description && (
-          <p className="mt-2 text-sm text-slate-500">{description}</p>
-        )}
+        {description && <p className="mt-2 text-sm text-slate-500">{description}</p>}
       </div>
       {action}
     </div>

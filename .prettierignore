@@ -1,0 +1,10 @@
+.next/
+dist/
+build/
+coverage/
+node_modules/
+.qa/
+package-lock.json
+*.png
+*.jpeg
+*.jpg

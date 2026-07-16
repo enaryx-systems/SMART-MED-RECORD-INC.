@@ -16,12 +16,10 @@ export function PublicFooter() {
         <div className="md:col-span-2">
           <Logo portal />
           <p className="mt-5 max-w-sm text-sm leading-6 text-white/65">
-            AI-assisted, physician-reviewed medical record intelligence for
-            legal teams that need answers they can trust.
+            AI-assisted, physician-reviewed medical record intelligence for legal teams that need
+            answers they can trust.
           </p>
-          <p className="mt-6 text-xs text-white/45">
-            Smart records. Stronger outcomes.
-          </p>
+          <p className="mt-6 text-xs text-white/45">Smart records. Stronger outcomes.</p>
           <div className="mt-5 flex items-center gap-2.5">
             {socialLinks.map(({ label, href, Icon }) => (
               <a
@@ -58,8 +56,7 @@ export function PublicFooter() {
         </div>
       </div>
       <div className="border-t border-white/10 px-6 py-5 text-center text-xs text-white/45">
-        © 2026 Smart Med Records. All rights reserved. HIPAA-aligned workflows ·
-        Secure & encrypted.
+        © 2026 Smart Med Records. All rights reserved. HIPAA-aligned workflows · Secure & encrypted.
       </div>
     </footer>
   );

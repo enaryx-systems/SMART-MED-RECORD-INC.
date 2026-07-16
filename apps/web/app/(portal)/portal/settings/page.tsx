@@ -13,20 +13,16 @@ export default function Settings() {
       />
       <div className="grid gap-6 xl:grid-cols-[220px_1fr]">
         <nav className="space-y-1 rounded-2xl border bg-white p-3 self-start">
-          {[
-            "Profile",
-            "Notifications",
-            "Security",
-            "Integrations",
-            "Data retention",
-          ].map((x, i) => (
-            <button
-              className={`w-full rounded-lg px-3 py-2.5 text-left text-xs ${i === 0 ? "bg-pine text-white" : "hover:bg-slate-50"}`}
-              key={x}
-            >
-              {x}
-            </button>
-          ))}
+          {["Profile", "Notifications", "Security", "Integrations", "Data retention"].map(
+            (x, i) => (
+              <button
+                className={`w-full rounded-lg px-3 py-2.5 text-left text-xs ${i === 0 ? "bg-pine text-white" : "hover:bg-slate-50"}`}
+                key={x}
+              >
+                {x}
+              </button>
+            ),
+          )}
         </nav>
         <form
           onSubmit={(e) => {
@@ -35,9 +31,7 @@ export default function Settings() {
           }}
           className="rounded-2xl border bg-white p-7"
         >
-          <h2 className="font-sans text-lg font-bold text-pine">
-            Profile information
-          </h2>
+          <h2 className="font-sans text-lg font-bold text-pine">Profile information</h2>
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <label className="text-xs font-semibold">
               Full name
@@ -73,9 +67,7 @@ export default function Settings() {
               <ShieldCheck className="text-emerald" />
               <div>
                 <b className="block text-sm">Multi-factor authentication</b>
-                <span className="text-xs text-slate-400">
-                  Required by your organization
-                </span>
+                <span className="text-xs text-slate-400">Required by your organization</span>
               </div>
               <span className="ml-auto rounded-full bg-emerald/10 px-3 py-1 text-[10px] font-semibold text-emerald">
                 Enabled

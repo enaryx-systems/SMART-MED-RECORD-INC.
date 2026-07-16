@@ -1,0 +1,219 @@
+name: Quality Gate
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+  workflow_dispatch:
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  policy:
+    name: P1-P2 Policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Enforce security and transaction policy
+        run: npm run quality:policy
+      - name: Test policy engine
+        run: npm run test:policy
+      - name: Upload policy report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: policy-report
+          path: .qa/quality-report.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+
+  test-build:
+    name: Test and Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/smartmed
+      - run: npm test
+      - run: npm run build
+
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Block P1/P2 dependency vulnerabilities
+        run: npm run audit:ci
+      - name: Upload dependency report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dependency-audit
+          path: .qa/dependency-audit.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  container-build:
+    name: Container Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Build API image
+        run: docker build --file apps/api/Dockerfile --tag smart-med-api:ci .
+      - name: Build web image
+        run: docker build --file apps/web/Dockerfile --tag smart-med-web:ci .
+
+  gate:
+    name: P1-P2 Gate Summary
+    if: always()
+    needs: [policy, code-quality, test-build, dependency-audit, container-build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Publish review summary
+        continue-on-error: true
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          RESULTS_JSON: ${{ toJson(needs) }}
+        with:
+          script: |
+            const marker = "<!-- smart-med-quality-gate -->";
+            const results = JSON.parse(process.env.RESULTS_JSON);
+            const rows = Object.entries(results).map(([name, value]) => {
+              const icon = value.result === "success" ? "✅" : "❌";
+              return `| ${name} | ${icon} ${value.result} |`;
+            });
+            const blocked = Object.values(results).some((value) => value.result !== "success");
+            const body = [
+              marker,
+              `## Automated review: ${blocked ? "P1/P2 blocked" : "approved"}`,
+              "",
+              "| Gate | Result |",
+              "| --- | --- |",
+              ...rows,
+              "",
+              blocked
+                ? "At least one blocking P1/P2 quality gate failed. Open the failed job, fix the annotations, and push again. P3 warnings do not block merging."
+                : "All blocking checks passed. P3 warnings, if present, are informational and do not prevent merge.",
+              "",
+              `[Workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`,
+            ].join("\n");
+
+            if (context.payload.pull_request) {
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+              });
+              const previous = comments.find(
+                (comment) => comment.user.type === "Bot" && comment.body?.includes(marker),
+              );
+              if (previous) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: previous.id,
+                  body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body,
+                });
+              }
+            } else {
+              const branch = context.ref.replace("refs/heads/", "");
+              const title = `[CI] P1/P2 gate failure on ${branch}`;
+              const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: "open",
+              });
+              const existing = openIssues.find((issue) => issue.title === title && !issue.pull_request);
+              if (blocked && existing) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existing.number,
+                  body,
+                });
+              } else if (blocked) {
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title,
+                  body,
+                  labels: ["ci-failure"],
+                }).catch(async () => {
+                  await github.rest.issues.create({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    title,
+                    body,
+                  });
+                });
+              } else if (existing) {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existing.number,
+                  state: "closed",
+                  state_reason: "completed",
+                });
+              }
+            }
+      - name: Enforce P1/P2 result
+        env:
+          RESULTS_JSON: ${{ toJson(needs) }}
+        run: |
+          node -e 'const results = JSON.parse(process.env.RESULTS_JSON); if (Object.values(results).some((value) => value.result !== "success")) process.exit(1)'

@@ -69,21 +69,9 @@ const reasons = [
 
 const workflow = [
   ["01", "Secure intake", "Records enter one protected case workspace."],
-  [
-    "02",
-    "AI organization",
-    "Documents are classified, indexed, and connected.",
-  ],
-  [
-    "03",
-    "Expert verification",
-    "Medical reviewers validate important findings and sources.",
-  ],
-  [
-    "04",
-    "Defensible delivery",
-    "Your team receives a clear, searchable case story.",
-  ],
+  ["02", "AI organization", "Documents are classified, indexed, and connected."],
+  ["03", "Expert verification", "Medical reviewers validate important findings and sources."],
+  ["04", "Defensible delivery", "Your team receives a clear, searchable case story."],
 ];
 
 export default function AboutPage() {
@@ -103,9 +91,8 @@ export default function AboutPage() {
                 Medical intelligence built around human judgment.
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">
-                We help legal teams turn complex medical records into clear,
-                source-linked case intelligence—faster, more securely, and with
-                expert review built into the process.
+                We help legal teams turn complex medical records into clear, source-linked case
+                intelligence—faster, more securely, and with expert review built into the process.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
@@ -137,30 +124,25 @@ export default function AboutPage() {
             <span className="text-xs font-bold uppercase tracking-[.2em] text-emerald">
               About the company
             </span>
-            <h2 className="mt-3 text-4xl text-pine">
-              Clear records. Stronger case decisions.
-            </h2>
+            <h2 className="mt-3 text-4xl text-pine">Clear records. Stronger case decisions.</h2>
           </div>
           <div className="space-y-5 text-slate-600">
             <p className="leading-7">
-              Smart Med Records is a medico-legal technology and review company
-              focused on one persistent problem: important case facts are often
-              buried across thousands of disorganized pages. We combine secure
-              software, structured workflows, and medical expertise to make
-              those facts easier to find, understand, and use.
+              Smart Med Records is a medico-legal technology and review company focused on one
+              persistent problem: important case facts are often buried across thousands of
+              disorganized pages. We combine secure software, structured workflows, and medical
+              expertise to make those facts easier to find, understand, and use.
             </p>
             <p className="leading-7">
-              Our work supports medical chronology, narrative summaries, demand
-              preparation, deposition review, billing analysis, life care
-              planning, expert medical opinions, and record retrieval. Every
-              deliverable is designed to preserve the connection between an
+              Our work supports medical chronology, narrative summaries, demand preparation,
+              deposition review, billing analysis, life care planning, expert medical opinions, and
+              record retrieval. Every deliverable is designed to preserve the connection between an
               insight and its source.
             </p>
             <p className="leading-7">
-              We believe AI should improve professional judgment—not replace it.
-              That is why our approach pairs intelligent automation with trained
-              reviewers, physician oversight, transparent status tracking, and
-              real support throughout the life of a matter.
+              We believe AI should improve professional judgment—not replace it. That is why our
+              approach pairs intelligent automation with trained reviewers, physician oversight,
+              transparent status tracking, and real support throughout the life of a matter.
             </p>
           </div>
         </section>
@@ -175,9 +157,8 @@ export default function AboutPage() {
                 Technology where it helps. Expertise where it matters.
               </h2>
               <p className="mt-5 leading-7 text-white/65">
-                Our strategy is to reduce repetitive record work, surface the
-                facts that deserve attention, and give qualified professionals
-                better tools for careful review.
+                Our strategy is to reduce repetitive record work, surface the facts that deserve
+                attention, and give qualified professionals better tools for careful review.
               </p>
             </div>
             <div className="mt-12 grid gap-5 md:grid-cols-3">
@@ -189,9 +170,7 @@ export default function AboutPage() {
                   <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-gold/30 bg-gold/10 text-gold">
                     <Icon size={21} />
                   </span>
-                  <h3 className="mt-5 font-sans text-base font-bold text-white">
-                    {title}
-                  </h3>
+                  <h3 className="mt-5 font-sans text-base font-bold text-white">{title}</h3>
                   <p className="mt-3 text-sm leading-6 text-white/60">{copy}</p>
                 </article>
               ))}
@@ -214,9 +193,7 @@ export default function AboutPage() {
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-cream text-emerald shadow-card">
                   <Icon size={20} />
                 </span>
-                <h3 className="mt-5 font-sans text-base font-bold text-pine">
-                  {title}
-                </h3>
+                <h3 className="mt-5 font-sans text-base font-bold text-pine">{title}</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-600">{copy}</p>
               </article>
             ))}
@@ -229,9 +206,7 @@ export default function AboutPage() {
               <span className="text-xs font-bold uppercase tracking-[.2em] text-emerald">
                 How we work
               </span>
-              <h2 className="mt-3 text-4xl text-pine">
-                One accountable path from pages to proof.
-              </h2>
+              <h2 className="mt-3 text-4xl text-pine">One accountable path from pages to proof.</h2>
             </div>
             <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
               {workflow.map(([number, title, copy]) => (
@@ -242,12 +217,8 @@ export default function AboutPage() {
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-pine text-xs font-bold text-white">
                     {number}
                   </span>
-                  <h3 className="mt-5 font-sans text-sm font-bold text-pine">
-                    {title}
-                  </h3>
-                  <p className="mt-2 text-xs leading-5 text-slate-500">
-                    {copy}
-                  </p>
+                  <h3 className="mt-5 font-sans text-sm font-bold text-pine">{title}</h3>
+                  <p className="mt-2 text-xs leading-5 text-slate-500">{copy}</p>
                 </article>
               ))}
             </div>
@@ -261,12 +232,10 @@ export default function AboutPage() {
                 <span className="text-xs font-bold uppercase tracking-[.2em] text-gold">
                   See our approach in action
                 </span>
-                <h2 className="mt-3 text-4xl">
-                  Bring us a complex record set.
-                </h2>
+                <h2 className="mt-3 text-4xl">Bring us a complex record set.</h2>
                 <p className="mt-4 max-w-2xl text-white/65">
-                  We will show you how a secure, source-linked, human-reviewed
-                  workflow can turn it into a case story your team can use.
+                  We will show you how a secure, source-linked, human-reviewed workflow can turn it
+                  into a case story your team can use.
                 </p>
               </div>
               <Link
