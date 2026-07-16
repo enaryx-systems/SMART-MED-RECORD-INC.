@@ -1,2 +1,24 @@
-import type { Config } from 'tailwindcss';
-export default { content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'], theme: { extend: { colors: { pine: '#00453A', emerald: '#00856F', mint: '#DCE9E2', cream: '#FFFAF1', ivory: '#F7F9F9', sand: '#DCE9E2', gold: '#b78a3d', ink: '#384633' }, boxShadow: { soft: '0 18px 60px rgba(0,69,58,.12)', card: '0 10px 28px rgba(0,69,58,.08), 0 2px 5px rgba(0,69,58,.05)', table: '0 14px 34px rgba(0,69,58,.10)' } } }, plugins: [] } satisfies Config;
+import type { Config } from "tailwindcss";
+export default {
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        pine: "#00453A",
+        emerald: "#00856F",
+        mint: "#DCE9E2",
+        cream: "#FFFAF1",
+        ivory: "#F7F9F9",
+        sand: "#DCE9E2",
+        gold: "#b78a3d",
+        ink: "#384633",
+      },
+      boxShadow: {
+        soft: "0 18px 60px rgba(0,69,58,.12)",
+        card: "0 10px 28px rgba(0,69,58,.08), 0 2px 5px rgba(0,69,58,.05)",
+        table: "0 14px 34px rgba(0,69,58,.10)",
+      },
+    },
+  },
+  plugins: [],
+} satisfies Config;

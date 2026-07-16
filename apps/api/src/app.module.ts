@@ -1,13 +1,17 @@
-import { Module } from '@nestjs/common';
-import { AuthController } from './auth/auth.controller';
-import { CasesController } from './cases/cases.controller';
-import { CasesService } from './cases/cases.service';
-import { DashboardController } from './dashboard/dashboard.controller';
-import { HealthController } from './health.controller';
-import { ServicesController } from './services/services.controller';
+import { Module } from "@nestjs/common";
+import { HealthModule } from "./common/health/health.module";
+import { AuthModule } from "./modules/auth/auth.module";
+import { CasesModule } from "./modules/cases/cases.module";
+import { DashboardModule } from "./modules/dashboard/dashboard.module";
+import { ServicesModule } from "./modules/services/services.module";
 
 @Module({
-  controllers: [HealthController, AuthController, CasesController, DashboardController, ServicesController],
-  providers: [CasesService],
+  imports: [
+    HealthModule,
+    AuthModule,
+    CasesModule,
+    DashboardModule,
+    ServicesModule,
+  ],
 })
 export class AppModule {}

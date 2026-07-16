@@ -1,0 +1,28 @@
+export function PageHeading({
+  eyebrow,
+  title,
+  description,
+  action,
+}: {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div>
+        {eyebrow && (
+          <span className="text-[10px] font-bold uppercase tracking-[.18em] text-emerald">
+            {eyebrow}
+          </span>
+        )}
+        <h1 className="mt-1 text-3xl text-pine">{title}</h1>
+        {description && (
+          <p className="mt-2 text-sm text-slate-500">{description}</p>
+        )}
+      </div>
+      {action}
+    </div>
+  );
+}
