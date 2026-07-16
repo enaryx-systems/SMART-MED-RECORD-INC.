@@ -33,3 +33,5 @@ Thumbs.db
 
 # Local QA artifacts
 .qa/
+
+.vercel

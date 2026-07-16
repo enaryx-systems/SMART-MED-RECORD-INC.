@@ -21,6 +21,27 @@ Open `http://localhost:3000`. The demo login accepts any email and password (6+ 
 
 Role-aware portal sections are available for attorney/client, case manager, physician, medical reviewer, billing specialist, and administrator users. Change the active demo role from the portal sidebar to inspect each permission set.
 
+## Branch and deployment workflow
+
+- `development` is the base and Vercel production branch.
+- Create every working branch from the latest `development` branch.
+- Working branches run locally at `http://localhost:3000` and do not deploy to Vercel.
+- Open pull requests back into `development`. The required quality gate runs before merge.
+- Every commit merged into `development` is deployed automatically to the production Vercel URL.
+
+Start a new branch and run it locally:
+
+```bash
+git switch development
+git pull --ff-only origin development
+git switch -c feature/short-description
+npm run dev
+```
+
+In Vercel, import this repository with `apps/web` as the Root Directory and set the Production
+environment's tracked branch to `development`. The branch deployment rule in
+`apps/web/vercel.json` keeps all other branches local-only.
+
 The portal has a resilient demo-data fallback when the API is offline. For production, replace the demo auth endpoint with Clerk/JWT verification, configure PostgreSQL and object storage, and enable the services listed in `.env.example`.
 
 ## Project structure
