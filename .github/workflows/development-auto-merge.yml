@@ -5,31 +5,73 @@ on:
     branches: [development]
     types: [opened, synchronize, reopened, ready_for_review]
 
+concurrency:
+  group: development-auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
+  checks: read
   contents: write
   pull-requests: write
 
 jobs:
-  enable-auto-merge:
-    name: Enable after automated review
+  merge-after-automated-review:
+    name: Merge after automated review
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 25
     steps:
-      - name: Enable squash auto-merge
+      - name: Wait for P1/P2 gate and squash merge
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         with:
           script: |
-            const pullRequestId = context.payload.pull_request.node_id;
-            await github.graphql(
-              `mutation EnableAutoMerge($pullRequestId: ID!) {
-                enablePullRequestAutoMerge(input: {
-                  pullRequestId: $pullRequestId,
-                  mergeMethod: SQUASH
-                }) {
-                  pullRequest { number autoMergeRequest { enabledAt } }
-                }
-              }`,
-              { pullRequestId },
-            );
-            core.notice("Auto-merge enabled. GitHub will merge only after required P1/P2 checks pass.");
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = context.issue.number;
+            const expectedHeadSha = process.env.EXPECTED_HEAD_SHA;
+            const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+            for (let attempt = 1; attempt <= 72; attempt += 1) {
+              const { data: pull } = await github.rest.pulls.get({ owner, repo, pull_number });
+              if (pull.state !== "open" || pull.draft) {
+                core.notice("Pull request is no longer eligible for automated merge.");
+                return;
+              }
+              if (pull.head.sha !== expectedHeadSha) {
+                core.notice("A newer commit replaced this review run; the newer run will decide.");
+                return;
+              }
+
+              const { data } = await github.rest.checks.listForRef({
+                owner,
+                repo,
+                ref: expectedHeadSha,
+                per_page: 100,
+              });
+              const gate = data.check_runs
+                .filter((check) => check.name === "P1-P2 Gate Summary")
+                .sort((left, right) => right.id - left.id)[0];
+
+              if (gate?.status === "completed" && gate.conclusion === "success") {
+                const result = await github.rest.pulls.merge({
+                  owner,
+                  repo,
+                  pull_number,
+                  merge_method: "squash",
+                  sha: expectedHeadSha,
+                });
+                if (!result.data.merged) throw new Error(result.data.message ?? "GitHub refused merge");
+                core.notice(`Pull request #${pull_number} passed P1/P2 review and was squash merged.`);
+                return;
+              }
+              if (gate?.status === "completed" && gate.conclusion !== "success") {
+                throw new Error(`P1/P2 gate concluded with ${gate.conclusion}; merge is blocked.`);
+              }
+
+              core.info(`Waiting for P1/P2 gate (${attempt}/72)...`);
+              await wait(20_000);
+            }
+
+            throw new Error("Timed out waiting for the P1/P2 gate.");

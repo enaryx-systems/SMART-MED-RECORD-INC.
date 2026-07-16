@@ -32,9 +32,15 @@ successful run closes it.
 
 ## Required repository settings
 
-Protect `development` and require the `P1-P2 Gate Summary` status check. Require pull requests,
-require conversation resolution, block force pushes and deletion, and enable squash auto-merge.
-Protect `main` with the same settings and use release pull requests from `development`.
+On GitHub Pro/Team, protect `development` and require the `P1-P2 Gate Summary` status check. Require
+pull requests, require conversation resolution, and block force pushes and deletion. Protect `main`
+with the same settings plus one human approval, then use release pull requests from `development`.
+
+On GitHub Free with a private repository, branch protection and native auto-merge are unavailable.
+The `Development Auto Merge` workflow therefore waits for the exact pull request head commit to pass
+the P1/P2 gate and then squash-merges it through the GitHub API. This does not prevent a repository
+administrator from pushing directly; upgrading the plan or making the repository public is required
+to enforce that boundary on GitHub.
 
 Auto-merge intentionally does not approve its own code. It is an automated review decision based on
 the required checks. Add a human approval requirement later for production releases to `main`.

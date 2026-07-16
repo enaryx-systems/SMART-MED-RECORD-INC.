@@ -13,3 +13,4 @@ merge:
   base-branch: development
   method: squash
   require-check: P1-P2 Gate Summary
+  fallback-workflow-for-private-free-repository: true
