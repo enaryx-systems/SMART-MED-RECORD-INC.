@@ -9,7 +9,7 @@ export default function Contact() {
       <PublicHeader />
       <main className="grid-lines relative overflow-hidden bg-ivory">
         <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-mint/70 to-transparent" />
-        <NeuralBackdrop className="opacity-[.22]" />
+        <NeuralBackdrop className="opacity-[.09] sm:opacity-[.22]" />
         <div className="relative z-10 mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-[.8fr_1.2fr]">
           <div>
             <span className="text-xs font-bold uppercase tracking-[.2em] text-emerald">

@@ -385,7 +385,7 @@ export default function Features() {
       <main className="bg-ivory">
         <section className="grid-lines relative overflow-hidden border-b border-mint">
           <div className="absolute right-0 top-0 h-full w-2/5 bg-gradient-to-l from-mint/80 to-transparent" />
-          <NeuralBackdrop className="opacity-[.24]" />
+          <NeuralBackdrop className="opacity-[.10] sm:opacity-[.24]" />
           <div className="relative mx-auto grid max-w-7xl gap-10 px-6 py-24 lg:grid-cols-[1fr_420px] lg:px-8">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border border-emerald/15 bg-mint px-4 py-2 text-xs font-bold uppercase tracking-[.16em] text-pine">

@@ -81,7 +81,7 @@ export default function AboutPage() {
       <main className="bg-ivory">
         <section className="grid-lines relative overflow-hidden border-b border-mint">
           <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-mint/70 to-transparent" />
-          <NeuralBackdrop className="opacity-[.26]" />
+          <NeuralBackdrop className="opacity-[.10] sm:opacity-[.26]" />
           <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 py-20 lg:grid-cols-[.9fr_1.1fr] lg:px-8 lg:py-24">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full bg-mint px-4 py-2 text-xs font-bold uppercase tracking-[.16em] text-pine">

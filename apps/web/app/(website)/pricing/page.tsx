@@ -51,7 +51,7 @@ export default function Pricing() {
       <main className="bg-ivory">
         <section className="grid-lines relative overflow-hidden border-b border-mint bg-cream">
           <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-mint/75 to-transparent" />
-          <NeuralBackdrop className="opacity-[.22]" />
+          <NeuralBackdrop className="opacity-[.09] sm:opacity-[.22]" />
           <div className="relative z-10 mx-auto max-w-5xl px-6 py-20 text-center">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-emerald">
               Flexible engagement models

@@ -1,8 +1,12 @@
-export function NeuralBackdrop({ className = "" }: { className?: string }) {
+export function NeuralBackdrop({
+  className = "opacity-[.12] sm:opacity-[.30]",
+}: {
+  className?: string;
+}) {
   return (
     <div
       aria-hidden="true"
-      className={`pointer-events-none absolute bottom-0 right-0 top-0 w-[760px] max-w-[65vw] opacity-[.30] ${className}`}
+      className={`pointer-events-none absolute bottom-0 right-0 top-0 w-[760px] max-w-[65vw] ${className}`}
     >
       <svg
         className="h-full w-full"
