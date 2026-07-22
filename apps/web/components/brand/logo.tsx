@@ -47,7 +47,7 @@ export function Logo({
         aria-label="Smart Med Records home"
       >
         <img
-          src="/images/brand/smart-med-shield-metallic.jpeg"
+          src="/images/brand/smart-med-shield-metallic-transparent.png"
           alt=""
           className="absolute max-w-none"
           style={{ width: 175, left: -70, top: -5 }}
@@ -58,12 +58,12 @@ export function Logo({
   return (
     <Link
       href="/"
-      className="flex h-[62px] w-[286px] shrink-0 origin-left items-center gap-1.5 overflow-hidden rounded-md bg-cream px-1.5 max-sm:-mr-[63px] max-sm:scale-[.78]"
+      className="flex h-[62px] w-[286px] shrink-0 origin-left items-center gap-1.5 overflow-hidden rounded-md px-1.5 max-sm:-mr-[63px] max-sm:scale-[.78]"
       aria-label="Smart Med Records home"
     >
       <span className="relative block h-[58px] w-[50px] shrink-0 overflow-hidden">
         <img
-          src="/images/brand/smart-med-shield-metallic.jpeg"
+          src="/images/brand/smart-med-shield-metallic-transparent.png"
           alt=""
           className="absolute max-w-none"
           style={{ width: 210, left: -84, top: -5 }}
@@ -71,10 +71,10 @@ export function Logo({
       </span>
       <span className="relative block h-[54px] w-[218px] shrink-0 overflow-hidden">
         <img
-          src="/images/brand/smart-med-wordmark-metallic.jpeg"
+          src="/images/brand/smart-med-wordmark-metallic-transparent.png"
           alt="Smart Med Records — Smart records, stronger outcomes"
           className="absolute max-w-none"
-          style={{ width: 270, left: -36, top: 6 }}
+          style={{ width: 245, left: -27, top: 8 }}
         />
       </span>
     </Link>
