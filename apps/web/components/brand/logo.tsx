@@ -12,14 +12,31 @@ export function Logo({
     return (
       <Link
         href="/"
-        className="relative block h-[68px] w-[210px] shrink-0 overflow-hidden"
+        className="flex h-[68px] w-[210px] shrink-0 items-center gap-1 overflow-hidden"
         aria-label="Smart Med Records home"
       >
-        <img
-          src="/images/brand/smart-med-portal-logo.png"
-          alt="Smart Med Records — Smart records, stronger outcomes"
-          className="absolute left-0 top-[-16px] w-[205px] max-w-none"
-        />
+        <span className="relative block h-[54px] w-[48px] shrink-0 overflow-hidden">
+          <img
+            src="/images/brand/smart-med-logo-dark-transparent.png"
+            alt=""
+            className="absolute max-w-none brightness-110 contrast-110"
+            style={{ width: 170, left: -66, top: -12 }}
+          />
+        </span>
+        <span className="flex h-[54px] w-[158px] shrink-0 flex-col justify-center overflow-hidden font-sans leading-none">
+          <span className="flex items-baseline whitespace-nowrap text-[17px] font-medium tracking-[0.24em] text-[#fff8ea]">
+            <span>SMART</span>
+            <span className="ml-2 tracking-[0.18em] text-[#d6a756]">MED</span>
+          </span>
+          <span className="mt-1 flex items-center gap-1.5 text-[8px] font-medium tracking-[0.42em] text-[#fff8ea]">
+            <span className="h-px w-4 bg-[#d6a756]" />
+            <span>RECORDS</span>
+            <span className="h-px flex-1 bg-[#d6a756]" />
+          </span>
+          <span className="mt-1 whitespace-nowrap text-[4.5px] uppercase tracking-[0.18em] text-[#fff8ea]/75">
+            Smart records. Stronger outcomes.
+          </span>
+        </span>
       </Link>
     );
   if (compact)
@@ -37,21 +54,7 @@ export function Logo({
         />
       </Link>
     );
-  if (light)
-    return (
-      <Link
-        href="/"
-        className="relative block h-[58px] w-[205px] shrink-0 overflow-hidden rounded-lg bg-pine"
-        aria-label="Smart Med Records home"
-      >
-        <img
-          src="/images/brand/smart-med-brand-board.jpeg"
-          alt="Smart Med Records — Smart records, stronger outcomes"
-          className="absolute max-w-none"
-          style={{ width: 550, left: 0, top: -267 }}
-        />
-      </Link>
-    );
+  if (light) return <Logo portal />;
   return (
     <Link
       href="/"
