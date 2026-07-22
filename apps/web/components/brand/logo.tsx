@@ -47,10 +47,10 @@ export function Logo({
         aria-label="Smart Med Records home"
       >
         <img
-          src="/images/brand/smart-med-logo-premium.png"
+          src="/images/brand/smart-med-shield-metallic.jpeg"
           alt=""
           className="absolute max-w-none"
-          style={{ width: 190, left: -74, top: -13 }}
+          style={{ width: 175, left: -70, top: -5 }}
         />
       </Link>
     );
@@ -63,18 +63,18 @@ export function Logo({
     >
       <span className="relative block h-[58px] w-[50px] shrink-0 overflow-hidden">
         <img
-          src="/images/brand/smart-med-logo-premium.png"
+          src="/images/brand/smart-med-shield-metallic.jpeg"
           alt=""
           className="absolute max-w-none"
-          style={{ width: 190, left: -74, top: -13 }}
+          style={{ width: 210, left: -84, top: -5 }}
         />
       </span>
       <span className="relative block h-[54px] w-[218px] shrink-0 overflow-hidden">
         <img
-          src="/images/brand/smart-med-logo-premium.png"
+          src="/images/brand/smart-med-wordmark-metallic.jpeg"
           alt="Smart Med Records — Smart records, stronger outcomes"
           className="absolute max-w-none"
-          style={{ width: 330, left: -63, top: -131 }}
+          style={{ width: 270, left: -36, top: 6 }}
         />
       </span>
     </Link>
