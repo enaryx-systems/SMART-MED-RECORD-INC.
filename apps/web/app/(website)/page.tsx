@@ -122,7 +122,7 @@ export default function Home() {
             </div>
             <h1 className="max-w-2xl text-5xl font-medium leading-[1.06] tracking-tight text-pine md:text-6xl">
               Accurate medical insights.{" "}
-              <span className="text-emerald">Stronger legal outcomes.</span>
+              <span className="text-gold">Stronger legal outcomes.</span>
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-slate-600">
               Save time, control costs, and build stronger cases with AI-assisted,
@@ -220,7 +220,7 @@ export default function Home() {
               Comprehensive services
             </span>
             <h2 className="mt-3 text-4xl text-pine md:text-5xl">
-              The medical record partner your case deserves.
+              The medical record partner your case <span className="text-gold">deserves</span>.
             </h2>
             <p className="mt-5 leading-7 text-slate-600">
               From first upload to final deliverable, every workflow is designed for accuracy,
@@ -302,11 +302,11 @@ export default function Home() {
           </div>
         </div>
         <div>
-          <span className="text-xs font-bold uppercase tracking-[.2em] text-emerald">
+          <span className="text-xs font-bold uppercase tracking-[.2em] text-gold">
             Smarter review. Stronger cases.
           </span>
           <h2 className="mt-3 text-4xl text-pine">
-            AI-powered intelligence, grounded in human expertise.
+            AI-powered <span className="text-gold">intelligence</span>, grounded in human expertise.
           </h2>
           <p className="mt-6 leading-7 text-slate-600">
             Our platform transforms thousands of disorganized pages into a clear, reviewable case

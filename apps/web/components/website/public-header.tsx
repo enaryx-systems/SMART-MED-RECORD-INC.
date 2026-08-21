@@ -48,12 +48,16 @@ export function PublicHeader() {
                 href={item.href}
                 key={item.label}
                 onClick={() => setSelected(item.label)}
-                className={`flex items-center gap-1 px-3 py-2.5 transition-colors duration-200 ${
+                className={`group relative flex items-center gap-1 px-3 py-2.5 transition-all duration-300 hover:-translate-y-1 hover:scale-105 ${
                   active ? "font-semibold text-emerald" : "text-ink hover:text-emerald"
                 }`}
               >
                 {item.label}
                 {item.dropdown && <ChevronDown size={14} strokeWidth={2} />}
+                <span
+                  aria-hidden="true"
+                  className="absolute bottom-1 left-3 right-3 h-0.5 origin-center scale-x-0 bg-gold transition-transform duration-300 group-hover:scale-x-100"
+                />
               </Link>
             );
           })}
@@ -97,12 +101,16 @@ export function PublicHeader() {
                     setSelected(item.label);
                     setOpen(false);
                   }}
-                  className={`flex items-center justify-between px-4 py-3 transition-colors ${
+                  className={`group relative flex items-center justify-between px-4 py-3 transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] ${
                     active ? "font-semibold text-emerald" : "text-ink hover:text-emerald"
                   }`}
                 >
                   {item.label}
                   {item.dropdown && <ChevronDown size={15} />}
+                  <span
+                    aria-hidden="true"
+                    className="absolute bottom-1 left-4 right-4 h-0.5 origin-center scale-x-0 bg-gold transition-transform duration-300 group-hover:scale-x-100"
+                  />
                 </Link>
               );
             })}

@@ -1,9 +1,13 @@
 "use client";
 import { useState } from "react";
-import { CheckCircle2, KeyRound, ShieldCheck } from "lucide-react";
+import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { PageHeading } from "@/components/portal/page-heading";
+import { useSession } from "@/lib/auth/session";
+import { ROLE_LABEL } from "@/lib/types/portal";
 export default function Settings() {
   const [saved, setSaved] = useState(false);
+  const { session } = useSession();
+  const user = session?.user;
   return (
     <>
       <PageHeading
@@ -11,12 +15,12 @@ export default function Settings() {
         title="Settings"
         description="Manage your profile, notifications, security, and integrations."
       />
-      <div className="grid gap-6 xl:grid-cols-[220px_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[220px_minmax(0,1fr)]">
         <nav className="space-y-1 rounded-2xl border bg-white p-3 self-start">
           {["Profile", "Notifications", "Security", "Integrations", "Data retention"].map(
             (x, i) => (
               <button
-                className={`w-full rounded-lg px-3 py-2.5 text-left text-xs ${i === 0 ? "bg-pine text-white" : "hover:bg-slate-50"}`}
+                className={`w-full rounded-lg px-3 py-2.5 text-left text-xs ${i === 0 ? "border border-gold/30 bg-cream font-semibold text-pine" : "hover:bg-mint/50"}`}
                 key={x}
               >
                 {x}
@@ -36,30 +40,31 @@ export default function Settings() {
             <label className="text-xs font-semibold">
               Full name
               <input
-                defaultValue="Jordan Smith"
+                defaultValue={user?.name}
                 className="mt-2 w-full rounded-lg border p-3 text-sm"
               />
             </label>
             <label className="text-xs font-semibold">
               Work email
               <input
-                defaultValue="jordan@hamiltonpierce.com"
+                defaultValue={user?.email}
                 className="mt-2 w-full rounded-lg border p-3 text-sm"
               />
             </label>
             <label className="text-xs font-semibold">
               Firm
               <input
-                defaultValue="Hamilton & Pierce LLP"
+                defaultValue={user?.firm ?? ""}
                 className="mt-2 w-full rounded-lg border p-3 text-sm"
               />
             </label>
             <label className="text-xs font-semibold">
-              Time zone
-              <select className="mt-2 w-full rounded-lg border p-3 text-sm">
-                <option>Eastern Time (US)</option>
-                <option>India Standard Time</option>
-              </select>
+              Role
+              <input
+                disabled
+                defaultValue={user ? ROLE_LABEL[user.role] : ""}
+                className="mt-2 w-full rounded-lg border bg-slate-50 p-3 text-sm text-slate-500"
+              />
             </label>
           </div>
           <div className="mt-8 border-t pt-6">

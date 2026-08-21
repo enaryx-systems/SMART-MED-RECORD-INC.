@@ -3,11 +3,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
-  Bot,
-  ChevronDown,
+  ChevronLeft,
   CircleHelp,
   CreditCard,
-  FileBarChart,
   FileStack,
   Gauge,
   LogOut,
@@ -17,112 +15,196 @@ import {
   Settings,
   Shield,
   UploadCloud,
-  Users,
   X,
+  Workflow,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Logo } from "@/components/brand/logo";
-import { Role } from "@/lib/types/portal";
+import { ROLE_LABEL } from "@/lib/types/portal";
+import { clearSession, useSession } from "@/lib/auth/session";
 
-const items = [
-  ["/portal/dashboard", "Overview", Gauge, "all"],
-  ["/portal/cases", "Cases", FileStack, "all"],
-  ["/portal/upload", "Secure upload", UploadCloud, "attorney,case-manager,admin"],
-  ["/portal/intelligence", "AI workspace", Bot, "attorney,case-manager,physician,reviewer,admin"],
-  ["/portal/reports", "Reports", FileBarChart, "all"],
-  ["/portal/messages", "Messages", MessageSquare, "all"],
-  ["/portal/billing", "Billing", CreditCard, "attorney,case-manager,billing,admin"],
-  ["/portal/team", "Team & access", Users, "case-manager,admin"],
-  ["/portal/admin", "Administration", Shield, "admin"],
-  ["/portal/settings", "Settings", Settings, "all"],
+type NavItem = readonly [string, string, typeof Gauge, string];
+
+type NavGroup = {
+  section: string | null;
+  roles: string;
+  items: readonly NavItem[];
+};
+
+// Nav is scoped to the SOP case lifecycle only (intake -> approval ->
+// assignment -> processing -> review -> QC -> delivery -> follow-up ->
+// payment -> closure). No modules outside that flow.
+const groups: readonly NavGroup[] = [
+  {
+    section: null,
+    roles: "all",
+    items: [["/portal/dashboard", "Overview", Gauge, "all"]],
+  },
+  {
+    section: "Case management",
+    roles: "all",
+    items: [
+      ["/portal/cases", "Cases", FileStack, "all"],
+      ["/portal/workflow", "Case workflow", Workflow, "all"],
+      ["/portal/upload", "Secure upload", UploadCloud, "attorney,case-manager,admin"],
+    ],
+  },
+  {
+    section: "Collaboration",
+    roles: "all",
+    items: [["/portal/messages", "Messages", MessageSquare, "all"]],
+  },
+  {
+    section: "Billing",
+    roles: "attorney,case-manager,billing,admin",
+    items: [["/portal/billing", "Billing", CreditCard, "attorney,case-manager,billing,admin"]],
+  },
+  {
+    section: null,
+    roles: "all",
+    items: [["/portal/settings", "Settings", Settings, "all"]],
+  },
 ] as const;
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .map((p) => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+const COLLAPSE_KEY = "smr_sidebar_collapsed";
+
 export function PortalShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
   const [mobile, setMobile] = useState(false);
-  const [role, setRole] = useState<Role>("attorney");
+  const [collapsed, setCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { session, ready } = useSession();
+
   useEffect(() => {
-    setRole((localStorage.getItem("smr_role") as Role) || "attorney");
+    setCollapsed(localStorage.getItem(COLLAPSE_KEY) === "1");
+    setMounted(true);
   }, []);
-  const visible = useMemo(() => items.filter((x) => x[3] === "all" || x[3].includes(role)), [role]);
-  function changeRole(r: Role) {
-    setRole(r);
-    localStorage.setItem("smr_role", r);
-    window.dispatchEvent(new Event("rolechange"));
+
+  useEffect(() => {
+    if (ready && !session) router.replace("/login");
+  }, [ready, session, router]);
+
+  function toggleCollapsed(next: boolean) {
+    setCollapsed(next);
+    localStorage.setItem(COLLAPSE_KEY, next ? "1" : "0");
   }
+
+  const role = session?.user.role ?? "attorney";
+  const visibleGroups = useMemo(
+    () =>
+      groups
+        .map((g) => ({ ...g, items: g.items.filter((x) => x[3] === "all" || x[3].includes(role)) }))
+        .filter((g) => g.items.length > 0),
+    [role],
+  );
+
   function logout() {
-    localStorage.removeItem("smr_session");
+    clearSession();
     router.push("/login");
   }
+
+  if (!ready || !session) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-ivory">
+        <span className="text-sm text-pine/50">Loading your workspace…</span>
+      </div>
+    );
+  }
+
+  const isCollapsed = mounted && collapsed;
+  const sidebarWidth = isCollapsed ? "lg:w-[76px]" : "lg:w-[264px]";
+  const contentPad = isCollapsed ? "lg:pl-[76px]" : "lg:pl-[264px]";
+
   return (
     <div className="min-h-screen bg-ivory">
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col bg-pine text-white transition-transform lg:translate-x-0 ${mobile ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col bg-pine text-white transition-[width] duration-200 lg:translate-x-0 ${sidebarWidth} ${mobile ? "translate-x-0" : "-translate-x-full"}`}
       >
-        <div className="flex h-20 items-center justify-between border-b border-white/10 px-6">
-          <Logo portal />
-          <button className="lg:hidden" onClick={() => setMobile(false)}>
-            <X />
-          </button>
-        </div>
-        <div className="border-b border-white/10 p-4">
-          <label className="text-[10px] font-bold uppercase tracking-wider text-white/45">
-            Viewing as
-          </label>
-          <div className="relative mt-2">
-            <select
-              value={role}
-              onChange={(e) => changeRole(e.target.value as Role)}
-              className="w-full appearance-none rounded-lg border border-white/10 bg-white/10 px-3 py-2.5 text-xs capitalize outline-none"
+        <div className="flex h-20 shrink-0 items-center justify-between border-b border-white/10 px-4">
+          {isCollapsed ? (
+            <button
+              onClick={() => toggleCollapsed(false)}
+              className="mx-auto flex items-center justify-center rounded-lg p-1 hover:bg-white/10"
+              aria-label="Expand sidebar"
+              title="Expand sidebar"
             >
-              <option className="text-black" value="attorney">
-                Attorney / client
-              </option>
-              <option className="text-black" value="case-manager">
-                Case manager
-              </option>
-              <option className="text-black" value="physician">
-                Physician reviewer
-              </option>
-              <option className="text-black" value="reviewer">
-                Medical reviewer
-              </option>
-              <option className="text-black" value="billing">
-                Billing specialist
-              </option>
-              <option className="text-black" value="admin">
-                Administrator
-              </option>
-            </select>
-            <ChevronDown size={14} className="pointer-events-none absolute right-3 top-3" />
-          </div>
+              <Logo compact />
+            </button>
+          ) : (
+            <>
+              <Logo portal />
+              <button
+                onClick={() => toggleCollapsed(true)}
+                className="hidden shrink-0 items-center justify-center rounded-lg border border-white/15 p-1.5 text-white/70 hover:bg-white/10 hover:text-white lg:flex"
+                aria-label="Collapse sidebar"
+                title="Collapse sidebar"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button className="text-white lg:hidden" onClick={() => setMobile(false)}>
+                <X />
+              </button>
+            </>
+          )}
         </div>
-        <nav className="thin-scroll flex-1 space-y-1 overflow-auto p-3">
-          {visible.map(([href, label, Icon]) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setMobile(false)}
-              className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition ${path === href ? "bg-cream text-pine shadow-card" : "text-white/68 hover:bg-white/10 hover:text-white"}`}
-            >
-              <Icon size={18} />
-              {label}
-            </Link>
+
+        <nav className="no-scrollbar flex-1 space-y-5 overflow-x-hidden overflow-y-auto p-3 pt-4">
+          {visibleGroups.map((g, gi) => (
+            <div key={g.section ?? `top-${gi}`}>
+              {g.section && !isCollapsed && (
+                <span className="mb-1.5 block px-3 text-[10px] font-bold uppercase tracking-[.14em] text-white/35">
+                  {g.section}
+                </span>
+              )}
+              <div className="space-y-1">
+                {g.items.map(([href, label, Icon]) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMobile(false)}
+                    title={isCollapsed ? label : undefined}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${isCollapsed ? "justify-center" : ""} ${
+                      path === href
+                        ? "bg-white/12 font-semibold text-white shadow-inner ring-1 ring-gold/40"
+                        : "text-white/65 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    <Icon size={18} className="shrink-0" />
+                    {!isCollapsed && label}
+                  </Link>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
-        <div className="border-t border-white/10 p-4">
+
+        <div className="border-t border-white/10 p-3">
           <button
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/60 hover:bg-white/10"
+            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/60 hover:bg-white/10 hover:text-white ${isCollapsed ? "justify-center" : ""}`}
             onClick={logout}
+            title={isCollapsed ? "Log out" : undefined}
           >
-            <LogOut size={17} /> Log out
+            <LogOut size={17} className="shrink-0" /> {!isCollapsed && "Log out"}
           </button>
-          <div className="mt-3 flex items-center gap-2 px-3 text-[10px] text-white/35">
-            <Shield size={12} /> Secure session · encrypted
-          </div>
+          {!isCollapsed && (
+            <div className="mt-2 flex items-center gap-2 px-3 text-[10px] text-white/35">
+              <Shield size={12} /> Secure session · encrypted
+            </div>
+          )}
         </div>
       </aside>
-      <div className="lg:pl-[260px]">
+      <div className={contentPad}>
         <header className="sticky top-0 z-40 flex h-20 items-center justify-between border-b border-mint bg-ivory/95 px-5 backdrop-blur lg:px-8">
           <div className="flex items-center gap-4">
             <button className="lg:hidden" onClick={() => setMobile(true)}>
@@ -146,13 +228,11 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
             </button>
             <div className="ml-2 flex items-center gap-3 border-l border-mint pl-4">
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-pine text-xs font-bold text-white">
-                JS
+                {initials(session.user.name)}
               </span>
               <div className="hidden sm:block">
-                <b className="block text-xs">Jordan Smith</b>
-                <span className="text-[11px] capitalize text-slate-400">
-                  {role.replace("-", " ")}
-                </span>
+                <b className="block text-xs">{session.user.name}</b>
+                <span className="text-[11px] text-slate-400">{ROLE_LABEL[role]}</span>
               </div>
             </div>
           </div>

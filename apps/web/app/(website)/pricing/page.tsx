@@ -57,7 +57,7 @@ export default function Pricing() {
               Flexible engagement models
             </span>
             <h1 className="mx-auto mt-4 max-w-3xl text-5xl text-pine">
-              Pricing that grows with your caseload.
+              Pricing that <span className="text-gold">grows</span> with your caseload.
             </h1>
             <p className="mx-auto mt-5 max-w-2xl leading-7 text-slate-600">
               Start case by case, add portal access as your team grows, or secure dedicated capacity

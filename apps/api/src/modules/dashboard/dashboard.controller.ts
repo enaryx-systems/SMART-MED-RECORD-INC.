@@ -1,40 +1,14 @@
-import { Controller, Get, Query } from "@nestjs/common";
-import { CasesService } from "../cases/cases.service";
+import { Controller, Get } from "@nestjs/common";
+import { CurrentUser } from "../../common/auth/current-user.decorator";
+import { AuthenticatedUser } from "../../common/auth/jwt.strategy";
+import { DashboardService } from "./dashboard.service";
 
 @Controller("dashboard")
 export class DashboardController {
-  constructor(private readonly cases: CasesService) {}
-  @Get("summary") summary(@Query("role") role = "attorney") {
-    const cases = this.cases.findAll();
-    return {
-      role,
-      stats: {
-        totalCases: 128,
-        inProgress: 45,
-        completed: 83,
-        turnaround: "31 hrs",
-      },
-      cases,
-      activity: [
-        {
-          id: 1,
-          title: "Physician review completed",
-          detail: "SMR-2026-1269 · Dr. N. Shah",
-          time: "18 min ago",
-        },
-        {
-          id: 2,
-          title: "New records processed",
-          detail: "SMR-2026-1274 · 312 pages indexed",
-          time: "1 hr ago",
-        },
-        {
-          id: 3,
-          title: "Attorney comment added",
-          detail: "SMR-2026-1273 · @case-team",
-          time: "2 hrs ago",
-        },
-      ],
-    };
+  constructor(private readonly dashboard: DashboardService) {}
+
+  @Get("summary")
+  summary(@CurrentUser() user: AuthenticatedUser) {
+    return this.dashboard.summary(user);
   }
 }

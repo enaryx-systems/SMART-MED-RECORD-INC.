@@ -7,113 +7,123 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ATTORNEY
-  CASE_MANAGER
-  PHYSICIAN
-  REVIEWER
-  BILLING
-  ADMIN
-}
-
-enum CaseStatus {
-  INTAKE
-  PROCESSING
-  PHYSICIAN_REVIEW
-  COMPLETED
-  ON_HOLD
-}
-
-enum Priority {
-  STANDARD
-  URGENT
-}
+// Role and CaseStatus are plain strings rather than native Postgres enums so
+// the schema stays portable across providers. Valid values are enforced in
+// the application layer (see src/common/constants.ts).
 
 model User {
-  id String @id @default(cuid())
-  email String @unique
-  name String
-  role Role @default(ATTORNEY)
-  firm String?
-  createdAt DateTime @default(now())
-  assignedCases Case[] @relation("ReviewerCases")
-  createdCases Case[] @relation("CreatorCases")
-  messages Message[]
-  auditLogs AuditLog[]
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String
+  firm         String?
+  createdAt    DateTime @default(now())
+
+  createdCases  Case[]     @relation("CreatorCases")
+  assignedCases Case[]     @relation("AssigneeCases")
+  reviewedCases Case[]     @relation("ReviewerCases")
+  auditedCases  Case[]     @relation("QcCases")
+  documents     Document[]
+  messages      Message[]
+  auditLogs     AuditLog[]
 }
 
 model Case {
-  id String @id @default(cuid())
-  caseNumber String @unique
-  clientName String
-  matterName String
-  service String
-  status CaseStatus @default(INTAKE)
-  priority Priority @default(STANDARD)
-  dueAt DateTime?
-  progress Int @default(10)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String    @id @default(cuid())
+  caseNumber   String    @unique
+  clientName   String
+  matterName   String
+  matterNumber String?
+  claimNumber  String?
+  service      String
+  status       String    @default("AWAITING_APPROVAL")
+  priority     String    @default("STANDARD")
+  instructions String?
+  pages        Int       @default(0)
+  onHold       Boolean   @default(false)
+  dueAt        DateTime?
+  approvedAt   DateTime?
+  assignedAt   DateTime?
+  acknowledgedAt DateTime?
+  deliveredAt  DateTime?
+  closedAt     DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
   creatorId String
-  creator User @relation("CreatorCases", fields: [creatorId], references: [id])
+  creator   User   @relation("CreatorCases", fields: [creatorId], references: [id])
+
+  approvedById String?
+
+  assigneeId String?
+  assignee   User?   @relation("AssigneeCases", fields: [assigneeId], references: [id])
+
   reviewerId String?
-  reviewer User? @relation("ReviewerCases", fields: [reviewerId], references: [id])
+  reviewer   User?   @relation("ReviewerCases", fields: [reviewerId], references: [id])
+
+  qcById String?
+  qcBy   User?   @relation("QcCases", fields: [qcById], references: [id])
+
   documents Document[]
-  messages Message[]
-  milestones Milestone[]
-  invoices Invoice[]
+  messages  Message[]
+  invoices  Invoice[]
+  auditLogs AuditLog[]
 }
 
 model Document {
-  id String @id @default(cuid())
-  name String
-  storageKey String
-  mimeType String
-  size Int
-  pageCount Int?
-  ocrStatus String @default("QUEUED")
-  caseId String
-  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-}
+  id           String   @id @default(cuid())
+  name         String
+  storageKey   String
+  mimeType     String
+  size         Int
+  category     String   @default("OTHER")
+  createdAt    DateTime @default(now())
 
-model Milestone {
-  id String @id @default(cuid())
-  label String
-  completed Boolean @default(false)
-  completedAt DateTime?
   caseId String
-  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  uploadedById String?
+  uploadedBy   User?   @relation(fields: [uploadedById], references: [id])
 }
 
 model Message {
-  id String @id @default(cuid())
-  body String
-  read Boolean @default(false)
+  id         String   @id @default(cuid())
+  body       String
+  visibility String   @default("CLIENT")
+  createdAt  DateTime @default(now())
+
+  caseId String
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
   userId String
-  user User @relation(fields: [userId], references: [id])
-  caseId String?
-  case Case? @relation(fields: [caseId], references: [id])
-  createdAt DateTime @default(now())
+  user   User   @relation(fields: [userId], references: [id])
 }
 
 model Invoice {
-  id String @id @default(cuid())
-  number String @unique
-  amount Decimal
-  status String @default("PENDING")
-  dueAt DateTime
+  id          String    @id @default(cuid())
+  number      String    @unique
+  amountCents Int
+  status      String    @default("PENDING")
+  dueAt       DateTime
+  paidAt      DateTime?
+  createdAt   DateTime  @default(now())
+
   caseId String
-  case Case @relation(fields: [caseId], references: [id])
+  case   Case   @relation(fields: [caseId], references: [id])
 }
 
 model AuditLog {
-  id String @id @default(cuid())
-  action String
-  entity String
-  entityId String?
-  metadata Json?
-  userId String
-  user User @relation(fields: [userId], references: [id])
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String?
+  metadata  String?
   createdAt DateTime @default(now())
+
+  caseId String?
+  case   Case?   @relation(fields: [caseId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 }

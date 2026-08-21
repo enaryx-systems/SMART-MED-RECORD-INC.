@@ -18,6 +18,32 @@ export default {
         card: "0 10px 28px rgba(0,69,58,.08), 0 2px 5px rgba(0,69,58,.05)",
         table: "0 14px 34px rgba(0,69,58,.10)",
       },
+      // Named breakpoints, layering, and duration aliases — additive only.
+      // Colors, spacing, radius, shadows, and type scale are left alone:
+      // v3's defaults already match those values, so duplicating them under
+      // new names would just be noise.
+      screens: {
+        mobile: "320px",
+        tablet: "768px",
+        laptop: "1024px",
+        desktop: "1440px",
+        wide: "1920px",
+      },
+      zIndex: {
+        dropdown: "1000",
+        sticky: "1020",
+        fixed: "1030",
+        "modal-backdrop": "1040",
+        modal: "1050",
+        popover: "1060",
+        tooltip: "1070",
+      },
+      transitionDuration: {
+        fast: "150ms",
+        base: "200ms",
+        slow: "300ms",
+        slower: "500ms",
+      },
     },
   },
   plugins: [],

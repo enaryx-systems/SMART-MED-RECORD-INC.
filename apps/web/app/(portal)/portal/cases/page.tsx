@@ -1,18 +1,37 @@
 "use client";
 import Link from "next/link";
-import { Download, Filter, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { getCases } from "@/lib/api/client";
 import { CaseTable } from "@/components/portal/case-table";
 import { PageHeading } from "@/components/portal/page-heading";
+import { useSession } from "@/lib/auth/session";
+
+const STATUS_FILTERS = [
+  ["", "All statuses"],
+  ["AWAITING_APPROVAL", "Awaiting approval"],
+  ["IN_PROCESSING", "In processing"],
+  ["UNDER_REVIEW", "Under review"],
+  ["FINAL_AUDIT", "Final audit"],
+  ["DELIVERED", "Delivered"],
+  ["FOLLOW_UP", "Follow-up"],
+  ["PAYMENT_PENDING", "Payment pending"],
+  ["CLOSED", "Closed"],
+] as const;
+
 export default function Cases() {
+  const { session } = useSession();
   const [q, setQ] = useState("");
-  const { data = [] } = useQuery({ queryKey: ["cases"], queryFn: getCases });
-  const filtered = useMemo(
-    () => data.filter((c: any) => JSON.stringify(c).toLowerCase().includes(q.toLowerCase())),
-    [data, q],
-  );
+  const [status, setStatus] = useState("");
+  const { data = [], isLoading } = useQuery({
+    queryKey: ["cases", q, status],
+    queryFn: () => getCases({ q: q || undefined, status: status || undefined }),
+  });
+
+  const canCreateCase =
+    session?.user.role === "attorney" || session?.user.role === "case-manager" || session?.user.role === "admin";
+
   return (
     <>
       <PageHeading
@@ -20,12 +39,14 @@ export default function Cases() {
         title="Cases"
         description="Track every case, deliverable, reviewer, and deadline."
         action={
-          <Link
-            href="/portal/cases/new"
-            className="flex items-center gap-2 rounded-lg bg-emerald px-4 py-3 text-xs font-semibold text-white"
-          >
-            <Plus size={16} /> Create case
-          </Link>
+          canCreateCase && (
+            <Link
+              href="/portal/cases/new"
+              className="flex items-center gap-2 rounded-lg bg-emerald px-4 py-3 text-xs font-semibold text-white"
+            >
+              <Plus size={16} /> Create case
+            </Link>
+          )
         }
       />
       <div className="overflow-hidden rounded-2xl border bg-white">
@@ -39,17 +60,24 @@ export default function Cases() {
               placeholder="Search case number, client, service…"
             />
           </div>
-          <button className="flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-xs">
-            <Filter size={15} /> Filters
-          </button>
-          <button className="flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-xs">
-            <Download size={15} /> Export
-          </button>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="rounded-lg border px-3 py-2.5 text-xs outline-none focus:border-emerald"
+          >
+            {STATUS_FILTERS.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
         </div>
-        <CaseTable cases={filtered} />
-        <div className="border-t px-5 py-4 text-xs text-slate-400">
-          Showing {filtered.length} of 128 cases
-        </div>
+        {isLoading ? (
+          <div className="px-5 py-14 text-center text-sm text-slate-400">Loading cases…</div>
+        ) : (
+          <CaseTable cases={data} />
+        )}
+        <div className="border-t px-5 py-4 text-xs text-slate-400">Showing {data.length} cases</div>
       </div>
     </>
   );

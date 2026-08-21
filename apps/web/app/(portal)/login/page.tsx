@@ -4,39 +4,56 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, Eye, EyeOff, LockKeyhole, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
-import { login } from "@/lib/api/client";
-import { Role } from "@/lib/types/portal";
+import { ApiError, login } from "@/lib/api/client";
+import { setSession } from "@/lib/auth/session";
+
+const DEMO_ACCOUNTS = [
+  { role: "Attorney / client", email: "attorney@demo.smartmedrecords.com" },
+  { role: "Case manager", email: "ops@demo.smartmedrecords.com" },
+  { role: "Physician reviewer", email: "physician@demo.smartmedrecords.com" },
+  { role: "Medical reviewer", email: "reviewer@demo.smartmedrecords.com" },
+  { role: "Billing specialist", email: "billing@demo.smartmedrecords.com" },
+  { role: "Administrator", email: "admin@demo.smartmedrecords.com" },
+] as const;
+const DEMO_PASSWORD = "smartmed123";
 
 export default function LoginPage() {
   const router = useRouter();
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [role, setRole] = useState<Role>("attorney");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const form = new FormData(e.currentTarget);
     try {
-      const data = await login({
-        email: String(form.get("email")),
-        password: String(form.get("password")),
-        role,
-      });
-      localStorage.setItem("smr_session", JSON.stringify(data));
-      localStorage.setItem("smr_role", role);
+      const session = await login({ email, password });
+      setSession(session);
       router.push("/portal/dashboard");
-    } catch {
-      setError("Could not sign in. Please check your details.");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not sign in. Please check your details.");
     } finally {
       setLoading(false);
     }
   }
+
+  function fillDemo(demoEmail: string) {
+    setEmail(demoEmail);
+    setPassword(DEMO_PASSWORD);
+    setError("");
+  }
+
   return (
     <main className="grid min-h-screen lg:grid-cols-[.9fr_1.1fr]">
       <section className="hidden bg-pine p-12 text-white lg:flex lg:flex-col">
-        <Logo portal />
+        <div className="flex justify-start pt-1">
+          <div className="origin-top scale-[1.15]">
+            <Logo portal />
+          </div>
+        </div>
         <div className="my-auto max-w-lg">
           <span className="text-xs font-bold uppercase tracking-[.2em] text-gold">
             Secure client portal
@@ -67,8 +84,10 @@ export default function LoginPage() {
       </section>
       <section className="flex items-center justify-center bg-[#fbfaf6] px-6 py-12">
         <div className="w-full max-w-md">
-          <div className="mb-10 inline-flex rounded-xl bg-pine px-3 lg:hidden">
-            <Logo portal />
+          <div className="mb-10 flex w-full justify-start rounded-xl bg-pine px-3 py-2 lg:hidden">
+            <div className="origin-top scale-[1.15]">
+              <Logo portal />
+            </div>
           </div>
           <h2 className="text-4xl text-pine">Welcome back.</h2>
           <p className="mt-3 text-sm text-slate-500">
@@ -76,27 +95,14 @@ export default function LoginPage() {
           </p>
           <form className="mt-8 space-y-5" onSubmit={submit}>
             <div>
-              <label className="mb-2 block text-sm font-semibold">Workspace role</label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value as Role)}
-                className="w-full rounded-xl border bg-white px-4 py-3.5 outline-none focus:border-emerald"
-              >
-                <option value="attorney">Attorney / client</option>
-                <option value="case-manager">Case manager</option>
-                <option value="physician">Physician reviewer</option>
-                <option value="reviewer">Medical reviewer</option>
-                <option value="billing">Billing specialist</option>
-                <option value="admin">Administrator</option>
-              </select>
-            </div>
-            <div>
               <label className="mb-2 block text-sm font-semibold">Email address</label>
               <input
                 required
                 type="email"
                 name="email"
-                defaultValue="demo@smartmedrecords.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@yourfirm.com"
                 className="w-full rounded-xl border bg-white px-4 py-3.5 outline-none focus:border-emerald"
               />
             </div>
@@ -113,7 +119,8 @@ export default function LoginPage() {
                   minLength={6}
                   type={show ? "text" : "password"}
                   name="password"
-                  defaultValue="demo123"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full rounded-xl border bg-white px-4 py-3.5 pr-12 outline-none focus:border-emerald"
                 />
                 <button
@@ -137,7 +144,30 @@ export default function LoginPage() {
           <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-400">
             <LockKeyhole size={14} /> Protected by encrypted authentication
           </div>
-          <p className="mt-10 text-center text-sm text-slate-500">
+
+          <div className="mt-8 rounded-xl border border-dashed border-mint bg-mint/30 p-4">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-pine/60">
+              Quick demo sign-in
+            </span>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {DEMO_ACCOUNTS.map((d) => (
+                <button
+                  type="button"
+                  key={d.email}
+                  onClick={() => fillDemo(d.email)}
+                  className="rounded-lg border border-mint bg-white px-3 py-2 text-left text-[11px] font-semibold text-pine hover:border-emerald hover:text-emerald"
+                >
+                  {d.role}
+                </button>
+              ))}
+            </div>
+            <p className="mt-3 text-[11px] text-slate-500">
+              Fills the form with a seeded demo account. Password:{" "}
+              <code className="rounded bg-white px-1.5 py-0.5">{DEMO_PASSWORD}</code>
+            </p>
+          </div>
+
+          <p className="mt-8 text-center text-sm text-slate-500">
             Need an account?{" "}
             <Link href="/contact" className="font-semibold text-emerald">
               Request access

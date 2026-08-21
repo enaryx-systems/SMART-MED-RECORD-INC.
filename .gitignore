@@ -25,6 +25,9 @@ pnpm-debug.log*
 *.db
 *.db-journal
 
+# Uploaded case documents (local dev storage)
+apps/api/uploads/
+
 # Editors and operating systems
 .idea/
 .vscode/

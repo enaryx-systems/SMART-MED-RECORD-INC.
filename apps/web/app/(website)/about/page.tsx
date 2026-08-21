@@ -88,7 +88,7 @@ export default function AboutPage() {
                 <Sparkles size={14} /> About Smart Med Records
               </span>
               <h1 className="mt-6 text-5xl leading-[1.06] text-pine md:text-6xl">
-                Medical intelligence built around human judgment.
+                Medical intelligence built around <span className="text-gold">human judgment.</span>
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">
                 We help legal teams turn complex medical records into clear, source-linked case
@@ -124,7 +124,7 @@ export default function AboutPage() {
             <span className="text-xs font-bold uppercase tracking-[.2em] text-emerald">
               About the company
             </span>
-            <h2 className="mt-3 text-4xl text-pine">Clear records. Stronger case decisions.</h2>
+            <h2 className="mt-3 text-4xl text-pine">Clear records. <span className="text-gold">Stronger case decisions.</span></h2>
           </div>
           <div className="space-y-5 text-slate-600">
             <p className="leading-7">

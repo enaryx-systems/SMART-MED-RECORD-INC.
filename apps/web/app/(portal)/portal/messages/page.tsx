@@ -1,9 +1,42 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Send } from "lucide-react";
 import { PageHeading } from "@/components/portal/page-heading";
+import { getCases, listMessages, sendMessage } from "@/lib/api/client";
+import { formatRelative } from "@/lib/format";
+import { useSession } from "@/lib/auth/session";
+
 export default function Messages() {
-  const [sent, setSent] = useState(false);
+  const { session } = useSession();
+  const qc = useQueryClient();
+  const [activeCaseId, setActiveCaseId] = useState<string | null>(null);
+  const [body, setBody] = useState("");
+  const [visibility, setVisibility] = useState<"CLIENT" | "INTERNAL">("CLIENT");
+
+  const { data: cases = [] } = useQuery({ queryKey: ["cases"], queryFn: () => getCases() });
+
+  useEffect(() => {
+    if (!activeCaseId && cases.length > 0) setActiveCaseId(cases[0].id);
+  }, [cases, activeCaseId]);
+
+  const { data: messages = [] } = useQuery({
+    queryKey: ["case-messages", activeCaseId],
+    queryFn: () => listMessages(activeCaseId as string),
+    enabled: !!activeCaseId,
+  });
+
+  const mutation = useMutation({
+    mutationFn: () => sendMessage(activeCaseId as string, body, visibility),
+    onSuccess: () => {
+      setBody("");
+      qc.invalidateQueries({ queryKey: ["case-messages", activeCaseId] });
+    },
+  });
+
+  const activeCase = cases.find((c) => c.id === activeCaseId);
+  const role = session?.user.role;
+
   return (
     <>
       <PageHeading
@@ -11,65 +44,83 @@ export default function Messages() {
         title="Messages"
         description="Communicate with your case team inside the protected workspace."
       />
-      <div className="grid min-h-[600px] overflow-hidden rounded-2xl border bg-white md:grid-cols-[300px_1fr]">
-        <aside className="border-r">
-          <div className="border-b p-4">
-            <input
-              className="w-full rounded-lg border p-2.5 text-xs"
-              placeholder="Search conversations…"
-            />
-          </div>
-          {[
-            ["SMR-2026-1274", "Dr. A. Mehta", "Please review the flagged gap."],
-            ["SMR-2026-1273", "Alex Joseph", "Draft is ready for comments."],
-            ["Billing support", "Priya Rao", "Invoice has been updated."],
-          ].map((x, i) => (
+      <div className="grid min-h-[600px] overflow-hidden rounded-2xl border bg-white md:grid-cols-[300px_minmax(0,1fr)]">
+        <aside className="thin-scroll overflow-y-auto border-r">
+          {cases.length === 0 && <p className="p-4 text-xs text-slate-400">No cases yet.</p>}
+          {cases.map((c) => (
             <button
-              className={`w-full border-b p-4 text-left ${i === 0 ? "bg-emerald/[.05]" : ""}`}
-              key={x[0]}
+              key={c.id}
+              onClick={() => setActiveCaseId(c.id)}
+              className={`w-full border-b p-4 text-left ${c.id === activeCaseId ? "bg-emerald/[.05]" : ""}`}
             >
-              <b className="text-xs text-pine">{x[0]}</b>
-              <span className="mt-1 block text-[11px] text-slate-500">
-                {x[1]} · {x[2]}
-              </span>
+              <b className="text-xs text-pine">{c.caseNumber}</b>
+              <span className="mt-1 block text-[11px] text-slate-500">{c.matterName}</span>
             </button>
           ))}
         </aside>
         <section className="flex flex-col">
-          <div className="border-b p-5">
-            <b className="text-sm">SMR-2026-1274 · Case team</b>
-            <span className="mt-1 block text-[11px] text-emerald">
-              4 participants · secure channel
-            </span>
-          </div>
-          <div className="flex-1 space-y-4 p-6">
-            <div className="max-w-md rounded-2xl bg-slate-100 p-4 text-sm">
-              I flagged the April treatment gap and added both source records.
-            </div>
-            <div className="ml-auto max-w-md rounded-2xl bg-pine p-4 text-sm text-white">
-              Thanks. Please confirm whether the discharge note documents home exercise compliance.
-            </div>
-            {sent && (
-              <div className="ml-auto max-w-md rounded-2xl bg-pine p-4 text-sm text-white">
-                I’ve reviewed it and added a note to the chronology.
+          {activeCase ? (
+            <>
+              <div className="border-b p-5">
+                <b className="text-sm">
+                  {activeCase.caseNumber} · {activeCase.matterName}
+                </b>
+                <span className="mt-1 block text-[11px] text-emerald">Secure channel</span>
               </div>
-            )}
-          </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSent(true);
-            }}
-            className="flex gap-2 border-t p-4"
-          >
-            <input
-              className="flex-1 rounded-xl border px-4 text-sm"
-              placeholder="Write a secure message…"
-            />
-            <button className="rounded-xl bg-emerald p-3 text-white">
-              <Send size={17} />
-            </button>
-          </form>
+              <div className="thin-scroll flex-1 space-y-4 overflow-y-auto p-6">
+                {messages.length === 0 && (
+                  <p className="text-center text-xs text-slate-400">No messages yet — say hello.</p>
+                )}
+                {messages.map((m) => (
+                  <div
+                    key={m.id}
+                    className={`max-w-md rounded-2xl p-4 text-sm ${
+                      m.user.id === session?.user.id ? "ml-auto bg-pine text-white" : "bg-slate-100"
+                    }`}
+                  >
+                    <p>{m.body}</p>
+                    <span
+                      className={`mt-2 block text-[10px] ${m.user.id === session?.user.id ? "text-white/60" : "text-slate-400"}`}
+                    >
+                      {m.user.name} · {formatRelative(m.createdAt)}
+                      {m.visibility === "INTERNAL" ? " · internal" : ""}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (body.trim()) mutation.mutate();
+                }}
+                className="flex flex-wrap items-center gap-2 border-t p-4"
+              >
+                {role !== "attorney" && (
+                  <select
+                    value={visibility}
+                    onChange={(e) => setVisibility(e.target.value as "CLIENT" | "INTERNAL")}
+                    className="rounded-lg border px-2 py-2.5 text-[11px] outline-none"
+                  >
+                    <option value="CLIENT">Client-visible</option>
+                    <option value="INTERNAL">Internal only</option>
+                  </select>
+                )}
+                <input
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  className="min-w-[180px] flex-1 rounded-xl border px-4 text-sm outline-none focus:border-emerald"
+                  placeholder="Write a secure message…"
+                />
+                <button className="rounded-xl bg-emerald p-3 text-white" aria-label="Send">
+                  <Send size={17} />
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="flex flex-1 items-center justify-center text-sm text-slate-400">
+              Select a case to view its conversation.
+            </div>
+          )}
         </section>
       </div>
     </>
