@@ -1,6 +1,10 @@
+import * as path from "path";
+import { randomUUID } from "crypto";
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import type { Response } from "express";
 import { DocumentKind, Role } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
+import { StorageService } from "../../common/storage/storage.service";
 import type { AuthUser } from "../../common/auth/jwt.strategy";
 import { CasesService } from "../cases/cases.service";
 
@@ -11,6 +15,7 @@ export class DocumentsService {
   constructor(
     private prisma: PrismaService,
     private casesService: CasesService,
+    private storage: StorageService,
   ) {}
 
   // A case unlocks its deliverable once its invoice (if any) is paid — no
@@ -39,11 +44,7 @@ export class DocumentsService {
     return docs.map((d) => ({ ...d, locked: d.kind === DocumentKind.DELIVERABLE && !paid }));
   }
 
-  async create(
-    user: AuthUser,
-    caseId: string,
-    file: { originalname: string; filename: string; mimetype: string; size: number },
-  ) {
+  async create(user: AuthUser, caseId: string, file: Express.Multer.File) {
     const found = await this.casesService.findOne(user, caseId);
     if (TERMINAL_STATUSES.has(found.status)) {
       throw new ForbiddenException("This case is closed and no longer accepts uploads.");
@@ -54,11 +55,14 @@ export class DocumentsService {
         ? DocumentKind.DELIVERABLE
         : DocumentKind.CLIENT_UPLOAD;
 
+    const storageKey = `${caseId}/${randomUUID()}${path.extname(file.originalname)}`;
+    await this.storage.upload(storageKey, file.buffer, file.mimetype);
+
     const doc = await this.prisma.document.create({
       data: {
         caseId,
         fileName: file.originalname,
-        storageKey: file.filename,
+        storageKey,
         mimeType: file.mimetype,
         size: file.size,
         uploadedById: user.id,
@@ -94,5 +98,9 @@ export class DocumentsService {
     }
 
     return doc;
+  }
+
+  sendFile(res: Response, doc: { storageKey: string; fileName: string }) {
+    return this.storage.sendFile(res, doc.storageKey, doc.fileName);
   }
 }
