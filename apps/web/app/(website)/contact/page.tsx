@@ -7,7 +7,7 @@ export default function Contact() {
   return (
     <>
       <PublicHeader />
-      <main className="grid-lines relative overflow-hidden bg-ivory">
+      <main className="relative overflow-hidden bg-ivory bg-[linear-gradient(rgba(6,63,54,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(6,63,54,0.035)_1px,transparent_1px)] bg-[length:32px_32px]">
         <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-mint/70 to-transparent" />
         <NeuralBackdrop className="opacity-[.09] sm:opacity-[.22]" />
         <div className="relative z-10 mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-[.8fr_1.2fr]">
@@ -44,7 +44,7 @@ export default function Contact() {
               <label className="text-sm font-semibold text-pine">
                 Full name
                 <input
-                  className="mt-2 w-full rounded-xl border bg-ivory p-3.5 font-normal outline-none focus:border-emerald"
+                  className="mt-2 w-full rounded-xl border-2 border-pine/25 bg-ivory p-3.5 font-normal outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
                   placeholder="Jane Smith"
                 />
               </label>
@@ -52,24 +52,24 @@ export default function Contact() {
                 Work email
                 <input
                   type="email"
-                  className="mt-2 w-full rounded-xl border bg-ivory p-3.5 font-normal outline-none focus:border-emerald"
+                  className="mt-2 w-full rounded-xl border-2 border-pine/25 bg-ivory p-3.5 font-normal outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
                   placeholder="jane@firm.com"
                 />
               </label>
               <label className="text-sm font-semibold text-pine">
                 Firm / organization
-                <input className="mt-2 w-full rounded-xl border bg-ivory p-3.5 font-normal outline-none focus:border-emerald" />
+                <input className="mt-2 w-full rounded-xl border-2 border-pine/25 bg-ivory p-3.5 font-normal outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]" />
               </label>
               <label className="text-sm font-semibold text-pine">
                 Phone
-                <input className="mt-2 w-full rounded-xl border bg-ivory p-3.5 font-normal outline-none focus:border-emerald" />
+                <input className="mt-2 w-full rounded-xl border-2 border-pine/25 bg-ivory p-3.5 font-normal outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]" />
               </label>
             </div>
             <label className="mt-5 block text-sm font-semibold text-pine">
               How can we help?
               <textarea
                 rows={5}
-                className="mt-2 w-full resize-none rounded-xl border bg-ivory p-3.5 font-normal outline-none focus:border-emerald"
+                className="mt-2 w-full resize-none rounded-xl border-2 border-pine/25 bg-ivory p-3.5 font-normal outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
                 placeholder="Services, average page volume, and turnaround needs…"
               />
             </label>

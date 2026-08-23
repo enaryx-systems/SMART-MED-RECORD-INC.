@@ -24,15 +24,17 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
+          cache: pnpm
+          cache-dependency-path: "**/pnpm-lock.yaml"
+      - run: pnpm install
       - name: Enforce security and transaction policy
-        run: npm run quality:policy
+        run: pnpm run quality:policy
       - name: Test policy engine
-        run: npm run test:policy
+        run: pnpm run test:policy
       - name: Upload policy report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -48,14 +50,18 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npm run format:check
-      - run: npm run lint
-      - run: npm run typecheck
+          cache: pnpm
+          cache-dependency-path: "**/pnpm-lock.yaml"
+      - run: pnpm install
+      - run: pnpm --dir apps/api install --frozen-lockfile
+      - run: pnpm --dir apps/web install --frozen-lockfile
+      - run: pnpm run format:check
+      - run: pnpm run lint
+      - run: pnpm run typecheck
 
   test-build:
     name: Test and Build
@@ -63,16 +69,18 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npm run db:generate
+          cache: pnpm
+          cache-dependency-path: "**/pnpm-lock.yaml"
+      - run: pnpm --dir apps/api install --frozen-lockfile
+      - run: pnpm --dir apps/web install --frozen-lockfile
+      - run: pnpm run db:generate
         env:
           DATABASE_URL: postgresql://ci:ci@localhost:5432/smartmed
-      - run: npm test
-      - run: npm run build
+      - run: pnpm run build
 
   dependency-audit:
     name: Dependency Audit
@@ -80,13 +88,16 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
+          cache: pnpm
+          cache-dependency-path: "**/pnpm-lock.yaml"
+      - run: pnpm --dir apps/api install --frozen-lockfile
+      - run: pnpm --dir apps/web install --frozen-lockfile
       - name: Block P1/P2 dependency vulnerabilities
-        run: npm run audit:ci
+        run: node scripts/audit-gate.mjs
       - name: Upload dependency report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -106,6 +117,24 @@ jobs:
         run: docker build --file apps/api/Dockerfile --tag smart-med-api:ci .
       - name: Build web image
         run: docker build --file apps/web/Dockerfile --tag smart-med-web:ci .
+      # Install the Trivy binary rather than a marketplace action — pins to an
+      # apt package rather than trusting a third-party action's transitive deps.
+      - name: Install Trivy
+        run: |
+          sudo apt-get update && sudo apt-get install -y wget gnupg
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key \
+            | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" \
+            | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update && sudo apt-get install -y trivy
+      - name: Trivy scan — API image (fail on HIGH/CRITICAL)
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
+        run: trivy image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed smart-med-api:ci
+      - name: Trivy scan — web image (fail on HIGH/CRITICAL)
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
+        run: trivy image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed smart-med-web:ci
 
   gate:
     name: P1-P2 Gate Summary

@@ -44,6 +44,20 @@ export default {
         slow: "300ms",
         slower: "500ms",
       },
+      keyframes: {
+        rise: {
+          from: { opacity: "0", transform: "translateY(16px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "trust-scroll": {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
+        },
+      },
+      animation: {
+        rise: "rise 0.65s ease both",
+        "trust-scroll": "trust-scroll 38s linear infinite",
+      },
     },
   },
   plugins: [],

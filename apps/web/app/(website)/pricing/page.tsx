@@ -49,7 +49,7 @@ export default function Pricing() {
     <>
       <PublicHeader />
       <main className="bg-ivory">
-        <section className="grid-lines relative overflow-hidden border-b border-mint bg-cream">
+        <section className="relative overflow-hidden border-b border-mint bg-cream bg-[linear-gradient(rgba(6,63,54,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(6,63,54,0.035)_1px,transparent_1px)] bg-[length:32px_32px]">
           <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-mint/75 to-transparent" />
           <NeuralBackdrop className="opacity-[.09] sm:opacity-[.22]" />
           <div className="relative z-10 mx-auto max-w-5xl px-6 py-20 text-center">

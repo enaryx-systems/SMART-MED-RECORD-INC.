@@ -1,221 +1,318 @@
-import { getSession, clearSession } from "@/lib/auth/session";
 import type {
-  ActivityRecord,
-  CaseRecord,
+  Case,
+  CaseDocument,
+  CaseEvent,
+  CaseStats,
   CaseStatus,
-  DashboardSummary,
-  DocumentRecord,
-  InvoiceRecord,
-  MessageRecord,
+  CaseType,
+  DeliverySpeed,
+  Invoice,
+  InvoiceCaseOption,
+  InvoiceStatus,
+  InvoiceSummary,
+  Organization,
+  OrgOption,
+  Paginated,
+  Role,
   Session,
-  UserRecord,
+  SortDir,
+  UserSummary,
 } from "@/lib/types/portal";
+import { clearSession, getSession } from "@/lib/auth/session";
 
-const DEFAULT_API_URL = "http://localhost:4000/api";
-const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-function getApiUrl() {
-  if (
-    typeof window !== "undefined" &&
-    (!configuredApiUrl || configuredApiUrl === DEFAULT_API_URL)
-  ) {
-    return `http://${window.location.hostname}:4000/api`;
-  }
-  return configuredApiUrl ?? DEFAULT_API_URL;
-}
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
 
 export class ApiError extends Error {
-  status: number;
-  constructor(message: string, status: number) {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
     super(message);
-    this.status = status;
   }
 }
 
-async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const session = getSession();
-  const headers = new Headers(options.headers);
-  if (!(options.body instanceof FormData) && options.body) {
-    headers.set("Content-Type", "application/json");
-  }
-  if (session?.accessToken) headers.set("Authorization", `Bearer ${session.accessToken}`);
+  const headers = new Headers(init.headers);
+  const isFormData = init.body instanceof FormData;
+  if (!isFormData) headers.set("Content-Type", "application/json");
+  if (session) headers.set("Authorization", `Bearer ${session.token}`);
 
-  const response = await fetch(`${getApiUrl()}${path}`, { ...options, headers, cache: "no-store" });
+  const res = await fetch(`${API_URL}${path}`, { ...init, headers });
 
-  if (response.status === 401) {
+  if (res.status === 401) {
     clearSession();
+    throw new ApiError("Session expired. Please sign in again.", 401);
   }
 
-  if (!response.ok) {
-    let message = `Request failed (${response.status})`;
-    try {
-      const body = await response.json();
-      message = body.message ?? message;
-    } catch {
-      // ignore non-JSON error bodies
-    }
-    throw new ApiError(Array.isArray(message) ? message.join(", ") : message, response.status);
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new ApiError(body?.message ?? "Request failed.", res.status);
   }
 
-  if (response.status === 204) return undefined as T;
-  return (await response.json()) as T;
+  if (res.status === 204) return undefined as T;
+  return res.json() as Promise<T>;
 }
 
-// ---------- Auth ----------
-export async function login(payload: { email: string; password: string }): Promise<Session> {
-  return apiFetch<Session>("/auth/login", { method: "POST", body: JSON.stringify(payload) });
+export interface PageParams {
+  page?: number;
+  pageSize?: number;
+  sortBy?: string;
+  sortDir?: SortDir;
 }
 
-export async function getMe() {
-  return apiFetch<{ user: Session["user"] }>("/auth/me");
+function pageParams(params: PageParams) {
+  const qs = new URLSearchParams();
+  if (params.page) qs.set("page", String(params.page));
+  if (params.pageSize) qs.set("pageSize", String(params.pageSize));
+  if (params.sortBy) qs.set("sortBy", params.sortBy);
+  if (params.sortDir) qs.set("sortDir", params.sortDir);
+  return qs;
 }
 
-// ---------- Cases ----------
-export async function getCases(params?: { q?: string; status?: string }) {
-  const search = new URLSearchParams();
-  if (params?.q) search.set("q", params.q);
-  if (params?.status) search.set("status", params.status);
-  const qs = search.toString();
-  return apiFetch<CaseRecord[]>(`/cases${qs ? `?${qs}` : ""}`);
+export function login(email: string, password: string) {
+  return request<Session>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
 }
 
-export async function getCase(id: string) {
-  return apiFetch<CaseRecord>(`/cases/${id}`);
+export function fetchMe() {
+  return request<Session["user"]>("/auth/me");
 }
 
-export async function createCase(payload: {
-  clientName: string;
-  matterName: string;
-  matterNumber?: string;
-  claimNumber?: string;
-  service: string;
-  priority?: string;
+export interface FetchCasesParams extends PageParams {
+  status?: CaseStatus;
+  caseType?: CaseType;
+  organizationId?: string;
+  reviewerId?: string;
+  createdFrom?: string;
+  createdTo?: string;
+}
+
+export function fetchCases(params: FetchCasesParams = {}) {
+  const qs = pageParams(params);
+  if (params.status) qs.set("status", params.status);
+  if (params.caseType) qs.set("caseType", params.caseType);
+  if (params.organizationId) qs.set("organizationId", params.organizationId);
+  if (params.reviewerId) qs.set("reviewerId", params.reviewerId);
+  if (params.createdFrom) qs.set("createdFrom", params.createdFrom);
+  if (params.createdTo) qs.set("createdTo", params.createdTo);
+  return request<Paginated<Case>>(`/cases?${qs.toString()}`);
+}
+
+export function fetchCaseStats(organizationId?: string) {
+  const qs = organizationId ? `?organizationId=${organizationId}` : "";
+  return request<CaseStats>(`/cases/stats${qs}`);
+}
+
+export function fetchCase(id: string) {
+  return request<Case>(`/cases/${id}`);
+}
+
+export interface CaseInput {
+  matterName?: string;
+  caseType?: CaseType;
+  attorneyName?: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  caseOverview?: string;
+  caseIssues?: string;
+  specificInstructions?: string;
+  servicesDesired?: string[];
+  additionalServices?: string[];
+  otherServicesNote?: string;
+  deliverySpeed?: DeliverySpeed;
+  pdfReference?: boolean;
+  batesReference?: boolean;
+}
+
+export function createCase(input: CaseInput) {
+  return request<Case>("/cases", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateCase(id: string, input: CaseInput) {
+  return request<Case>(`/cases/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
+export function submitCase(id: string) {
+  return request<Case>(`/cases/${id}/submit`, { method: "POST" });
+}
+
+export function updateCaseStatus(id: string, status: CaseStatus) {
+  return request<Case>(`/cases/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export function assignCase(id: string, assignedReviewerId: string | null) {
+  return request<Case>(`/cases/${id}/assign`, {
+    method: "PATCH",
+    body: JSON.stringify({ assignedReviewerId }),
+  });
+}
+
+export function fetchCaseEvents(caseId: string) {
+  return request<CaseEvent[]>(`/cases/${caseId}/events`);
+}
+
+export function addCaseComment(caseId: string, body: string) {
+  return request<CaseEvent>(`/cases/${caseId}/events`, {
+    method: "POST",
+    body: JSON.stringify({ body }),
+  });
+}
+
+export function fetchDocuments(caseId: string) {
+  return request<CaseDocument[]>(`/cases/${caseId}/documents`);
+}
+
+export function uploadDocument(caseId: string, file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  return request<CaseDocument>(`/cases/${caseId}/documents`, {
+    method: "POST",
+    body,
+  });
+}
+
+export function downloadUrl(caseId: string, documentId: string) {
+  return `${API_URL}/cases/${caseId}/documents/${documentId}/download`;
+}
+
+export function fetchOrganizations(params: PageParams = {}) {
+  const qs = pageParams(params);
+  return request<Paginated<Organization>>(`/organizations?${qs.toString()}`);
+}
+
+export function fetchOrganizationOptions() {
+  return request<OrgOption[]>("/organizations/options");
+}
+
+export function fetchOrganization(id: string) {
+  return request<Organization>(`/organizations/${id}`);
+}
+
+export function createOrganization(name: string) {
+  return request<Organization>("/organizations", {
+    method: "POST",
+    body: JSON.stringify({ name }),
+  });
+}
+
+export interface FetchUsersParams extends PageParams {
+  organizationId?: string;
+  role?: Role;
+}
+
+export function fetchUsers(params: FetchUsersParams = {}) {
+  const qs = pageParams(params);
+  if (params.organizationId) qs.set("organizationId", params.organizationId);
+  if (params.role) qs.set("role", params.role);
+  return request<Paginated<UserSummary>>(`/users?${qs.toString()}`);
+}
+
+export function fetchReviewers() {
+  return request<UserSummary[]>("/users/reviewers");
+}
+
+export function fetchColleagues() {
+  return request<UserSummary[]>("/users/me/colleagues");
+}
+
+export interface CreateUserInput {
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
+  organizationId: string;
+}
+
+export function createUser(input: CreateUserInput) {
+  return request<UserSummary>("/users", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function setUserStatus(id: string, isActive: boolean) {
+  return request<UserSummary>(`/users/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ isActive }),
+  });
+}
+
+export interface FetchInvoicesParams extends PageParams {
+  caseId?: string;
+  organizationId?: string;
+  status?: InvoiceStatus;
+}
+
+export function fetchInvoices(params: FetchInvoicesParams = {}) {
+  const qs = pageParams(params);
+  if (params.caseId) qs.set("caseId", params.caseId);
+  if (params.organizationId) qs.set("organizationId", params.organizationId);
+  if (params.status) qs.set("status", params.status);
+  return request<Paginated<Invoice>>(`/invoices?${qs.toString()}`);
+}
+
+export function fetchInvoiceSummary(organizationId?: string) {
+  const qs = organizationId ? `?organizationId=${organizationId}` : "";
+  return request<InvoiceSummary>(`/invoices/summary${qs}`);
+}
+
+export function fetchInvoice(id: string) {
+  return request<Invoice>(`/invoices/${id}`);
+}
+
+export function fetchInvoiceCaseOptions(organizationId?: string) {
+  const qs = organizationId ? `?organizationId=${organizationId}` : "";
+  return request<InvoiceCaseOption[]>(`/invoices/case-options${qs}`);
+}
+
+export interface InvoiceLineItemInput {
+  caseId: string;
+  description: string;
+  amountCents: number;
+}
+
+export interface CreateInvoiceInput {
+  organizationId: string;
+  dueAt: string;
+  lineItems: InvoiceLineItemInput[];
+}
+
+export function createInvoice(input: CreateInvoiceInput) {
+  return request<Invoice>("/invoices", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export interface UpdateInvoiceInput {
   dueAt?: string;
-  instructions?: string;
-}) {
-  return apiFetch<CaseRecord>("/cases", { method: "POST", body: JSON.stringify(payload) });
+  lineItems?: { caseId: string; description?: string; amountCents?: number }[];
 }
 
-export async function updateCase(id: string, payload: Record<string, unknown>) {
-  return apiFetch<CaseRecord>(`/cases/${id}`, { method: "PATCH", body: JSON.stringify(payload) });
-}
-
-export type CaseAction =
-  | "approve"
-  | "assign"
-  | "acknowledge"
-  | "submitForReview"
-  | "reviewerApprove"
-  | "reviewerReturn"
-  | "qcApprove"
-  | "qcReturn"
-  | "markFollowUp"
-  | "close"
-  | "hold"
-  | "resume";
-
-export async function transitionCase(
-  id: string,
-  action: CaseAction,
-  payload?: { assigneeId?: string; reviewerId?: string; qcById?: string; note?: string },
-) {
-  return apiFetch<CaseRecord>(`/cases/${id}/transition`, {
-    method: "POST",
-    body: JSON.stringify({ action, ...payload }),
+export function updateInvoice(id: string, input: UpdateInvoiceInput) {
+  return request<Invoice>(`/invoices/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
   });
 }
 
-export async function getActivity(caseId: string) {
-  return apiFetch<ActivityRecord[]>(`/cases/${caseId}/activity`);
+export function deleteInvoice(id: string) {
+  return request<{ id: string }>(`/invoices/${id}`, { method: "DELETE" });
 }
 
-export function caseStatusLabelColor(status: CaseStatus) {
-  switch (status) {
-    case "CLOSED":
-      return "closed";
-    case "DELIVERED":
-    case "FOLLOW_UP":
-    case "PAYMENT_PENDING":
-      return "success";
-    case "UNDER_REVIEW":
-    case "FINAL_AUDIT":
-      return "review";
-    case "AWAITING_APPROVAL":
-      return "pending";
-    default:
-      return "active";
-  }
-}
-
-// ---------- Documents ----------
-export async function listDocuments(caseId: string) {
-  return apiFetch<DocumentRecord[]>(`/cases/${caseId}/documents`);
-}
-
-export async function uploadDocument(caseId: string, file: File, category?: string) {
-  const form = new FormData();
-  form.append("file", file);
-  if (category) form.append("category", category);
-  return apiFetch<DocumentRecord>(`/cases/${caseId}/documents`, { method: "POST", body: form });
-}
-
-export async function downloadDocument(caseId: string, documentId: string, name: string) {
-  const session = getSession();
-  const response = await fetch(
-    `${getApiUrl()}/cases/${caseId}/documents/${documentId}/download`,
-    { headers: session?.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : {} },
-  );
-  if (!response.ok) throw new ApiError("Could not download this file", response.status);
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = name;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-// ---------- Messages ----------
-export async function listMessages(caseId: string) {
-  return apiFetch<MessageRecord[]>(`/cases/${caseId}/messages`);
-}
-
-export async function sendMessage(caseId: string, body: string, visibility?: "CLIENT" | "INTERNAL") {
-  return apiFetch<MessageRecord>(`/cases/${caseId}/messages`, {
-    method: "POST",
-    body: JSON.stringify({ body, visibility }),
-  });
-}
-
-// ---------- Invoices ----------
-export async function listInvoices(params?: { caseId?: string; status?: string }) {
-  const search = new URLSearchParams();
-  if (params?.caseId) search.set("caseId", params.caseId);
-  if (params?.status) search.set("status", params.status);
-  const qs = search.toString();
-  return apiFetch<InvoiceRecord[]>(`/invoices${qs ? `?${qs}` : ""}`);
-}
-
-export async function createInvoice(payload: { caseId: string; amountCents: number; dueAt: string }) {
-  return apiFetch<InvoiceRecord>("/invoices", { method: "POST", body: JSON.stringify(payload) });
-}
-
-export async function markInvoicePaid(id: string) {
-  return apiFetch<InvoiceRecord>(`/invoices/${id}/pay`, { method: "PATCH" });
-}
-
-// ---------- Users ----------
-export async function listUsers(role?: string) {
-  const qs = role ? `?role=${encodeURIComponent(role)}` : "";
-  return apiFetch<UserRecord[]>(`/users${qs}`);
-}
-
-// ---------- Dashboard ----------
-export async function getDashboardSummary() {
-  return apiFetch<DashboardSummary>("/dashboard/summary");
-}
-
-// ---------- Services catalog ----------
-export async function getServices() {
-  return apiFetch<{ key: string; name: string; description: string }[]>("/services");
+export function markInvoicePaid(id: string) {
+  return request<Invoice>(`/invoices/${id}/pay`, { method: "PATCH" });
 }

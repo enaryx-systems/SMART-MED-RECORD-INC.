@@ -6,9 +6,13 @@ squash auto-merge only when all P1/P2 gates pass.
 
 ## Local verification
 
+Each app installs independently with pnpm — see [CLAUDE.md](CLAUDE.md) for the full layout.
+
 ```bash
-npm ci
-npm run quality
+pnpm install
+pnpm --dir apps/api install --frozen-lockfile
+pnpm --dir apps/web install --frozen-lockfile
+pnpm run quality
 ```
 
 The same command set runs in GitHub Actions. A failed P1 or P2 check blocks merge. P3 findings are

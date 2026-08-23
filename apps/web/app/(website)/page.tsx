@@ -116,7 +116,7 @@ export default function Home() {
           </svg>
         </div>
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-14 px-6 py-20 lg:grid-cols-[1.02fr_.98fr] lg:px-8 lg:py-28">
-          <div className="relative rise">
+          <div className="relative animate-rise">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-mint px-4 py-2 text-xs font-bold uppercase tracking-[.14em] text-pine">
               <Sparkles size={14} /> AI-powered medico-legal intelligence
             </div>
@@ -137,7 +137,7 @@ export default function Home() {
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-pine/30 bg-white px-6 py-4 font-semibold text-pine"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-pine/30 bg-cream px-6 py-4 font-semibold text-pine"
               >
                 Request a free sample <ArrowRight size={17} />
               </Link>
@@ -156,7 +156,7 @@ export default function Home() {
               ))}
             </div>
           </div>
-          <div className="relative rise overflow-hidden rounded-[28px] border border-emerald/20 bg-white p-3 shadow-soft [animation-delay:.15s]">
+          <div className="relative animate-rise overflow-hidden rounded-[28px] border border-emerald/20 bg-cream p-3 shadow-soft [animation-delay:.15s]">
             <img
               src="/images/website/home-hero-intelligence.png"
               alt="Secure medical records transformed by AI into a source-linked legal case timeline and verified by a physician"
@@ -165,7 +165,7 @@ export default function Home() {
             <div className="absolute right-6 top-6 rounded-full border border-white/60 bg-white/80 px-4 py-2 text-xs font-bold text-emerald shadow-card backdrop-blur-md">
               Secure · Source-linked · Verified
             </div>
-            <div className="hero-verification-card absolute bottom-6 left-6 rounded-2xl px-5 py-4 max-sm:bottom-2 max-sm:left-2 max-sm:max-w-[58%] max-sm:rounded-md max-sm:px-2 max-sm:py-1.5">
+            <div className="absolute bottom-6 left-6 rounded-2xl bg-[linear-gradient(145deg,rgba(247,249,249,0.88),rgba(220,233,226,0.76))] px-5 py-4 text-pine shadow-[0_20px_44px_rgba(0,69,58,0.18),inset_0_1px_0_rgba(255,255,255,0.94)] backdrop-blur-[20px] backdrop-saturate-[1.4] border border-emerald/[.34] max-sm:bottom-2 max-sm:left-2 max-sm:max-w-[58%] max-sm:rounded-md max-sm:px-2 max-sm:py-1.5">
               <div className="flex items-center gap-3 max-sm:gap-1.5">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald text-white shadow-card max-sm:h-6 max-sm:w-6 max-sm:rounded-md">
                   <Bot className="max-sm:h-3 max-sm:w-3" size={20} />
@@ -188,8 +188,8 @@ export default function Home() {
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
           <div className="absolute -left-16 -top-24 h-56 w-56 rounded-full bg-emerald/25 blur-3xl" />
           <div className="absolute -bottom-28 right-8 h-60 w-60 rounded-full bg-gold/10 blur-3xl" />
-          <div className="trust-marquee relative overflow-hidden py-2 max-sm:py-1">
-            <div className="trust-track flex w-max">
+          <div className="group relative overflow-hidden py-2 max-sm:py-1 motion-reduce:overflow-x-auto">
+            <div className="flex w-max animate-trust-scroll will-change-transform group-hover:[animation-play-state:paused] motion-reduce:animate-none">
               {[...trustPoints, ...trustPoints].map(([Icon, title, detail], index) => (
                 <article
                   aria-hidden={index >= trustPoints.length}
@@ -232,23 +232,25 @@ export default function Home() {
               const Icon = serviceIcons[i];
               return (
                 <article
-                  className="frost-card home-service-card group min-h-[250px] rounded-2xl p-7 transition duration-300 hover:-translate-y-1.5"
+                  className="group min-h-[250px] rounded-2xl border border-emerald/30 bg-[linear-gradient(145deg,rgba(234,242,238,0.86),rgba(220,233,226,0.62))] p-7 shadow-[0_22px_48px_rgba(0,69,58,0.11),0_5px_14px_rgba(0,69,58,0.07),inset_0_1px_0_rgba(255,255,255,0.92)] backdrop-blur-[18px] backdrop-saturate-[1.35] transition duration-300 [&:nth-child(even)]:bg-[linear-gradient(145deg,rgba(220,233,226,0.94),rgba(202,224,214,0.7))] hover:-translate-y-1.5 hover:border-emerald/[.52] hover:shadow-[0_28px_58px_rgba(0,69,58,0.16),0_8px_18px_rgba(0,69,58,0.08),inset_0_1px_0_rgba(255,255,255,0.96)] max-sm:min-h-[150px] max-sm:p-3"
                   key={name}
                 >
-                  <div className="home-service-icon flex h-12 w-12 items-center justify-center rounded-xl border border-emerald/15 bg-cream/90 text-pine shadow-card">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-emerald/15 bg-cream/90 text-pine shadow-card max-sm:h-8 max-sm:w-8 max-sm:rounded-[0.55rem] max-sm:[&>svg]:h-[14px] max-sm:[&>svg]:w-[14px]">
                     <Icon size={22} />
                   </div>
-                  <h3 className="home-service-title mt-6 font-sans text-base font-bold text-pine">
+                  <h3 className="mt-6 font-sans text-base font-bold text-pine max-sm:mt-3 max-sm:text-[10px] max-sm:leading-[12px]">
                     {name}
                   </h3>
-                  <p className="home-service-copy mt-3 text-sm leading-6 text-slate-600">{desc}</p>
+                  <p className="mt-3 text-sm leading-6 text-slate-600 max-sm:mt-[0.45rem] max-sm:text-[8px] max-sm:leading-[12px]">
+                    {desc}
+                  </p>
                 </article>
               );
             })}
           </div>
         </div>
       </section>
-      <section id="process" className="bg-[#edf6f2]">
+      <section id="process" className="bg-mint">
         <div className="mx-auto max-w-7xl px-6 py-24 lg:px-8">
           <div className="text-center">
             <span className="text-xs font-bold uppercase tracking-[.2em] text-emerald">
@@ -351,7 +353,7 @@ export default function Home() {
             </div>
             <Link
               href="/contact"
-              className="rounded-xl bg-white px-6 py-4 text-center font-semibold text-pine"
+              className="rounded-xl bg-cream px-6 py-4 text-center font-semibold text-pine"
             >
               Talk to security
             </Link>

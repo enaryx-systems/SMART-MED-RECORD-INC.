@@ -1,79 +1,98 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import * as fs from "fs";
-import * as path from "path";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { DocumentKind, Role } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
-import { AuditService } from "../../common/audit/audit.service";
-import { AuthenticatedUser } from "../../common/auth/jwt.strategy";
-import { DOCUMENT_CATEGORIES } from "../../common/constants";
+import type { AuthUser } from "../../common/auth/jwt.strategy";
+import { CasesService } from "../cases/cases.service";
 
-export const UPLOAD_ROOT = path.join(process.cwd(), "uploads");
-
-const STAFF_ROLES = ["case-manager", "physician", "reviewer", "billing", "admin"];
+const TERMINAL_STATUSES = new Set(["DELIVERED", "CANCELED"]);
 
 @Injectable()
 export class DocumentsService {
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly audit: AuditService,
+    private prisma: PrismaService,
+    private casesService: CasesService,
   ) {}
 
-  private async assertCaseAccess(caseId: string, user: AuthenticatedUser) {
-    const c = await this.prisma.case.findUnique({ where: { id: caseId } });
-    if (!c) throw new NotFoundException("Case not found");
-    if (!STAFF_ROLES.includes(user.role) && c.creatorId !== user.id) {
-      throw new ForbiddenException("You cannot access documents for this case");
-    }
-    return c;
+  // A case unlocks its deliverable once its invoice (if any) is paid — no
+  // invoice yet counts as unpaid, so a deliverable is never freely
+  // downloadable by a client ahead of billing.
+  private async isCasePaid(caseId: string) {
+    const lineItem = await this.prisma.invoiceLineItem.findUnique({
+      where: { caseId },
+      include: { invoice: { select: { status: true } } },
+    });
+    return lineItem?.invoice.status === "PAID";
   }
 
-  async list(caseId: string, user: AuthenticatedUser) {
-    await this.assertCaseAccess(caseId, user);
-    return this.prisma.document.findMany({
+  async list(user: AuthUser, caseId: string) {
+    await this.casesService.findOne(user, caseId);
+    const docs = await this.prisma.document.findMany({
       where: { caseId },
       orderBy: { createdAt: "desc" },
     });
+
+    if (user.role !== Role.CLIENT) {
+      return docs.map((d) => ({ ...d, locked: false }));
+    }
+
+    const paid = await this.isCasePaid(caseId);
+    return docs.map((d) => ({ ...d, locked: d.kind === DocumentKind.DELIVERABLE && !paid }));
   }
 
   async create(
+    user: AuthUser,
     caseId: string,
-    file: Express.Multer.File,
-    category: string | undefined,
-    user: AuthenticatedUser,
+    file: { originalname: string; filename: string; mimetype: string; size: number },
   ) {
-    if (!file) throw new BadRequestException("A file is required");
-    await this.assertCaseAccess(caseId, user);
-    const resolvedCategory = DOCUMENT_CATEGORIES.includes(category as never)
-      ? (category as string)
-      : "OTHER";
+    const found = await this.casesService.findOne(user, caseId);
+    if (TERMINAL_STATUSES.has(found.status)) {
+      throw new ForbiddenException("This case is closed and no longer accepts uploads.");
+    }
+
+    const kind: DocumentKind =
+      user.role === Role.ADMIN || user.role === Role.REVIEWER
+        ? DocumentKind.DELIVERABLE
+        : DocumentKind.CLIENT_UPLOAD;
 
     const doc = await this.prisma.document.create({
       data: {
         caseId,
-        name: file.originalname,
+        fileName: file.originalname,
         storageKey: file.filename,
         mimeType: file.mimetype,
         size: file.size,
-        category: resolvedCategory,
         uploadedById: user.id,
+        kind,
       },
     });
-    await this.audit.log({
-      userId: user.id,
-      action: "DOCUMENT_UPLOADED",
-      entity: "Document",
-      entityId: doc.id,
-      caseId,
-      metadata: { name: file.originalname, size: file.size },
+
+    await this.prisma.caseEvent.create({
+      data: {
+        caseId,
+        authorId: user.id,
+        type: "DOCUMENT_UPLOADED",
+        body:
+          kind === DocumentKind.DELIVERABLE
+            ? `Deliverable uploaded: ${file.originalname}`
+            : `Document uploaded: ${file.originalname}`,
+      },
     });
+
     return doc;
   }
 
-  async getFileForDownload(caseId: string, documentId: string, user: AuthenticatedUser) {
-    await this.assertCaseAccess(caseId, user);
-    const doc = await this.prisma.document.findUnique({ where: { id: documentId } });
-    if (!doc || doc.caseId !== caseId) throw new NotFoundException("Document not found");
-    const filePath = path.join(UPLOAD_ROOT, caseId, doc.storageKey);
-    if (!fs.existsSync(filePath)) throw new NotFoundException("File is no longer available");
-    return { path: filePath, name: doc.name, mimeType: doc.mimeType };
+  async getForDownload(user: AuthUser, caseId: string, documentId: string) {
+    await this.casesService.findOne(user, caseId);
+    const doc = await this.prisma.document.findFirst({ where: { id: documentId, caseId } });
+    if (!doc) throw new NotFoundException("Document not found.");
+
+    if (user.role === Role.CLIENT && doc.kind === DocumentKind.DELIVERABLE) {
+      const paid = await this.isCasePaid(caseId);
+      if (!paid) {
+        throw new ForbiddenException("This deliverable unlocks once the case's invoice is paid.");
+      }
+    }
+
+    return doc;
   }
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "./theme.config.css";
 import { Providers } from "@/components/app/providers";
 
 export const metadata: Metadata = {
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="scroll-smooth">
+      <body className="bg-ivory font-[Arial,Helvetica,sans-serif] text-ink selection:bg-[#b9ded5] selection:text-[#063f36]">
         <Providers>{children}</Providers>
       </body>
     </html>

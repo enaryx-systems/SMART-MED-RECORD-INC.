@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Theme-level defaults only — the tag-selector resets Tailwind's own Preflight
+ * doesn't cover (typography, tap-highlight, focus/hover ring on interactive
+ * elements). Everything component-specific lives as Tailwind utility
+ * classNames on the component that uses it, not here.
+ */
+
+h1,
+h2,
+h3,
+.serif {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/*
+ * The portal (authenticated app) uses a geometric sans (Poppins, loaded via
+ * next/font in app/portal/layout.tsx) to match the logo's tracked-out caps
+ * wordmark, instead of the marketing site's serif headings above — scoped to
+ * .portal-shell so it never touches app/(website)/.
+ */
+.portal-shell h1,
+.portal-shell h2,
+.portal-shell h3 {
+  font-family: var(--font-portal-heading), Arial, Helvetica, sans-serif;
+  font-weight: 600;
+}

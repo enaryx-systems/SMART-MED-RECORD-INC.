@@ -1,5 +1,7 @@
+import * as fs from "fs";
+import * as path from "path";
+import { randomUUID } from "crypto";
 import {
-  Body,
   Controller,
   Get,
   Param,
@@ -9,24 +11,28 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ApiTags } from "@nestjs/swagger";
 import { diskStorage } from "multer";
-import * as fs from "fs";
-import * as path from "path";
 import type { Response } from "express";
-import { randomUUID } from "crypto";
+import { Role } from "@prisma/client";
 import { CurrentUser } from "../../common/auth/current-user.decorator";
-import { AuthenticatedUser } from "../../common/auth/jwt.strategy";
-import { DocumentsService, UPLOAD_ROOT } from "./documents.service";
+import { Roles } from "../../common/auth/roles.decorator";
+import type { AuthUser } from "../../common/auth/jwt.strategy";
+import { DocumentsService } from "./documents.service";
 
-@ApiTags("documents")
+const UPLOAD_ROOT = process.env.UPLOAD_ROOT ?? path.join(process.cwd(), "uploads");
+// Case ids are Prisma cuids; reject anything else before it ever touches a filesystem path
+// (the upload interceptor runs before the controller's ownership check, so this guards against
+// path traversal via a crafted :caseId route segment).
+const SAFE_ID = /^[a-zA-Z0-9_-]+$/;
+
+@Roles(Role.CLIENT, Role.ADMIN, Role.REVIEWER)
 @Controller("cases/:caseId/documents")
 export class DocumentsController {
-  constructor(private readonly documents: DocumentsService) {}
+  constructor(private documentsService: DocumentsService) {}
 
   @Get()
-  list(@Param("caseId") caseId: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.documents.list(caseId, user);
+  list(@CurrentUser() user: AuthUser, @Param("caseId") caseId: string) {
+    return this.documentsService.list(user, caseId);
   }
 
   @Post()
@@ -35,6 +41,10 @@ export class DocumentsController {
       storage: diskStorage({
         destination: (req, _file, cb) => {
           const caseId = (req.params as { caseId: string }).caseId;
+          if (!SAFE_ID.test(caseId)) {
+            cb(new Error("Invalid case id."), "");
+            return;
+          }
           const dir = path.join(UPLOAD_ROOT, caseId);
           fs.mkdirSync(dir, { recursive: true });
           cb(null, dir);
@@ -48,22 +58,21 @@ export class DocumentsController {
     }),
   )
   upload(
+    @CurrentUser() user: AuthUser,
     @Param("caseId") caseId: string,
     @UploadedFile() file: Express.Multer.File,
-    @Body("category") category: string | undefined,
-    @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.documents.create(caseId, file, category, user);
+    return this.documentsService.create(user, caseId, file);
   }
 
   @Get(":documentId/download")
   async download(
+    @CurrentUser() user: AuthUser,
     @Param("caseId") caseId: string,
     @Param("documentId") documentId: string,
-    @CurrentUser() user: AuthenticatedUser,
     @Res() res: Response,
   ) {
-    const file = await this.documents.getFileForDownload(caseId, documentId, user);
-    res.download(file.path, file.name);
+    const doc = await this.documentsService.getForDownload(user, caseId, documentId);
+    res.download(path.join(UPLOAD_ROOT, doc.caseId, doc.storageKey), doc.fileName);
   }
 }

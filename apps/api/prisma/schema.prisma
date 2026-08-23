@@ -7,123 +7,178 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Role and CaseStatus are plain strings rather than native Postgres enums so
-// the schema stays portable across providers. Valid values are enforced in
-// the application layer (see src/common/constants.ts).
+enum OrgKind {
+  INTERNAL
+  CLIENT_FIRM
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+  REVIEWER
+  BILLING
+}
+
+enum CaseStatus {
+  DRAFT
+  NEW
+  IN_PROGRESS
+  ON_HOLD
+  AWAITING_DELIVERY
+  DELIVERED
+  CANCELED
+}
+
+enum CaseType {
+  PERSONAL_INJURY
+  MEDICAL_MALPRACTICE
+  MASS_TORT_CLASS_ACTION
+  SSD_CLAIMS
+  NURSING_HOME
+  SEXUAL_ABUSE_CASES
+  WORKERS_COMPENSATION
+  OTHER
+}
+
+enum DeliverySpeed {
+  STANDARD
+  EXPEDITED
+}
+
+enum DocumentKind {
+  CLIENT_UPLOAD
+  DELIVERABLE
+}
+
+enum CaseEventType {
+  NOTE
+  STATUS_CHANGE
+  ASSIGNMENT
+  DOCUMENT_UPLOADED
+  INVOICE_ISSUED
+  INVOICE_PAID
+  INVOICE_UPDATED
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+}
+
+model Organization {
+  id        String    @id @default(cuid())
+  name      String
+  kind      OrgKind   @default(CLIENT_FIRM)
+  createdAt DateTime  @default(now())
+  users     User[]
+  cases     Case[]
+  invoices  Invoice[]
+}
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  name         String
-  role         String
-  firm         String?
-  createdAt    DateTime @default(now())
-
-  createdCases  Case[]     @relation("CreatorCases")
-  assignedCases Case[]     @relation("AssigneeCases")
-  reviewedCases Case[]     @relation("ReviewerCases")
-  auditedCases  Case[]     @relation("QcCases")
-  documents     Document[]
-  messages      Message[]
-  auditLogs     AuditLog[]
+  id                String     @id @default(cuid())
+  email             String     @unique
+  passwordHash      String
+  name              String
+  role              Role       @default(CLIENT)
+  isActive          Boolean    @default(true)
+  createdAt         DateTime   @default(now())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  cases             Case[]     @relation("CaseOwner")
+  assignedCases     Case[]     @relation("CaseReviewer")
+  uploadedDocuments Document[]
+  caseEvents        CaseEvent[]
 }
 
 model Case {
-  id           String    @id @default(cuid())
-  caseNumber   String    @unique
-  clientName   String
-  matterName   String
-  matterNumber String?
-  claimNumber  String?
-  service      String
-  status       String    @default("AWAITING_APPROVAL")
-  priority     String    @default("STANDARD")
-  instructions String?
-  pages        Int       @default(0)
-  onHold       Boolean   @default(false)
-  dueAt        DateTime?
-  approvedAt   DateTime?
-  assignedAt   DateTime?
-  acknowledgedAt DateTime?
-  deliveredAt  DateTime?
-  closedAt     DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  creatorId String
-  creator   User   @relation("CreatorCases", fields: [creatorId], references: [id])
-
-  approvedById String?
-
-  assigneeId String?
-  assignee   User?   @relation("AssigneeCases", fields: [assigneeId], references: [id])
-
-  reviewerId String?
-  reviewer   User?   @relation("ReviewerCases", fields: [reviewerId], references: [id])
-
-  qcById String?
-  qcBy   User?   @relation("QcCases", fields: [qcById], references: [id])
-
-  documents Document[]
-  messages  Message[]
-  invoices  Invoice[]
-  auditLogs AuditLog[]
+  id                  String        @id @default(cuid())
+  caseNumber          String        @unique
+  matterName          String
+  caseType            CaseType
+  attorneyName        String?
+  contactName         String?
+  contactEmail        String?
+  contactPhone        String?
+  caseOverview        String?       @db.Text
+  caseIssues          String?       @db.Text
+  specificInstructions String?      @db.Text
+  servicesDesired     String[]      @default([])
+  additionalServices  String[]      @default([])
+  otherServicesNote   String?       @db.Text
+  deliverySpeed       DeliverySpeed @default(STANDARD)
+  pdfReference        Boolean       @default(false)
+  batesReference      Boolean       @default(false)
+  status              CaseStatus    @default(DRAFT)
+  dueAt               DateTime?
+  submittedAt         DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  organizationId      String
+  organization        Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  ownerId             String
+  owner               User          @relation("CaseOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  assignedReviewerId  String?
+  assignedReviewer    User?         @relation("CaseReviewer", fields: [assignedReviewerId], references: [id])
+  documents           Document[]
+  events              CaseEvent[]
+  invoiceLineItem     InvoiceLineItem?
 }
 
 model Document {
-  id           String   @id @default(cuid())
-  name         String
+  id           String       @id @default(cuid())
+  caseId       String
+  case         Case         @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  fileName     String
   storageKey   String
   mimeType     String
   size         Int
-  category     String   @default("OTHER")
-  createdAt    DateTime @default(now())
-
-  caseId String
-  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
-
-  uploadedById String?
-  uploadedBy   User?   @relation(fields: [uploadedById], references: [id])
+  kind         DocumentKind @default(CLIENT_UPLOAD)
+  uploadedById String
+  uploadedBy   User         @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime     @default(now())
 }
 
-model Message {
-  id         String   @id @default(cuid())
-  body       String
-  visibility String   @default("CLIENT")
-  createdAt  DateTime @default(now())
-
-  caseId String
-  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+model CaseEvent {
+  id        String        @id @default(cuid())
+  caseId    String
+  case      Case          @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User          @relation(fields: [authorId], references: [id])
+  type      CaseEventType
+  body      String?       @db.Text
+  createdAt DateTime      @default(now())
 }
 
 model Invoice {
-  id          String    @id @default(cuid())
-  number      String    @unique
-  amountCents Int
-  status      String    @default("PENDING")
-  dueAt       DateTime
-  paidAt      DateTime?
-  createdAt   DateTime  @default(now())
-
-  caseId String
-  case   Case   @relation(fields: [caseId], references: [id])
+  id             String            @id @default(cuid())
+  number         String            @unique
+  organizationId String
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  amountCents    Int
+  status         InvoiceStatus     @default(PENDING)
+  dueAt          DateTime
+  paidAt         DateTime?
+  createdAt      DateTime          @default(now())
+  lineItems      InvoiceLineItem[]
 }
 
-model AuditLog {
-  id        String   @id @default(cuid())
-  action    String
-  entity    String
-  entityId  String?
-  metadata  String?
-  createdAt DateTime @default(now())
+model InvoiceLineItem {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  caseId      String  @unique
+  case        Case    @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  description String
+  amountCents Int
+}
 
-  caseId String?
-  case   Case?   @relation(fields: [caseId], references: [id])
+model CaseNumberSequence {
+  id    Int @id @default(1)
+  value Int @default(0)
+}
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+model InvoiceNumberSequence {
+  id    Int @id @default(1)
+  value Int @default(0)
 }

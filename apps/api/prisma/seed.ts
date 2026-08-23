@@ -1,152 +1,266 @@
-import { PrismaClient } from "@prisma/client";
-import * as bcrypt from "bcryptjs";
+import { PrismaClient, CaseStatus, CaseType, OrgKind, Role } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import { SERVICES_DESIRED_CATALOG } from "../src/modules/cases/case-catalog";
 
 const prisma = new PrismaClient();
 
-const DEMO_PASSWORD = "smartmed123";
-
-const DEMO_USERS = [
-  { email: "attorney@demo.smartmedrecords.com", name: "Jordan Smith", role: "attorney", firm: "Hamilton & Pierce LLP" },
-  { email: "ops@demo.smartmedrecords.com", name: "Sarah Johnson", role: "case-manager", firm: "Smart Med Records" },
-  { email: "physician@demo.smartmedrecords.com", name: "Dr. Alan Mehta", role: "physician", firm: "Smart Med Records" },
-  { email: "reviewer@demo.smartmedrecords.com", name: "Alex Joseph", role: "reviewer", firm: "Smart Med Records" },
-  { email: "billing@demo.smartmedrecords.com", name: "Priya Rao", role: "billing", firm: "Smart Med Records" },
-  { email: "admin@demo.smartmedrecords.com", name: "Morgan Lee", role: "admin", firm: "Smart Med Records" },
+const STATUSES: CaseStatus[] = [
+  "DRAFT",
+  "NEW",
+  "IN_PROGRESS",
+  "ON_HOLD",
+  "AWAITING_DELIVERY",
+  "DELIVERED",
+  "CANCELED",
 ];
 
-async function main() {
-  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
+const CASE_TYPES: CaseType[] = [
+  "PERSONAL_INJURY",
+  "MEDICAL_MALPRACTICE",
+  "MASS_TORT_CLASS_ACTION",
+  "SSD_CLAIMS",
+  "NURSING_HOME",
+  "SEXUAL_ABUSE_CASES",
+  "WORKERS_COMPENSATION",
+  "OTHER",
+];
 
-  const users: Record<string, { id: string }> = {};
-  for (const u of DEMO_USERS) {
-    const created = await prisma.user.upsert({
-      where: { email: u.email },
-      update: {},
-      create: { ...u, passwordHash },
-    });
-    users[u.role] = created;
+async function upsertUser(opts: {
+  email: string;
+  name: string;
+  role: Role;
+  organizationId: string;
+  password: string;
+}) {
+  const passwordHash = await bcrypt.hash(opts.password, 10);
+  return prisma.user.upsert({
+    where: { email: opts.email },
+    update: { name: opts.name, role: opts.role, organizationId: opts.organizationId },
+    create: {
+      email: opts.email,
+      passwordHash,
+      name: opts.name,
+      role: opts.role,
+      organizationId: opts.organizationId,
+    },
+  });
+}
+
+async function main() {
+  // --- Organizations -------------------------------------------------
+  const internalOrg = await prisma.organization.upsert({
+    where: { id: "org_internal" },
+    update: {},
+    create: { id: "org_internal", name: "Smart Med Records — Internal", kind: OrgKind.INTERNAL },
+  });
+
+  const firmA = await prisma.organization.upsert({
+    where: { id: "org_firm_blake" },
+    update: {},
+    create: { id: "org_firm_blake", name: "Blake & Associates", kind: OrgKind.CLIENT_FIRM },
+  });
+
+  const firmB = await prisma.organization.upsert({
+    where: { id: "org_firm_harborview" },
+    update: {},
+    create: { id: "org_firm_harborview", name: "Harborview Legal Group", kind: OrgKind.CLIENT_FIRM },
+  });
+
+  // --- Users -----------------------------------------------------------
+  const admin = await upsertUser({
+    email: "admin@smartmedrecords.com",
+    name: "Alex Morgan",
+    role: Role.ADMIN,
+    organizationId: internalOrg.id,
+    password: "Admin123!",
+  });
+
+  const reviewer = await upsertUser({
+    email: "reviewer@smartmedrecords.com",
+    name: "Riley Chen",
+    role: Role.REVIEWER,
+    organizationId: internalOrg.id,
+    password: "Reviewer123!",
+  });
+
+  const billing = await upsertUser({
+    email: "billing@smartmedrecords.com",
+    name: "Sam Patel",
+    role: Role.BILLING,
+    organizationId: internalOrg.id,
+    password: "Billing123!",
+  });
+
+  const clientA1 = await upsertUser({
+    email: "client@smartmedrecords.com",
+    name: "Jordan Blake",
+    role: Role.CLIENT,
+    organizationId: firmA.id,
+    password: "Client123!",
+  });
+
+  const clientA2 = await upsertUser({
+    email: "paralegal@blakeassociates.com",
+    name: "Casey Rivera",
+    role: Role.CLIENT,
+    organizationId: firmA.id,
+    password: "Client123!",
+  });
+
+  const clientB1 = await upsertUser({
+    email: "attorney@harborviewlegal.com",
+    name: "Taylor Nguyen",
+    role: Role.CLIENT,
+    organizationId: firmB.id,
+    password: "Client123!",
+  });
+
+  // --- Cases -------------------------------------------------------------
+  await prisma.case.deleteMany({ where: { organizationId: { in: [firmA.id, firmB.id] } } });
+
+  const counts: Record<CaseStatus, number> = {
+    DRAFT: 3,
+    NEW: 6,
+    IN_PROGRESS: 4,
+    ON_HOLD: 3,
+    AWAITING_DELIVERY: 5,
+    DELIVERED: 12,
+    CANCELED: 2,
+  };
+
+  const firms = [
+    { org: firmA, owner: clientA1 },
+    { org: firmB, owner: clientB1 },
+  ];
+
+  let seq = 1;
+  const createdCases: { id: string; status: CaseStatus; organizationId: string }[] = [];
+  for (const status of STATUSES) {
+    for (let i = 0; i < counts[status]; i++) {
+      const { org, owner } = firms[seq % firms.length];
+      const caseNumber = `SMR-${String(seq).padStart(5, "0")}`;
+      const caseType = CASE_TYPES[seq % CASE_TYPES.length];
+      const servicesDesired = [
+        SERVICES_DESIRED_CATALOG[seq % SERVICES_DESIRED_CATALOG.length],
+        SERVICES_DESIRED_CATALOG[(seq + 1) % SERVICES_DESIRED_CATALOG.length],
+      ];
+      const assignReviewer = status !== "DRAFT" && seq % 3 === 0;
+      const created = await prisma.case.create({
+        data: {
+          caseNumber,
+          matterName: `${caseType.replace(/_/g, " ")} — Matter ${seq}`,
+          caseType,
+          contactName: owner.name,
+          servicesDesired,
+          status,
+          submittedAt: status === "DRAFT" ? null : new Date(),
+          dueAt: new Date(Date.now() + (seq % 14) * 24 * 60 * 60 * 1000),
+          organizationId: org.id,
+          ownerId: owner.id,
+          assignedReviewerId: assignReviewer ? reviewer.id : null,
+        },
+      });
+      createdCases.push({ id: created.id, status, organizationId: org.id });
+      seq++;
+    }
   }
 
-  const existingCases = await prisma.case.count();
-  if (existingCases === 0) {
-    const attorney = users["attorney"];
-    const caseManager = users["case-manager"];
-    const reviewer = users["reviewer"];
-    const physician = users["physician"];
+  await prisma.caseNumberSequence.upsert({
+    where: { id: 1 },
+    update: { value: seq - 1 },
+    create: { id: 1, value: seq - 1 },
+  });
+  await prisma.invoiceNumberSequence.upsert({
+    where: { id: 1 },
+    update: {},
+    create: { id: 1, value: 0 },
+  });
 
-    const c1 = await prisma.case.create({
-      data: {
-        caseNumber: "SMR-2026-1001",
-        clientName: "Maya Robinson",
-        matterName: "Robinson v. Northstar",
-        matterNumber: "ALF-78592",
-        claimNumber: "CLM-2026-8471",
-        service: "Medical Chronology",
-        status: "IN_PROCESSING",
-        priority: "URGENT",
-        pages: 1842,
-        instructions: "Detailed timeline of all treatments and procedures.",
-        dueAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-        creatorId: attorney.id,
-        approvedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        approvedById: attorney.id,
-        assigneeId: caseManager.id,
-        reviewerId: reviewer.id,
-        assignedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-      },
+  // --- Sample timeline events & invoices ---------------------------------
+  const delivered = createdCases.find((c) => c.status === "DELIVERED");
+  const inProgress = createdCases.find((c) => c.status === "IN_PROGRESS");
+  // A second DELIVERED case from the same firm as `delivered`, to demonstrate
+  // a consolidated (multi-case) invoice rather than every example being 1:1.
+  const deliveredSameFirm = createdCases.find(
+    (c) => c.status === "DELIVERED" && delivered && c.organizationId === delivered.organizationId && c.id !== delivered.id,
+  );
+
+  async function nextInvoiceNumber() {
+    const seq = await prisma.invoiceNumberSequence.update({
+      where: { id: 1 },
+      data: { value: { increment: 1 } },
     });
+    return `INV-${new Date().getFullYear()}-${String(seq.value).padStart(4, "0")}`;
+  }
 
-    const c2 = await prisma.case.create({
-      data: {
-        caseNumber: "SMR-2026-1002",
-        clientName: "Daniel Kim",
-        matterName: "Kim — Personal Injury",
-        service: "Narrative Summary",
-        status: "UNDER_REVIEW",
-        priority: "STANDARD",
-        pages: 964,
-        dueAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-        creatorId: attorney.id,
-        approvedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
-        approvedById: attorney.id,
-        assigneeId: caseManager.id,
-        reviewerId: reviewer.id,
-        assignedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      },
-    });
-
-    const c3 = await prisma.case.create({
-      data: {
-        caseNumber: "SMR-2026-1003",
-        clientName: "Olivia Carter",
-        matterName: "Carter v. Metro Health",
-        service: "Demand Letter Drafting",
-        status: "CLOSED",
-        priority: "STANDARD",
-        pages: 2216,
-        dueAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        creatorId: attorney.id,
-        approvedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
-        approvedById: attorney.id,
-        assigneeId: caseManager.id,
-        reviewerId: physician.id,
-        qcById: caseManager.id,
-        assignedAt: new Date(Date.now() - 19 * 24 * 60 * 60 * 1000),
-        deliveredAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
-        closedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      },
-    });
-
-    await prisma.case.create({
-      data: {
-        caseNumber: "SMR-2026-1004",
-        clientName: "Ethan Brooks",
-        matterName: "Brooks Workers' Comp",
-        service: "Medical Billing Analysis",
-        status: "AWAITING_APPROVAL",
-        priority: "STANDARD",
-        pages: 486,
-        dueAt: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
-        creatorId: attorney.id,
-      },
-    });
-
-    await prisma.message.createMany({
+  if (delivered) {
+    await prisma.caseEvent.createMany({
       data: [
-        { caseId: c1.id, userId: caseManager.id, body: "Client approved the scope and pricing. Proceeding with detailed chronology.", visibility: "INTERNAL" },
-        { caseId: c1.id, userId: attorney.id, body: "Please flag any gaps longer than 30 days.", visibility: "CLIENT" },
-        { caseId: c2.id, userId: reviewer.id, body: "Draft is ready for comments.", visibility: "CLIENT" },
+        { caseId: delivered.id, authorId: admin.id, type: "ASSIGNMENT", body: "Case assigned to reviewer." },
+        { caseId: delivered.id, authorId: reviewer.id, type: "NOTE", body: "Chronology drafted and cross-checked against source records." },
+        { caseId: delivered.id, authorId: reviewer.id, type: "STATUS_CHANGE", body: "Status changed from IN_PROGRESS to DELIVERED." },
       ],
     });
 
+    // Consolidated invoice covering both delivered cases from this firm when
+    // a second one exists; otherwise a plain single-case invoice.
+    const lineItems = [
+      { caseId: delivered.id, description: `Medical records review — ${delivered.id}`, amountCents: 45000 },
+      ...(deliveredSameFirm
+        ? [{ caseId: deliveredSameFirm.id, description: `Medical records review — ${deliveredSameFirm.id}`, amountCents: 32000 }]
+        : []),
+    ];
     await prisma.invoice.create({
       data: {
-        number: "INV-2026-1001",
-        caseId: c3.id,
-        amountCents: 284000,
+        number: await nextInvoiceNumber(),
+        organizationId: delivered.organizationId,
+        amountCents: lineItems.reduce((sum, li) => sum + li.amountCents, 0),
         status: "PAID",
-        dueAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-        paidAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      },
-    });
-    await prisma.invoice.create({
-      data: {
-        number: "INV-2026-1002",
-        caseId: c2.id,
-        amountCents: 118000,
-        status: "PENDING",
-        dueAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        dueAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        paidAt: new Date(),
+        lineItems: { create: lineItems },
       },
     });
   }
 
-  console.log("Seed complete. Demo login password for all accounts:", DEMO_PASSWORD);
-  for (const u of DEMO_USERS) console.log(` - ${u.role.padEnd(12)} ${u.email}`);
+  if (inProgress) {
+    await prisma.caseEvent.create({
+      data: {
+        caseId: inProgress.id,
+        authorId: clientA1.id,
+        type: "NOTE",
+        body: "Please prioritize the imaging records for this matter — expedited review requested.",
+      },
+    });
+
+    await prisma.invoice.create({
+      data: {
+        number: await nextInvoiceNumber(),
+        organizationId: inProgress.organizationId,
+        amountCents: 32000,
+        status: "PENDING",
+        dueAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+        lineItems: {
+          create: [{ caseId: inProgress.id, description: `Medical records review — ${inProgress.id}`, amountCents: 32000 }],
+        },
+      },
+    });
+  }
+
+  console.log("Seeded organizations:", { internalOrg: internalOrg.name, firmA: firmA.name, firmB: firmB.name });
+  console.log("Seeded users:", {
+    admin: admin.email,
+    reviewer: reviewer.email,
+    billing: billing.email,
+    clientA1: clientA1.email,
+    clientA2: clientA2.email,
+    clientB1: clientB1.email,
+  });
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
+  .catch((err) => {
+    console.error(err);
     process.exit(1);
   })
   .finally(() => prisma.$disconnect());

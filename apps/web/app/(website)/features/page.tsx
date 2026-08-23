@@ -324,23 +324,23 @@ function FeatureGrid({ items }: { items: Feature[] }) {
       {items.map((f, i) => (
         <article
           key={f.name}
-          className="frost-card resource-feature-card group relative overflow-hidden rounded-2xl p-6 transition duration-300 hover:-translate-y-1.5"
+          className="group relative overflow-hidden rounded-2xl border border-emerald/30 bg-[linear-gradient(145deg,rgba(234,242,238,0.86),rgba(220,233,226,0.62))] p-6 shadow-[0_22px_48px_rgba(0,69,58,0.11),0_5px_14px_rgba(0,69,58,0.07),inset_0_1px_0_rgba(255,255,255,0.92)] backdrop-blur-[18px] backdrop-saturate-[1.35] transition duration-300 [&:nth-child(even)]:bg-[linear-gradient(145deg,rgba(220,233,226,0.94),rgba(202,224,214,0.7))] hover:-translate-y-1.5 hover:border-emerald/[.52] hover:shadow-[0_28px_58px_rgba(0,69,58,0.16),0_8px_18px_rgba(0,69,58,0.08),inset_0_1px_0_rgba(255,255,255,0.96)] max-sm:min-h-[145px] max-sm:p-[0.7rem]"
         >
           <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/30" />
           <div className="flex items-start justify-between gap-3">
-            <span className="resource-feature-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-pine/10 bg-cream text-pine shadow-sm">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-pine/10 bg-cream text-pine shadow-sm max-sm:h-8 max-sm:w-8 max-sm:rounded-[0.55rem] max-sm:[&>svg]:h-[14px] max-sm:[&>svg]:w-[14px]">
               <f.icon size={21} />
             </span>
             {f.badge && (
-              <span className="resource-feature-badge rounded-full border border-emerald/25 bg-cream px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-emerald">
+              <span className="rounded-full border border-emerald/25 bg-cream px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-emerald max-sm:px-[0.4rem] max-sm:py-[0.2rem] max-sm:text-[6px] max-sm:leading-[8px] max-sm:tracking-[0.04em]">
                 {f.badge}
               </span>
             )}
           </div>
-          <h3 className="resource-feature-title relative mt-5 font-sans text-base font-bold text-pine">
+          <h3 className="relative mt-5 font-sans text-base font-bold text-pine max-sm:mt-[0.7rem] max-sm:text-[9px] max-sm:leading-[11px]">
             {f.name}
           </h3>
-          <p className="resource-feature-copy relative mt-3 text-sm leading-6 text-slate-600">
+          <p className="relative mt-3 text-sm leading-6 text-slate-600 max-sm:mt-[0.4rem] max-sm:text-[7px] max-sm:leading-[11px]">
             {f.description}
           </p>
         </article>
@@ -383,7 +383,7 @@ export default function Features() {
     <>
       <PublicHeader />
       <main className="bg-ivory">
-        <section className="grid-lines relative overflow-hidden border-b border-mint">
+        <section className="relative overflow-hidden border-b border-mint bg-[linear-gradient(rgba(6,63,54,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(6,63,54,0.035)_1px,transparent_1px)] bg-[length:32px_32px]">
           <div className="absolute right-0 top-0 h-full w-2/5 bg-gradient-to-l from-mint/80 to-transparent" />
           <NeuralBackdrop className="opacity-[.10] sm:opacity-[.24]" />
           <div className="relative mx-auto grid max-w-7xl gap-10 px-6 py-24 lg:grid-cols-[1fr_420px] lg:px-8">
@@ -423,7 +423,7 @@ export default function Features() {
               <div className="absolute right-6 top-6 rounded-full border border-white/60 bg-ivory/85 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-emerald shadow-card backdrop-blur">
                 Source-linked · Physician verified
               </div>
-              <div className="hero-verification-card absolute bottom-6 left-6 right-6 rounded-2xl px-5 py-4">
+              <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-emerald/[.34] bg-[linear-gradient(145deg,rgba(247,249,249,0.88),rgba(220,233,226,0.76))] px-5 py-4 text-pine shadow-[0_20px_44px_rgba(0,69,58,0.18),inset_0_1px_0_rgba(255,255,255,0.94)] backdrop-blur-[20px] backdrop-saturate-[1.4]">
                 <div className="flex items-center gap-3">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald text-white shadow-card">
                     <FileCheck2 size={19} />

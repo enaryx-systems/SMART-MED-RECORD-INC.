@@ -2,31 +2,32 @@
   "name": "smart-med-records",
   "private": true,
   "version": "1.0.0",
-  "workspaces": [
-    "apps/*"
-  ],
   "scripts": {
-    "dev": "concurrently -n WEB,API -c cyan,green \"npm run dev -w @smartmed/web\" \"npm run start:dev -w @smartmed/api\"",
-    "build": "npm run build -w @smartmed/api && npm run build -w @smartmed/web",
-    "test": "npm run test -w @smartmed/api",
+    "dev": "concurrently -n WEB,API -c cyan,green \"pnpm --dir apps/web dev\" \"pnpm --dir apps/api start:dev\"",
+    "build": "pnpm --dir apps/api build && pnpm --dir apps/web build",
     "test:policy": "node --test scripts/quality-gate.test.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit -p apps/api/tsconfig.json && tsc --noEmit -p apps/web/tsconfig.json",
+    "typecheck": "pnpm --dir apps/api exec tsc --noEmit && pnpm --dir apps/web exec tsc --noEmit",
     "audit:ci": "node scripts/audit-gate.mjs",
     "quality:policy": "node scripts/quality-gate.mjs",
-    "quality": "npm run format:check && npm run lint && npm run typecheck && npm run test:policy && npm run test && npm run quality:policy && npm run audit:ci && npm run build",
-    "db:generate": "npm run prisma:generate -w @smartmed/api"
+    "quality": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test:policy && pnpm run quality:policy && pnpm run audit:ci && pnpm run build",
+    "db:generate": "pnpm --dir apps/api run prisma:generate",
+    "db:migrate": "pnpm --dir apps/api run prisma:migrate",
+    "db:seed": "pnpm --dir apps/api run prisma:seed"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.39.5",
     "concurrently": "^9.2.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "^15.5.20",
     "eslint-plugin-security": "^3.0.1",
+    "next": "^15.4.5",
     "prettier": "^3.9.5",
+    "typescript": "^5.8.3",
     "typescript-eslint": "^8.64.0"
   }
 }

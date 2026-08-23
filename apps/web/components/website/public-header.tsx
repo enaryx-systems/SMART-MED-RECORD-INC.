@@ -36,7 +36,7 @@ export function PublicHeader() {
   }, [pathname]);
 
   return (
-    <header className="glass sticky top-0 z-50 w-full border-b border-pine/10">
+    <header className="sticky top-0 z-50 w-full border-b border-pine/10 bg-ivory/92 backdrop-blur-xl">
       <div className="flex h-[68px] w-full items-center justify-between gap-3 px-4 sm:h-[76px] sm:px-5 lg:px-8 xl:px-12">
         <Logo />
 
@@ -65,7 +65,7 @@ export function PublicHeader() {
 
         <div className="hidden shrink-0 gap-3 lg:flex">
           <Link
-            href="/login"
+            href="/portal/login"
             className="rounded-lg border border-pine px-5 py-2.5 text-sm font-semibold text-pine transition-colors hover:bg-pine hover:text-white"
           >
             Log in
@@ -115,7 +115,7 @@ export function PublicHeader() {
               );
             })}
             <Link
-              href="/login"
+              href="/portal/login"
               className="mt-2 rounded-lg bg-pine px-4 py-3 text-center text-white"
             >
               Client portal

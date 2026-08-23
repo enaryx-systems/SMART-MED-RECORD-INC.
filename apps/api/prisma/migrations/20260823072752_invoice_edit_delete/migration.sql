@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "CaseEventType" ADD VALUE 'INVOICE_UPDATED';

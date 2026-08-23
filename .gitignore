@@ -31,6 +31,7 @@ apps/api/uploads/
 # Editors and operating systems
 .idea/
 .vscode/
+.vs/
 .DS_Store
 Thumbs.db
 

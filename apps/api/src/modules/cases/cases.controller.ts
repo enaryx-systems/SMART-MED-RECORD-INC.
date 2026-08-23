@@ -1,64 +1,87 @@
 import { Body, Controller, Get, Param, Patch, Post, Query } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
-import { CurrentUser } from "../../common/auth/current-user.decorator";
-import { AuthenticatedUser } from "../../common/auth/jwt.strategy";
-import { Roles } from "../../common/auth/roles.decorator";
-import { CasesService } from "./cases.service";
+import { CaseStatus, CaseType, Role } from "@prisma/client";
+import { CasesService, type ListCasesQuery } from "./cases.service";
 import { CreateCaseDto } from "./dto/create-case.dto";
 import { UpdateCaseDto } from "./dto/update-case.dto";
-import { TransitionCaseDto } from "./dto/transition-case.dto";
+import { UpdateCaseStatusDto } from "./dto/update-case-status.dto";
+import { AssignCaseDto } from "./dto/assign-case.dto";
+import { CreateCaseEventDto } from "./dto/create-case-event.dto";
+import { CurrentUser } from "../../common/auth/current-user.decorator";
+import { Roles } from "../../common/auth/roles.decorator";
+import type { AuthUser } from "../../common/auth/jwt.strategy";
 
-@ApiTags("cases")
 @Controller("cases")
 export class CasesController {
-  constructor(private readonly cases: CasesService) {}
+  constructor(private casesService: CasesService) {}
 
+  @Roles(Role.CLIENT, Role.ADMIN, Role.REVIEWER)
   @Get()
   list(
-    @CurrentUser() user: AuthenticatedUser,
-    @Query("q") q?: string,
-    @Query("status") status?: string,
+    @CurrentUser() user: AuthUser,
+    @Query() query: ListCasesQuery & { status?: CaseStatus; caseType?: CaseType },
   ) {
-    return this.cases.findAll(user, q, status);
+    return this.casesService.list(user, query);
   }
 
-  @Get("statuses")
-  statuses() {
-    return this.cases.statuses();
+  @Roles(Role.CLIENT, Role.ADMIN, Role.REVIEWER)
+  @Get("stats")
+  stats(@CurrentUser() user: AuthUser, @Query("organizationId") organizationId?: string) {
+    return this.casesService.stats(user, organizationId);
   }
 
+  @Roles(Role.CLIENT, Role.ADMIN, Role.REVIEWER)
   @Get(":id")
-  detail(@Param("id") id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.cases.findOne(id, user);
+  findOne(@CurrentUser() user: AuthUser, @Param("id") id: string) {
+    return this.casesService.findOne(user, id);
   }
 
-  @Get(":id/activity")
-  activity(@Param("id") id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.cases.activity(id, user);
-  }
-
+  @Roles(Role.CLIENT)
   @Post()
-  @Roles("attorney", "case-manager", "admin")
-  create(@Body() body: CreateCaseDto, @CurrentUser() user: AuthenticatedUser) {
-    return this.cases.create(body, user);
+  create(@CurrentUser() user: AuthUser, @Body() dto: CreateCaseDto) {
+    return this.casesService.create(user, dto);
   }
 
+  @Roles(Role.CLIENT)
   @Patch(":id")
-  @Roles("case-manager", "admin")
-  update(
-    @Param("id") id: string,
-    @Body() body: UpdateCaseDto,
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
-    return this.cases.update(id, body, user);
+  update(@CurrentUser() user: AuthUser, @Param("id") id: string, @Body() dto: UpdateCaseDto) {
+    return this.casesService.update(user, id, dto);
   }
 
-  @Post(":id/transition")
-  transition(
+  @Roles(Role.CLIENT)
+  @Post(":id/submit")
+  submit(@CurrentUser() user: AuthUser, @Param("id") id: string) {
+    return this.casesService.submit(user, id);
+  }
+
+  @Roles(Role.ADMIN, Role.REVIEWER)
+  @Patch(":id/status")
+  updateStatus(
+    @CurrentUser() user: AuthUser,
     @Param("id") id: string,
-    @Body() body: TransitionCaseDto,
-    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateCaseStatusDto,
   ) {
-    return this.cases.transition(id, body, user);
+    return this.casesService.updateStatus(user, id, dto);
+  }
+
+  @Roles(Role.ADMIN)
+  @Patch(":id/assign")
+  assign(@CurrentUser() user: AuthUser, @Param("id") id: string, @Body() dto: AssignCaseDto) {
+    return this.casesService.assign(user, id, dto);
+  }
+
+  @Roles(Role.CLIENT, Role.ADMIN, Role.REVIEWER)
+  @Get(":id/events")
+  listEvents(@CurrentUser() user: AuthUser, @Param("id") id: string) {
+    return this.casesService.listEvents(user, id);
+  }
+
+  @Roles(Role.CLIENT, Role.ADMIN, Role.REVIEWER)
+  @Post(":id/events")
+  addEvent(
+    @CurrentUser() user: AuthUser,
+    @Param("id") id: string,
+    @Body() dto: CreateCaseEventDto,
+  ) {
+    return this.casesService.addEvent(user, id, dto);
   }
 }

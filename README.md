@@ -10,16 +10,23 @@ A full-stack medico-legal record review platform with a public marketing site an
 
 ## Run locally
 
+Each app installs independently with pnpm (no top-level workspace) — see [CLAUDE.md](CLAUDE.md) for
+the full repo-layout and conventions guide.
+
 ```bash
-npm install
+pnpm install                      # root tooling (lint/format/quality-gate)
+pnpm --dir apps/api install
+pnpm --dir apps/web install
 copy apps\\api\\.env.example apps\\api\\.env
-npm run db:generate
-npm run dev
+pnpm run db:generate
+pnpm run db:migrate
+pnpm run db:seed
+pnpm run dev
 ```
 
-Open `http://localhost:3000`. The demo login accepts any email and password (6+ characters); select a role on the login page. The API runs on `http://localhost:4000/api` and Swagger is at `http://localhost:4000/docs`.
-
-Role-aware portal sections are available for attorney/client, case manager, physician, medical reviewer, billing specialist, and administrator users. Change the active demo role from the portal sidebar to inspect each permission set.
+Open `http://localhost:3000/portal/login`. Auth is real (JWT + bcrypt) — sign in with a seeded
+account (see `apps/api/prisma/seed.ts`), role (`CLIENT`/`ADMIN`) comes from the account. The API
+runs on `http://localhost:4000/api` and Swagger is at `http://localhost:4000/docs`.
 
 ## Branch and deployment workflow
 
@@ -35,7 +42,7 @@ Start a new branch and run it locally:
 git switch development
 git pull --ff-only origin development
 git switch -c feature/short-description
-npm run dev
+pnpm run dev
 ```
 
 In Vercel, import this repository with `apps/web` as the Root Directory and set the Production
@@ -44,56 +51,7 @@ environment's tracked branch to `development`. The branch deployment rule in
 
 The portal has a resilient demo-data fallback when the API is offline. For production, replace the demo auth endpoint with Clerk/JWT verification, configure PostgreSQL and object storage, and enable the services listed in `.env.example`.
 
-## Project structure
+## Project structure and conventions
 
-```text
-smart-med/
-├─ apps/
-│  ├─ web/                         # Next.js frontend
-│  │  ├─ app/                     # Route entry points
-│  │  │  ├─ (website)/            # Public website route group
-│  │  │  │  ├─ page.tsx           # Homepage (/)
-│  │  │  │  ├─ about/             # About page (/about)
-│  │  │  │  ├─ contact/           # Contact page (/contact)
-│  │  │  │  ├─ features/          # Resources page (/features)
-│  │  │  │  └─ pricing/           # Pricing page (/pricing)
-│  │  │  ├─ (portal)/             # Portal route group
-│  │  │  │  ├─ login/             # Authentication page (/login)
-│  │  │  │  └─ portal/            # Authenticated pages (/portal/*)
-│  │  │  ├─ layout.tsx            # Shared root layout
-│  │  │  └─ globals.css           # Shared design system
-│  │  ├─ components/
-│  │  │  ├─ app/                  # Root application providers
-│  │  │  ├─ brand/                # Logo and brand components
-│  │  │  ├─ portal/               # Portal shell, tables, headings, status UI
-│  │  │  └─ website/              # Public header, footer, visual backgrounds
-│  │  ├─ lib/
-│  │  │  ├─ api/                  # Typed frontend API client
-│  │  │  ├─ data/                 # Demo cases and service catalogs
-│  │  │  └─ types/                # Shared frontend domain types
-│  │  └─ public/images/
-│  │     ├─ brand/                # Logos and brand-board assets
-│  │     └─ website/              # Homepage and public-page imagery
-│  └─ api/                         # NestJS backend
-│     ├─ prisma/                  # Database schema
-│     └─ src/
-│        ├─ common/health/        # Cross-application health endpoint
-│        └─ modules/
-│           ├─ auth/              # Authentication controller and DTOs
-│           ├─ cases/             # Cases controller, service, and module
-│           ├─ dashboard/         # Dashboard aggregation endpoint
-│           └─ services/          # Service catalog endpoint
-├─ nginx/                         # Reverse-proxy configuration
-├─ docker-compose.yml             # Local service orchestration
-└─ .env.example                   # Documented environment variables
-```
-
-## Organization conventions
-
-- Keep `app/**/page.tsx` focused on route composition; reusable UI belongs in `components`.
-- Use `(website)` and `(portal)` route groups to keep public and authenticated routes separate without adding those folder names to URLs.
-- Public website components and portal components stay separate.
-- Images are referenced from `/images/brand/*` or `/images/website/*`.
-- Frontend network calls live in `lib/api`; demo content lives in `lib/data`.
-- Backend functionality is registered through feature modules rather than directly in `AppModule`.
-- Add request validation classes beneath the owning backend module’s `dto` folder.
+See [CLAUDE.md](CLAUDE.md) for the full repo layout, per-app commands, and code conventions
+(NestJS module pattern, Prisma access, auth guards, frontend routing and state).

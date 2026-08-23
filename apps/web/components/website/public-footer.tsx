@@ -40,7 +40,7 @@ export function PublicFooter() {
           <h4 className="font-semibold">Platform</h4>
           <div className="mt-4 flex flex-col gap-3 text-sm text-white/65">
             <Link href="/features">Features</Link>
-            <Link href="/login">Client portal</Link>
+            <Link href="/portal/login">Client portal</Link>
             <a href="#security">Security</a>
             <a href="#services">Services</a>
           </div>

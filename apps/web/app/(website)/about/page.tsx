@@ -79,7 +79,7 @@ export default function AboutPage() {
     <>
       <PublicHeader />
       <main className="bg-ivory">
-        <section className="grid-lines relative overflow-hidden border-b border-mint">
+        <section className="relative overflow-hidden border-b border-mint bg-[linear-gradient(rgba(6,63,54,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(6,63,54,0.035)_1px,transparent_1px)] bg-[length:32px_32px]">
           <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-mint/70 to-transparent" />
           <NeuralBackdrop className="opacity-[.10] sm:opacity-[.26]" />
           <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 py-20 lg:grid-cols-[.9fr_1.1fr] lg:px-8 lg:py-24">
@@ -189,7 +189,10 @@ export default function AboutPage() {
           </div>
           <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
             {reasons.map(({ icon: Icon, title, copy }) => (
-              <article className="frost-card rounded-2xl p-6" key={title}>
+              <article
+                className="rounded-2xl border border-emerald/30 bg-[linear-gradient(145deg,rgba(234,242,238,0.86),rgba(220,233,226,0.62))] p-6 shadow-[0_22px_48px_rgba(0,69,58,0.11),0_5px_14px_rgba(0,69,58,0.07),inset_0_1px_0_rgba(255,255,255,0.92)] backdrop-blur-[18px] backdrop-saturate-[1.35] [&:nth-child(even)]:bg-[linear-gradient(145deg,rgba(220,233,226,0.94),rgba(202,224,214,0.7))] hover:border-emerald/[.52] hover:shadow-[0_28px_58px_rgba(0,69,58,0.16),0_8px_18px_rgba(0,69,58,0.08),inset_0_1px_0_rgba(255,255,255,0.96)]"
+                key={title}
+              >
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-cream text-emerald shadow-card">
                   <Icon size={20} />
                 </span>

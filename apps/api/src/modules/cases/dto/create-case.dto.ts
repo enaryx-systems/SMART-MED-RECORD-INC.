@@ -1,36 +1,75 @@
-import { IsIn, IsISO8601, IsOptional, IsString, MinLength } from "class-validator";
-import { PRIORITIES } from "../../../common/constants";
+import {
+  IsArray,
+  IsBoolean,
+  IsEmail,
+  IsEnum,
+  IsIn,
+  IsOptional,
+  IsString,
+  MinLength,
+} from "class-validator";
+import { CaseType, DeliverySpeed } from "@prisma/client";
+import { ADDITIONAL_SERVICES_CATALOG, SERVICES_DESIRED_CATALOG } from "../case-catalog";
 
 export class CreateCaseDto {
   @IsString()
-  @MinLength(1)
-  clientName!: string;
-
-  @IsString()
-  @MinLength(1)
+  @MinLength(2)
   matterName!: string;
 
-  @IsOptional()
-  @IsString()
-  matterNumber?: string;
+  @IsEnum(CaseType)
+  caseType!: CaseType;
 
   @IsOptional()
   @IsString()
-  claimNumber?: string;
-
-  @IsString()
-  @MinLength(1)
-  service!: string;
-
-  @IsOptional()
-  @IsIn(PRIORITIES)
-  priority?: string;
-
-  @IsOptional()
-  @IsISO8601()
-  dueAt?: string;
+  attorneyName?: string;
 
   @IsOptional()
   @IsString()
-  instructions?: string;
+  contactName?: string;
+
+  @IsOptional()
+  @IsEmail()
+  contactEmail?: string;
+
+  @IsOptional()
+  @IsString()
+  contactPhone?: string;
+
+  @IsOptional()
+  @IsString()
+  caseOverview?: string;
+
+  @IsOptional()
+  @IsString()
+  caseIssues?: string;
+
+  @IsOptional()
+  @IsString()
+  specificInstructions?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsIn(SERVICES_DESIRED_CATALOG, { each: true })
+  servicesDesired?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsIn(ADDITIONAL_SERVICES_CATALOG, { each: true })
+  additionalServices?: string[];
+
+  @IsOptional()
+  @IsString()
+  otherServicesNote?: string;
+
+  @IsOptional()
+  @IsEnum(DeliverySpeed)
+  deliverySpeed?: DeliverySpeed;
+
+  @IsOptional()
+  @IsBoolean()
+  pdfReference?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  batesReference?: boolean;
 }
