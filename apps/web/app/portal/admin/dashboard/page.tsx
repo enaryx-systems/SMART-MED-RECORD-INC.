@@ -22,7 +22,10 @@ export default function AdminDashboardPage() {
     queryKey: ["case-stats", organizationId],
     queryFn: () => fetchCaseStats(organizationId ?? undefined),
   });
-  const { data: orgOptions } = useQuery({ queryKey: ["organization-options"], queryFn: fetchOrganizationOptions });
+  const { data: orgOptions } = useQuery({
+    queryKey: ["organization-options"],
+    queryFn: fetchOrganizationOptions,
+  });
   const { data: invoiceSummary } = useQuery({
     queryKey: ["invoices", "summary", organizationId],
     queryFn: () => fetchInvoiceSummary(organizationId ?? undefined),
@@ -85,7 +88,11 @@ export default function AdminDashboardPage() {
             {formatAmount(invoiceSummary?.paidCents ?? 0)}
           </div>
         </div>
-        <StatCard label="Pending invoices" value={invoiceSummary?.pendingCount ?? 0} color="#B78A3D" />
+        <StatCard
+          label="Pending invoices"
+          value={invoiceSummary?.pendingCount ?? 0}
+          color="#B78A3D"
+        />
         <StatCard label="Paid invoices" value={invoiceSummary?.paidCount ?? 0} color="#00856F" />
       </div>
 
@@ -100,11 +107,19 @@ export default function AdminDashboardPage() {
         </div>
         <div className="rounded-2xl border-[1.5px] border-pine/30 bg-white p-6 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)]">
           <h3 className="mb-6 text-lg font-bold text-pine">Cases by organization</h3>
-          {orgSlices.length > 0 ? <DonutChart slices={orgSlices} /> : <p className="text-sm text-ink/50">No data yet.</p>}
+          {orgSlices.length > 0 ? (
+            <DonutChart slices={orgSlices} />
+          ) : (
+            <p className="text-sm text-ink/50">No data yet.</p>
+          )}
         </div>
         <div className="rounded-2xl border-[1.5px] border-pine/30 bg-white p-6 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)]">
           <h3 className="mb-6 text-lg font-bold text-pine">Reviewer workload</h3>
-          {reviewerBars.length > 0 ? <BarChart bars={reviewerBars} /> : <p className="text-sm text-ink/50">No cases assigned yet.</p>}
+          {reviewerBars.length > 0 ? (
+            <BarChart bars={reviewerBars} />
+          ) : (
+            <p className="text-sm text-ink/50">No cases assigned yet.</p>
+          )}
         </div>
       </div>
     </div>

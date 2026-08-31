@@ -39,7 +39,16 @@ function ReviewerCasesTable() {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["cases", "assigned", status ?? "all", caseType, page, sortBy, sortDir, organizationId],
+    queryKey: [
+      "cases",
+      "assigned",
+      status ?? "all",
+      caseType,
+      page,
+      sortBy,
+      sortDir,
+      organizationId,
+    ],
     queryFn: () =>
       fetchCases({
         status,
@@ -67,11 +76,26 @@ function ReviewerCasesTable() {
   }
 
   const columns: DataTableColumn<Case>[] = [
-    { key: "caseNumber", header: "Case #", sortable: true, render: (c) => <span className="font-semibold text-pine">{c.caseNumber}</span> },
+    {
+      key: "caseNumber",
+      header: "Case #",
+      sortable: true,
+      render: (c) => <span className="font-semibold text-pine">{c.caseNumber}</span>,
+    },
     { key: "matterName", header: "Matter", sortable: true, render: (c) => c.matterName },
-    { key: "organization", header: "Organization", render: (c) => c.organization && <OrgBadge id={c.organization.id} name={c.organization.name} /> },
+    {
+      key: "organization",
+      header: "Organization",
+      render: (c) =>
+        c.organization && <OrgBadge id={c.organization.id} name={c.organization.name} />,
+    },
     { key: "caseType", header: "Case Type", render: (c) => CASE_TYPE_LABEL[c.caseType] },
-    { key: "status", header: "Status", sortable: true, render: (c) => <StatusPill status={c.status} /> },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      render: (c) => <StatusPill status={c.status} />,
+    },
     {
       key: "dueAt",
       header: "Due",

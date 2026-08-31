@@ -32,7 +32,10 @@ export default function PortalSupportPage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         {CHANNELS.map(({ icon: Icon, label, value, hint }) => (
-          <div key={label} className="rounded-2xl border-[1.5px] border-pine/30 bg-white p-5 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)]">
+          <div
+            key={label}
+            className="rounded-2xl border-[1.5px] border-pine/30 bg-white p-5 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)]"
+          >
             <Icon size={20} className="text-emerald" />
             <div className="mt-3 text-sm font-semibold text-pine">{label}</div>
             <div className="mt-1 text-sm text-ink/80">{value}</div>

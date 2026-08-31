@@ -37,7 +37,14 @@ function CasesTable() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["cases", status ?? "all", caseType, page, sortBy, sortDir],
     queryFn: () =>
-      fetchCases({ status, caseType: caseType || undefined, page, pageSize: PAGE_SIZE, sortBy, sortDir }),
+      fetchCases({
+        status,
+        caseType: caseType || undefined,
+        page,
+        pageSize: PAGE_SIZE,
+        sortBy,
+        sortDir,
+      }),
   });
 
   const { data: stats } = useQuery({
@@ -55,7 +62,12 @@ function CasesTable() {
   }
 
   const columns: DataTableColumn<Case>[] = [
-    { key: "caseNumber", header: "Case #", sortable: true, render: (c) => <span className="font-semibold text-pine">{c.caseNumber}</span> },
+    {
+      key: "caseNumber",
+      header: "Case #",
+      sortable: true,
+      render: (c) => <span className="font-semibold text-pine">{c.caseNumber}</span>,
+    },
     { key: "matterName", header: "Matter", sortable: true, render: (c) => c.matterName },
     { key: "caseType", header: "Case Type", render: (c) => CASE_TYPE_LABEL[c.caseType] },
     {
@@ -66,7 +78,12 @@ function CasesTable() {
           ? `${c.servicesDesired.length} service${c.servicesDesired.length > 1 ? "s" : ""}`
           : "—",
     },
-    { key: "status", header: "Status", sortable: true, render: (c) => <StatusPill status={c.status} /> },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      render: (c) => <StatusPill status={c.status} />,
+    },
     {
       key: "dueAt",
       header: "Due",
@@ -78,15 +95,17 @@ function CasesTable() {
         </span>
       ),
     },
-    { key: "createdAt", header: "Created", sortable: true, render: (c) => new Date(c.createdAt).toLocaleDateString() },
+    {
+      key: "createdAt",
+      header: "Created",
+      sortable: true,
+      render: (c) => new Date(c.createdAt).toLocaleDateString(),
+    },
   ];
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Cases"
-        description="Browse and filter every case by its current status."
-      />
+      <PageHeader title="Cases" description="Browse and filter every case by its current status." />
 
       <StatusFilterCards baseHref="/portal/cases" status={status} stats={stats} />
 
@@ -125,7 +144,9 @@ function CasesTable() {
         sortDir={sortDir}
         onSortChange={onSortChange}
         onRowClick={(c) =>
-          router.push(c.status === "DRAFT" ? `/portal/records/new?caseId=${c.id}` : `/portal/cases/${c.id}`)
+          router.push(
+            c.status === "DRAFT" ? `/portal/records/new?caseId=${c.id}` : `/portal/cases/${c.id}`,
+          )
         }
       />
     </div>

@@ -8,10 +8,10 @@ agent) working across the codebase. For PR-review rules and severity policy, see
 Two independent apps, each installed and run on its own — there is no top-level package manager
 tying them together. Always `cd`/`pnpm --dir` into the relevant app before running its commands.
 
-| Path | Stack | Port | Role |
-| ---- | ----- | ---- | ---- |
-| [apps/api/](apps/api/) | NestJS 11 + Prisma 6 + JWT (bcryptjs) | 4000 | REST API, auth, RBAC, domain logic. Owner of the database schema. |
-| [apps/web/](apps/web/) | Next.js 15 (App Router) + React 19 + TanStack Query + Redux Toolkit (UI state only) + Tailwind 3 | 3000 | Public marketing site + client/admin portal. |
+| Path                   | Stack                                                                                            | Port | Role                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------------------ | ---- | ----------------------------------------------------------------- |
+| [apps/api/](apps/api/) | NestJS 11 + Prisma 6 + JWT (bcryptjs)                                                            | 4000 | REST API, auth, RBAC, domain logic. Owner of the database schema. |
+| [apps/web/](apps/web/) | Next.js 15 (App Router) + React 19 + TanStack Query + Redux Toolkit (UI state only) + Tailwind 3 | 3000 | Public marketing site + client/admin portal.                      |
 
 The root `package.json` is its own independent pnpm install too — it owns repo-wide tooling
 (ESLint, Prettier, the P1/P2 quality-gate scripts) that spans both apps, plus convenience scripts
@@ -20,10 +20,10 @@ that shell into each app. It is **not** an npm/pnpm workspace root.
 `apps/web` itself carries two clearly separated areas, split consistently across `app/`,
 `components/`, and `lib/`:
 
-| Area | Routes | Components | Notes |
-| ---- | ------ | ----------- | ----- |
-| **Website** (public marketing) | `app/(website)/` — a route group, so it adds no path segment (`/`, `/about`, `/contact`, `/features`, `/pricing`) | `components/website/` (header, footer, hero backdrop) | Static content; `lib/data/services.ts` holds its service-catalog copy. |
-| **Portal** (authenticated app) | `app/portal/` — a real folder, so `/portal/login`, `/portal/dashboard`, etc. are real paths | `components/portal/` (sidebar, header, stat cards, charts) | Backed by the API; auth-gated in `app/portal/layout.tsx`. |
+| Area                           | Routes                                                                                                            | Components                                                 | Notes                                                                  |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------- |
+| **Website** (public marketing) | `app/(website)/` — a route group, so it adds no path segment (`/`, `/about`, `/contact`, `/features`, `/pricing`) | `components/website/` (header, footer, hero backdrop)      | Static content; `lib/data/services.ts` holds its service-catalog copy. |
+| **Portal** (authenticated app) | `app/portal/` — a real folder, so `/portal/login`, `/portal/dashboard`, etc. are real paths                       | `components/portal/` (sidebar, header, stat cards, charts) | Backed by the API; auth-gated in `app/portal/layout.tsx`.              |
 
 Shared across both: `components/app/` (root providers), `components/brand/` (logo), and the
 function-scoped `lib/{api,auth,types}/` (network client, session storage, shared domain types).

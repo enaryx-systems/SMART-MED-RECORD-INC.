@@ -2,6 +2,7 @@
   "name": "smart-med-records",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "pnpm@11.22.0",
   "scripts": {
     "dev": "concurrently -n WEB,API -c cyan,green \"pnpm --dir apps/web dev\" \"pnpm --dir apps/api start:dev\"",
     "build": "pnpm --dir apps/api build && pnpm --dir apps/web build",

@@ -1,4 +1,9 @@
-import { CASE_TYPE_LABEL, DELIVERY_SPEED_LABEL, STATUS_COLOR, STATUS_LABEL } from "@/lib/types/portal";
+import {
+  CASE_TYPE_LABEL,
+  DELIVERY_SPEED_LABEL,
+  STATUS_COLOR,
+  STATUS_LABEL,
+} from "@/lib/types/portal";
 import type { Case } from "@/lib/types/portal";
 import { OrgBadge } from "@/components/portal/org-badge";
 import { ReviewerBadge } from "@/components/portal/reviewer-badge";

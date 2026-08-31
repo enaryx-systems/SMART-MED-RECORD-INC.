@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   Activity,
   ArrowRight,
@@ -392,11 +393,13 @@ export default function Features() {
                 <Sparkles size={14} /> One case-intelligence platform
               </span>
               <h1 className="mt-7 max-w-3xl text-5xl leading-[1.08] text-pine md:text-6xl">
-                See the chronology in minutes. Trust the <span className="text-gold">final</span> in court.
+                See the chronology in minutes. Trust the <span className="text-gold">final</span> in
+                court.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Instant AI drafts give your team answers now. Licensed medical <span className="text-gold font-medium">reviewers</span> verify,
-                refine, and certify the court-ready final—all in one secure workspace.
+                Instant AI drafts give your team answers now. Licensed medical{" "}
+                <span className="text-gold font-medium">reviewers</span> verify, refine, and certify
+                the court-ready final—all in one secure workspace.
               </p>
               <div className="mt-8 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
                 <Link
@@ -415,9 +418,12 @@ export default function Features() {
               </div>
             </div>
             <div className="relative overflow-hidden rounded-3xl lg:h-[420px]">
-              <img
+              <Image
                 src="/images/website/resources-hero.png"
                 alt="Secure medical records transformed into a source-linked chronology and verified by a physician for legal use"
+                width={1024}
+                height={1536}
+                priority
                 className="aspect-[4/5] w-full object-cover lg:aspect-auto lg:h-full"
               />
               <div className="absolute right-6 top-6 rounded-full border border-white/60 bg-ivory/85 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-emerald shadow-card backdrop-blur">

@@ -39,14 +39,19 @@ function InvoiceCreateForm({ onCreated }: { onCreated: () => void }) {
 
   // consolidated mode
   const [consolidatedOrgId, setConsolidatedOrgId] = useState("");
-  const [selected, setSelected] = useState<Record<string, { description: string; amount: string }>>({});
+  const [selected, setSelected] = useState<Record<string, { description: string; amount: string }>>(
+    {},
+  );
 
   const { data: allCaseOptions } = useQuery({
     queryKey: ["invoice-case-options", "all"],
     queryFn: () => fetchInvoiceCaseOptions(),
     enabled: mode === "single",
   });
-  const { data: orgOptions } = useQuery({ queryKey: ["organization-options"], queryFn: fetchOrganizationOptions });
+  const { data: orgOptions } = useQuery({
+    queryKey: ["organization-options"],
+    queryFn: fetchOrganizationOptions,
+  });
   const { data: orgCaseOptions } = useQuery({
     queryKey: ["invoice-case-options", consolidatedOrgId],
     queryFn: () => fetchInvoiceCaseOptions(consolidatedOrgId),
@@ -238,7 +243,10 @@ function InvoiceCreateForm({ onCreated }: { onCreated: () => void }) {
                         <TextInput
                           value={selected[c.id].description}
                           onChange={(e) =>
-                            setSelected((prev) => ({ ...prev, [c.id]: { ...prev[c.id], description: e.target.value } }))
+                            setSelected((prev) => ({
+                              ...prev,
+                              [c.id]: { ...prev[c.id], description: e.target.value },
+                            }))
                           }
                           className="min-w-[200px] flex-1"
                         />
@@ -249,7 +257,10 @@ function InvoiceCreateForm({ onCreated }: { onCreated: () => void }) {
                           placeholder="Amount"
                           value={selected[c.id].amount}
                           onChange={(e) =>
-                            setSelected((prev) => ({ ...prev, [c.id]: { ...prev[c.id], amount: e.target.value } }))
+                            setSelected((prev) => ({
+                              ...prev,
+                              [c.id]: { ...prev[c.id], amount: e.target.value },
+                            }))
                           }
                           className="w-28"
                         />
@@ -262,7 +273,9 @@ function InvoiceCreateForm({ onCreated }: { onCreated: () => void }) {
           )}
 
           <Button onClick={submitConsolidated} disabled={createMutation.isPending}>
-            {createMutation.isPending ? "Issuing…" : `Issue consolidated invoice${Object.keys(selected).length ? ` (${Object.keys(selected).length} cases)` : ""}`}
+            {createMutation.isPending
+              ? "Issuing…"
+              : `Issue consolidated invoice${Object.keys(selected).length ? ` (${Object.keys(selected).length} cases)` : ""}`}
           </Button>
         </div>
       )}
@@ -336,7 +349,9 @@ export function InvoiceManager() {
       <InvoiceCreateForm onCreated={invalidate} />
 
       {isError && (
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">Could not load invoices.</p>
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+          Could not load invoices.
+        </p>
       )}
 
       <InvoiceTable

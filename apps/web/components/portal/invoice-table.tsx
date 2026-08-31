@@ -49,16 +49,40 @@ export function InvoiceTable({
   isLoading?: boolean;
 }) {
   const columns: DataTableColumn<Invoice>[] = [
-    { key: "number", header: "Invoice #", sortable: true, render: (i) => <span className="font-semibold text-pine">{i.number}</span> },
+    {
+      key: "number",
+      header: "Invoice #",
+      sortable: true,
+      render: (i) => <span className="font-semibold text-pine">{i.number}</span>,
+    },
     ...(showCase
       ? [
           { key: "case", header: "Case", render: (i: Invoice) => caseSummary(i) },
-          { key: "org", header: "Organization", render: (i: Invoice) => i.organization?.name ?? "—" },
+          {
+            key: "org",
+            header: "Organization",
+            render: (i: Invoice) => i.organization?.name ?? "—",
+          },
         ]
       : []),
-    { key: "amountCents", header: "Amount", sortable: true, render: (i) => formatAmount(i.amountCents) },
-    { key: "dueAt", header: "Due", sortable: true, render: (i) => new Date(i.dueAt).toLocaleDateString() },
-    { key: "status", header: "Status", sortable: true, render: (i) => <StatusPillForInvoice status={i.status} /> },
+    {
+      key: "amountCents",
+      header: "Amount",
+      sortable: true,
+      render: (i) => formatAmount(i.amountCents),
+    },
+    {
+      key: "dueAt",
+      header: "Due",
+      sortable: true,
+      render: (i) => new Date(i.dueAt).toLocaleDateString(),
+    },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      render: (i) => <StatusPillForInvoice status={i.status} />,
+    },
   ];
 
   return (

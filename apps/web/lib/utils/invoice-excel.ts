@@ -26,7 +26,11 @@ export function downloadInvoiceExcel(invoice: Invoice) {
     ...(invoice.paidAt ? [["Paid", formatDate(invoice.paidAt)]] : []),
     [],
     ["Case", "Description", "Amount (USD)"],
-    ...invoice.lineItems.map((li) => [li.case.caseNumber, li.description, formatAmount(li.amountCents)]),
+    ...invoice.lineItems.map((li) => [
+      li.case.caseNumber,
+      li.description,
+      formatAmount(li.amountCents),
+    ]),
     ["", "Total", formatAmount(invoice.amountCents)],
   ];
 

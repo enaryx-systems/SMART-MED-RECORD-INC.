@@ -8,3 +8,6 @@ package-lock.json
 *.png
 *.jpeg
 *.jpg
+
+# pnpm lockfiles — managed by pnpm, keep its exact format for --frozen-lockfile
+pnpm-lock.yaml

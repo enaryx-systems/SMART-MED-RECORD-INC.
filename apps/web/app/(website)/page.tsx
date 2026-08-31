@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   BadgeCheck,
@@ -121,8 +122,7 @@ export default function Home() {
               <Sparkles size={14} /> AI-powered medico-legal intelligence
             </div>
             <h1 className="max-w-2xl text-5xl font-medium leading-[1.06] tracking-tight text-pine md:text-6xl">
-              Accurate medical insights.{" "}
-              <span className="text-gold">Stronger legal outcomes.</span>
+              Accurate medical insights. <span className="text-gold">Stronger legal outcomes.</span>
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-slate-600">
               Save time, control costs, and build stronger cases with AI-assisted,
@@ -157,9 +157,12 @@ export default function Home() {
             </div>
           </div>
           <div className="relative animate-rise overflow-hidden rounded-[28px] border border-emerald/20 bg-cream p-3 shadow-soft [animation-delay:.15s]">
-            <img
+            <Image
               src="/images/website/home-hero-intelligence.png"
               alt="Secure medical records transformed by AI into a source-linked legal case timeline and verified by a physician"
+              width={1536}
+              height={1024}
+              priority
               className="aspect-[3/2] w-full rounded-[20px] object-cover"
             />
             <div className="absolute right-6 top-6 rounded-full border border-white/60 bg-white/80 px-4 py-2 text-xs font-bold text-emerald shadow-card backdrop-blur-md">
@@ -283,9 +286,12 @@ export default function Home() {
         className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-24 lg:grid-cols-2 lg:px-8"
       >
         <div className="w-full max-w-[540px] justify-self-center overflow-hidden rounded-3xl bg-pine p-3 text-white shadow-soft lg:justify-self-start">
-          <img
+          <Image
             src="/images/website/home-platform-intelligence.png"
             alt="AI transforming complex medical records into source-linked case intelligence for expert verification"
+            width={1254}
+            height={1254}
+            loading="lazy"
             className="aspect-[4/3] w-full rounded-2xl object-cover object-center"
           />
           <div className="grid grid-cols-3 gap-3 px-3 py-5 text-center">

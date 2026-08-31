@@ -1,6 +1,12 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ChevronsUpDown, ChevronUp, ChevronDown as ChevronDownIcon } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
+  ChevronUp,
+  ChevronDown as ChevronDownIcon,
+} from "lucide-react";
 import type { SortDir } from "@/lib/types/portal";
 
 export interface DataTableColumn<T> {
@@ -53,7 +59,10 @@ export function DataTable<T>({
           <thead>
             <tr className="border-b-2 border-[#b8d5cc] bg-white">
               {columns.map((col) => (
-                <th key={col.key} className={`px-4 py-2.5 text-xs font-bold text-ink ${col.className ?? ""}`}>
+                <th
+                  key={col.key}
+                  className={`px-4 py-2.5 text-xs font-bold text-ink ${col.className ?? ""}`}
+                >
                   {col.sortable ? (
                     <button
                       type="button"
@@ -82,14 +91,20 @@ export function DataTable<T>({
           <tbody>
             {isLoading && (
               <tr>
-                <td className="px-4 py-6 text-sm text-ink/50" colSpan={columns.length + (renderActions ? 1 : 0)}>
+                <td
+                  className="px-4 py-6 text-sm text-ink/50"
+                  colSpan={columns.length + (renderActions ? 1 : 0)}
+                >
                   Loading…
                 </td>
               </tr>
             )}
             {!isLoading && rows.length === 0 && (
               <tr>
-                <td className="px-4 py-6 text-sm text-ink/50" colSpan={columns.length + (renderActions ? 1 : 0)}>
+                <td
+                  className="px-4 py-6 text-sm text-ink/50"
+                  colSpan={columns.length + (renderActions ? 1 : 0)}
+                >
                   {emptyLabel}
                 </td>
               </tr>
@@ -100,11 +115,16 @@ export function DataTable<T>({
                   key={rowKey(row)}
                   onClick={() => onRowClick?.(row)}
                   className={`border-t border-[#c9ddd6] odd:bg-white even:bg-[#f4f9f6] ${
-                    onRowClick ? "cursor-pointer transition-colors duration-fast hover:bg-mint/30" : ""
+                    onRowClick
+                      ? "cursor-pointer transition-colors duration-fast hover:bg-mint/30"
+                      : ""
                   }`}
                 >
                   {columns.map((col) => (
-                    <td key={col.key} className={`px-4 py-2.5 text-sm text-ink/80 ${col.className ?? ""}`}>
+                    <td
+                      key={col.key}
+                      className={`px-4 py-2.5 text-sm text-ink/80 ${col.className ?? ""}`}
+                    >
                       {col.render(row)}
                     </td>
                   ))}
@@ -120,9 +140,7 @@ export function DataTable<T>({
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-mint px-4 py-3 text-xs text-ink/60">
-        <span>
-          {total === 0 ? "No results" : `Showing ${from}–${to} of ${total}`}
-        </span>
+        <span>{total === 0 ? "No results" : `Showing ${from}–${to} of ${total}`}</span>
         <div className="flex items-center gap-2">
           <button
             type="button"

@@ -47,7 +47,9 @@ export function PortalHeader({ user, onLogout }: { user: AuthUser; onLogout: () 
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-pine to-emerald text-sm font-semibold text-white shadow-card">
               {initials(user.name)}
             </div>
-            <span className="max-w-[6rem] truncate text-xs font-semibold text-ink">{user.name}</span>
+            <span className="max-w-[6rem] truncate text-xs font-semibold text-ink">
+              {user.name}
+            </span>
           </button>
 
           {open && (

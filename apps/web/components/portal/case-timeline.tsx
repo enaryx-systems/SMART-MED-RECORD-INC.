@@ -2,14 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ClipboardEdit,
-  FilePenLine,
-  FileUp,
-  MessageSquare,
-  Receipt,
-  UserCog,
-} from "lucide-react";
+import { ClipboardEdit, FilePenLine, FileUp, MessageSquare, Receipt, UserCog } from "lucide-react";
 import { addCaseComment, fetchCaseEvents } from "@/lib/api/client";
 import type { CaseEventType } from "@/lib/types/portal";
 

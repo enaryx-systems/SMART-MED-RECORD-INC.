@@ -81,7 +81,10 @@ export default function PortalLoginPage() {
 
           <form className="mt-8 space-y-5" onSubmit={onSubmit}>
             <div>
-              <label className="mb-2 block text-left text-sm font-semibold text-ink" htmlFor="email">
+              <label
+                className="mb-2 block text-left text-sm font-semibold text-ink"
+                htmlFor="email"
+              >
                 Email address
               </label>
               <input
@@ -95,7 +98,10 @@ export default function PortalLoginPage() {
               />
             </div>
             <div>
-              <label className="mb-2 block text-left text-sm font-semibold text-ink" htmlFor="password">
+              <label
+                className="mb-2 block text-left text-sm font-semibold text-ink"
+                htmlFor="password"
+              >
                 Password
               </label>
               <div className="relative">

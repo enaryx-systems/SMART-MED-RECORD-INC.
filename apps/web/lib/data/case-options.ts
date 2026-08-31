@@ -1,4 +1,9 @@
-import { CASE_TYPE_LABEL, DELIVERY_SPEED_LABEL, type CaseType, type DeliverySpeed } from "@/lib/types/portal";
+import {
+  CASE_TYPE_LABEL,
+  DELIVERY_SPEED_LABEL,
+  type CaseType,
+  type DeliverySpeed,
+} from "@/lib/types/portal";
 
 export const CASE_TYPES: { value: CaseType; label: string }[] = (
   Object.entries(CASE_TYPE_LABEL) as [CaseType, string][]

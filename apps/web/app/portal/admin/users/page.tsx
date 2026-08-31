@@ -51,7 +51,10 @@ export default function AdminUsersPage() {
         role: roleFilter || undefined,
       }),
   });
-  const { data: orgOptions } = useQuery({ queryKey: ["organization-options"], queryFn: fetchOrganizationOptions });
+  const { data: orgOptions } = useQuery({
+    queryKey: ["organization-options"],
+    queryFn: fetchOrganizationOptions,
+  });
 
   const orgFormOptions = INTERNAL_ROLES.includes(role)
     ? [{ value: "org_internal", label: "Smart Med Records — Internal" }]
@@ -70,7 +73,8 @@ export default function AdminUsersPage() {
   });
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => setUserStatus(id, isActive),
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+      setUserStatus(id, isActive),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
   });
 
@@ -87,7 +91,12 @@ export default function AdminUsersPage() {
     { key: "name", header: "Name", sortable: true, render: (u) => <UserCell name={u.name} /> },
     { key: "email", header: "Email", sortable: true, render: (u) => u.email },
     { key: "role", header: "Role", render: (u) => <RoleBadge role={u.role} /> },
-    { key: "organization", header: "Organization", render: (u) => u.organization && <OrgBadge id={u.organization.id} name={u.organization.name} /> },
+    {
+      key: "organization",
+      header: "Organization",
+      render: (u) =>
+        u.organization && <OrgBadge id={u.organization.id} name={u.organization.name} />,
+    },
     {
       key: "status",
       header: "Status",
@@ -127,7 +136,12 @@ export default function AdminUsersPage() {
         </div>
         <div>
           <label className="mb-2 block text-sm font-semibold text-ink">Email</label>
-          <TextInput type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <TextInput
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
         <div>
           <label className="mb-2 block text-sm font-semibold text-ink">Temp password</label>
@@ -168,7 +182,9 @@ export default function AdminUsersPage() {
       {error && <p className="text-sm text-red-700">{error}</p>}
 
       <div className="flex items-center gap-3">
-        <span className="text-xs font-bold uppercase tracking-wide text-emerald">Filter by role</span>
+        <span className="text-xs font-bold uppercase tracking-wide text-emerald">
+          Filter by role
+        </span>
         <div className="w-48">
           <Dropdown
             value={roleFilter}

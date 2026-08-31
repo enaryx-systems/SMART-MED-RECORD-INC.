@@ -17,13 +17,7 @@ export const ROLE_LABEL: Record<Role, string> = {
 };
 
 export type CaseStatus =
-  | "DRAFT"
-  | "NEW"
-  | "IN_PROGRESS"
-  | "ON_HOLD"
-  | "AWAITING_DELIVERY"
-  | "DELIVERED"
-  | "CANCELED";
+  "DRAFT" | "NEW" | "IN_PROGRESS" | "ON_HOLD" | "AWAITING_DELIVERY" | "DELIVERED" | "CANCELED";
 
 export const CASE_STATUSES: CaseStatus[] = [
   "DRAFT",

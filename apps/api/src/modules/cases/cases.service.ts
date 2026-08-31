@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { CaseStatus, CaseType, Role } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import type { AuthUser } from "../../common/auth/jwt.strategy";
@@ -121,7 +126,9 @@ export class CasesService {
       }))
       .sort((a, b) => b.count - a.count);
 
-    const reviewerIds = byReviewer.map((r) => r.assignedReviewerId).filter((id): id is string => !!id);
+    const reviewerIds = byReviewer
+      .map((r) => r.assignedReviewerId)
+      .filter((id): id is string => !!id);
     const reviewers = reviewerIds.length
       ? await this.prisma.user.findMany({
           where: { id: { in: reviewerIds } },
@@ -235,7 +242,8 @@ export class CasesService {
     const missing: string[] = [];
     if (!found.matterName || found.matterName.trim().length < 2) missing.push("case name");
     if (!found.caseType) missing.push("case type");
-    if (!found.servicesDesired || found.servicesDesired.length === 0) missing.push("services desired");
+    if (!found.servicesDesired || found.servicesDesired.length === 0)
+      missing.push("services desired");
     if (missing.length > 0) {
       throw new BadRequestException(`Missing required fields: ${missing.join(", ")}.`);
     }
