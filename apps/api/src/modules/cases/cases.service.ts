@@ -256,18 +256,20 @@ export class CasesService {
 
   async updateStatus(user: AuthUser, id: string, dto: UpdateCaseStatusDto) {
     const found = await this.findOne(user, id);
-    const updated = await this.prisma.case.update({
-      where: { id: found.id },
-      data: { status: dto.status },
-    });
-    await this.prisma.caseEvent.create({
-      data: {
-        caseId: found.id,
-        authorId: user.id,
-        type: "STATUS_CHANGE",
-        body: `Status changed from ${found.status} to ${dto.status}.`,
-      },
-    });
+    const [updated] = await this.prisma.$transaction([
+      this.prisma.case.update({
+        where: { id: found.id },
+        data: { status: dto.status },
+      }),
+      this.prisma.caseEvent.create({
+        data: {
+          caseId: found.id,
+          authorId: user.id,
+          type: "STATUS_CHANGE",
+          body: `Status changed from ${found.status} to ${dto.status}.`,
+        },
+      }),
+    ]);
     return updated;
   }
 
@@ -282,18 +284,20 @@ export class CasesService {
       if (!reviewer) throw new BadRequestException("Reviewer not found.");
     }
 
-    const updated = await this.prisma.case.update({
-      where: { id: found.id },
-      data: { assignedReviewerId: reviewerId },
-    });
-    await this.prisma.caseEvent.create({
-      data: {
-        caseId: found.id,
-        authorId: user.id,
-        type: "ASSIGNMENT",
-        body: reviewerId ? `Case assigned to reviewer.` : `Case unassigned.`,
-      },
-    });
+    const [updated] = await this.prisma.$transaction([
+      this.prisma.case.update({
+        where: { id: found.id },
+        data: { assignedReviewerId: reviewerId },
+      }),
+      this.prisma.caseEvent.create({
+        data: {
+          caseId: found.id,
+          authorId: user.id,
+          type: "ASSIGNMENT",
+          body: reviewerId ? `Case assigned to reviewer.` : `Case unassigned.`,
+        },
+      }),
+    ]);
     return updated;
   }
 

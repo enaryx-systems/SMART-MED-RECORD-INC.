@@ -179,43 +179,45 @@ export class InvoicesService {
 
     const lineItemById = new Map(invoice.lineItems.map((li) => [li.caseId, li]));
 
-    if (dto.lineItems) {
-      for (const update of dto.lineItems) {
-        if (!lineItemById.has(update.caseId)) continue; // ignore cases not already on this invoice
-        await this.prisma.invoiceLineItem.update({
-          where: { id: lineItemById.get(update.caseId)!.id },
-          data: {
-            ...(update.description !== undefined ? { description: update.description } : {}),
-            ...(update.amountCents !== undefined ? { amountCents: update.amountCents } : {}),
-          },
-        });
+    return this.prisma.$transaction(async (tx) => {
+      if (dto.lineItems) {
+        for (const update of dto.lineItems) {
+          if (!lineItemById.has(update.caseId)) continue; // ignore cases not already on this invoice
+          await tx.invoiceLineItem.update({
+            where: { id: lineItemById.get(update.caseId)!.id },
+            data: {
+              ...(update.description !== undefined ? { description: update.description } : {}),
+              ...(update.amountCents !== undefined ? { amountCents: update.amountCents } : {}),
+            },
+          });
+        }
       }
-    }
 
-    const refreshedLineItems = await this.prisma.invoiceLineItem.findMany({
-      where: { invoiceId: id },
+      const refreshedLineItems = await tx.invoiceLineItem.findMany({
+        where: { invoiceId: id },
+      });
+      const amountCents = refreshedLineItems.reduce((sum, li) => sum + li.amountCents, 0);
+
+      const updated = await tx.invoice.update({
+        where: { id },
+        data: {
+          amountCents,
+          ...(dto.dueAt !== undefined ? { dueAt: new Date(dto.dueAt) } : {}),
+        },
+        include: LINE_ITEM_INCLUDE,
+      });
+
+      await tx.caseEvent.createMany({
+        data: invoice.lineItems.map((li) => ({
+          caseId: li.caseId,
+          authorId: user.id,
+          type: "INVOICE_UPDATED" as const,
+          body: `Invoice ${invoice.number} updated.`,
+        })),
+      });
+
+      return updated;
     });
-    const amountCents = refreshedLineItems.reduce((sum, li) => sum + li.amountCents, 0);
-
-    const updated = await this.prisma.invoice.update({
-      where: { id },
-      data: {
-        amountCents,
-        ...(dto.dueAt !== undefined ? { dueAt: new Date(dto.dueAt) } : {}),
-      },
-      include: LINE_ITEM_INCLUDE,
-    });
-
-    await this.prisma.caseEvent.createMany({
-      data: invoice.lineItems.map((li) => ({
-        caseId: li.caseId,
-        authorId: user.id,
-        type: "INVOICE_UPDATED" as const,
-        body: `Invoice ${invoice.number} updated.`,
-      })),
-    });
-
-    return updated;
   }
 
   async remove(user: AuthUser, id: string) {
@@ -228,18 +230,19 @@ export class InvoicesService {
       throw new ConflictException("Only pending invoices can be deleted.");
     }
 
-    await this.prisma.caseEvent.createMany({
-      data: invoice.lineItems.map((li) => ({
-        caseId: li.caseId,
-        authorId: user.id,
-        type: "INVOICE_UPDATED" as const,
-        body: `Invoice ${invoice.number} deleted.`,
-      })),
-    });
-
-    // Line items cascade-delete with the invoice, freeing their cases back
-    // into caseOptions() for a future invoice.
-    await this.prisma.invoice.delete({ where: { id } });
+    await this.prisma.$transaction([
+      this.prisma.caseEvent.createMany({
+        data: invoice.lineItems.map((li) => ({
+          caseId: li.caseId,
+          authorId: user.id,
+          type: "INVOICE_UPDATED" as const,
+          body: `Invoice ${invoice.number} deleted.`,
+        })),
+      }),
+      // Line items cascade-delete with the invoice, freeing their cases back
+      // into caseOptions() for a future invoice.
+      this.prisma.invoice.delete({ where: { id } }),
+    ]);
     return { id };
   }
 
@@ -250,20 +253,21 @@ export class InvoicesService {
     });
     if (!invoice) throw new NotFoundException("Invoice not found.");
 
-    const updated = await this.prisma.invoice.update({
-      where: { id },
-      data: { status: "PAID", paidAt: new Date() },
-      include: LINE_ITEM_INCLUDE,
-    });
-
-    await this.prisma.caseEvent.createMany({
-      data: invoice.lineItems.map((li) => ({
-        caseId: li.caseId,
-        authorId: user.id,
-        type: "INVOICE_PAID" as const,
-        body: `Invoice ${invoice.number} marked paid.`,
-      })),
-    });
+    const [updated] = await this.prisma.$transaction([
+      this.prisma.invoice.update({
+        where: { id },
+        data: { status: "PAID", paidAt: new Date() },
+        include: LINE_ITEM_INCLUDE,
+      }),
+      this.prisma.caseEvent.createMany({
+        data: invoice.lineItems.map((li) => ({
+          caseId: li.caseId,
+          authorId: user.id,
+          type: "INVOICE_PAID" as const,
+          body: `Invoice ${invoice.number} marked paid.`,
+        })),
+      }),
+    ]);
 
     return updated;
   }

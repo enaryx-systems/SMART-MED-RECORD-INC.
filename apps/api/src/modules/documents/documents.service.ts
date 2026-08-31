@@ -58,29 +58,30 @@ export class DocumentsService {
     const storageKey = `${caseId}/${randomUUID()}${path.extname(file.originalname)}`;
     await this.storage.upload(storageKey, file.buffer, file.mimetype);
 
-    const doc = await this.prisma.document.create({
-      data: {
-        caseId,
-        fileName: file.originalname,
-        storageKey,
-        mimeType: file.mimetype,
-        size: file.size,
-        uploadedById: user.id,
-        kind,
-      },
-    });
-
-    await this.prisma.caseEvent.create({
-      data: {
-        caseId,
-        authorId: user.id,
-        type: "DOCUMENT_UPLOADED",
-        body:
-          kind === DocumentKind.DELIVERABLE
-            ? `Deliverable uploaded: ${file.originalname}`
-            : `Document uploaded: ${file.originalname}`,
-      },
-    });
+    const [doc] = await this.prisma.$transaction([
+      this.prisma.document.create({
+        data: {
+          caseId,
+          fileName: file.originalname,
+          storageKey,
+          mimeType: file.mimetype,
+          size: file.size,
+          uploadedById: user.id,
+          kind,
+        },
+      }),
+      this.prisma.caseEvent.create({
+        data: {
+          caseId,
+          authorId: user.id,
+          type: "DOCUMENT_UPLOADED",
+          body:
+            kind === DocumentKind.DELIVERABLE
+              ? `Deliverable uploaded: ${file.originalname}`
+              : `Document uploaded: ${file.originalname}`,
+        },
+      }),
+    ]);
 
     return doc;
   }
