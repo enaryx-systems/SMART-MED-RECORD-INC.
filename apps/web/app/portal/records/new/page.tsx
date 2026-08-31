@@ -20,7 +20,11 @@ import { StepServiceDetails } from "./step-service-details";
 import { StepUploadRecords } from "./step-upload-records";
 import { EMPTY_WIZARD_STATE, isStep1Valid, isStep2Valid, type WizardState } from "./wizard-types";
 
-const STEPS = [{ label: "Case Details" }, { label: "Service Details" }, { label: "Upload Records" }];
+const STEPS = [
+  { label: "Case Details" },
+  { label: "Service Details" },
+  { label: "Upload Records" },
+];
 const DRAFT_KEY = "smr_case_wizard_draft";
 
 function buildPayload(state: WizardState): CaseInput {

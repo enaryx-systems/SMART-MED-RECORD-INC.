@@ -43,7 +43,10 @@ export default function ClientCaseDetailPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Case detail" description="Track documents, delivery, and billing for this matter." />
+      <PageHeader
+        title="Case detail"
+        description="Track documents, delivery, and billing for this matter."
+      />
       <CaseOverview data={data} />
       <CaseSummaryCard caseId={caseId} />
       <CaseProgressCard status={data.status} />

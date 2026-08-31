@@ -78,7 +78,10 @@ export function InvoiceDetailModal({
   const editable = canEdit && invoice.status === "PENDING";
 
   return (
-    <div className="fixed inset-0 z-modal-backdrop flex items-center justify-center bg-ink/40 px-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-modal-backdrop flex items-center justify-center bg-ink/40 px-4"
+      onClick={onClose}
+    >
       <div
         role="dialog"
         aria-modal="true"
@@ -107,14 +110,21 @@ export function InvoiceDetailModal({
 
         <div className="mt-5 space-y-2">
           {lineItems.map((li, i) => (
-            <div key={li.caseId} className="flex items-center gap-2 rounded-xl border-2 border-pine/15 bg-cream p-3">
+            <div
+              key={li.caseId}
+              className="flex items-center gap-2 rounded-xl border-2 border-pine/15 bg-cream p-3"
+            >
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-semibold text-pine">{li.caseNumber}</div>
                 {editing ? (
                   <TextInput
                     value={li.description}
                     onChange={(e) =>
-                      setLineItems((prev) => prev.map((x, idx) => (idx === i ? { ...x, description: e.target.value } : x)))
+                      setLineItems((prev) =>
+                        prev.map((x, idx) =>
+                          idx === i ? { ...x, description: e.target.value } : x,
+                        ),
+                      )
                     }
                     className="mt-1 h-8 text-xs"
                   />
@@ -129,12 +139,16 @@ export function InvoiceDetailModal({
                   step="0.01"
                   value={li.amount}
                   onChange={(e) =>
-                    setLineItems((prev) => prev.map((x, idx) => (idx === i ? { ...x, amount: e.target.value } : x)))
+                    setLineItems((prev) =>
+                      prev.map((x, idx) => (idx === i ? { ...x, amount: e.target.value } : x)),
+                    )
                   }
                   className="h-8 w-24 text-right text-xs"
                 />
               ) : (
-                <div className="shrink-0 font-semibold text-pine">{formatAmount(Number(li.amount) * 100)}</div>
+                <div className="shrink-0 font-semibold text-pine">
+                  {formatAmount(Number(li.amount) * 100)}
+                </div>
               )}
             </div>
           ))}
@@ -142,7 +156,9 @@ export function InvoiceDetailModal({
 
         <div className="mt-4 flex items-center justify-between rounded-xl border-2 border-pine/20 bg-cream p-4">
           <div>
-            <div className="text-3xl font-bold text-pine">{formatAmount(editing ? total : invoice.amountCents)}</div>
+            <div className="text-3xl font-bold text-pine">
+              {formatAmount(editing ? total : invoice.amountCents)}
+            </div>
             <div className="mt-1 text-xs text-ink/60">
               {invoice.paidAt && `Paid ${new Date(invoice.paidAt).toLocaleDateString()}`}
             </div>
@@ -150,7 +166,12 @@ export function InvoiceDetailModal({
           <div>
             <label className="mb-1.5 block text-xs font-semibold text-ink/60">Due date</label>
             {editing ? (
-              <TextInput type="date" value={dueAt} onChange={(e) => setDueAt(e.target.value)} className="w-40" />
+              <TextInput
+                type="date"
+                value={dueAt}
+                onChange={(e) => setDueAt(e.target.value)}
+                className="w-40"
+              />
             ) : (
               <div className="text-sm text-ink">{new Date(invoice.dueAt).toLocaleDateString()}</div>
             )}
@@ -174,7 +195,11 @@ export function InvoiceDetailModal({
             )}
             {editing && (
               <>
-                <Button variant="secondary" onClick={() => setEditing(false)} disabled={mutation.isPending}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setEditing(false)}
+                  disabled={mutation.isPending}
+                >
                   Cancel
                 </Button>
                 <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>

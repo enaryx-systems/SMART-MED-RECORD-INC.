@@ -84,7 +84,10 @@ export class AiExtractionService {
     mimeType: string,
   ): Promise<{ extractedText: string; imageDataUrl?: string }> {
     if (mimeType.startsWith("image/")) {
-      return { extractedText: "", imageDataUrl: `data:${mimeType};base64,${buffer.toString("base64")}` };
+      return {
+        extractedText: "",
+        imageDataUrl: `data:${mimeType};base64,${buffer.toString("base64")}`,
+      };
     }
 
     if (mimeType === "application/pdf") {
@@ -109,7 +112,10 @@ export class AiExtractionService {
 
   private async runExtraction(openai: OpenAI, text: string, imageDataUrl?: string) {
     const content: OpenAI.Chat.ChatCompletionContentPart[] = [
-      { type: "text", text: text ? `${PROMPT}\n\nDocument text:\n${text.slice(0, 12000)}` : PROMPT },
+      {
+        type: "text",
+        text: text ? `${PROMPT}\n\nDocument text:\n${text.slice(0, 12000)}` : PROMPT,
+      },
     ];
     if (imageDataUrl) {
       content.push({ type: "image_url", image_url: { url: imageDataUrl } });

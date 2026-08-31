@@ -90,7 +90,11 @@ async function main() {
   const firmB = await prisma.organization.upsert({
     where: { id: "org_firm_harborview" },
     update: {},
-    create: { id: "org_firm_harborview", name: "Harborview Legal Group", kind: OrgKind.CLIENT_FIRM },
+    create: {
+      id: "org_firm_harborview",
+      name: "Harborview Legal Group",
+      kind: OrgKind.CLIENT_FIRM,
+    },
   });
 
   // --- Users -----------------------------------------------------------
@@ -209,7 +213,11 @@ async function main() {
   // A second DELIVERED case from the same firm as `delivered`, to demonstrate
   // a consolidated (multi-case) invoice rather than every example being 1:1.
   const deliveredSameFirm = createdCases.find(
-    (c) => c.status === "DELIVERED" && delivered && c.organizationId === delivered.organizationId && c.id !== delivered.id,
+    (c) =>
+      c.status === "DELIVERED" &&
+      delivered &&
+      c.organizationId === delivered.organizationId &&
+      c.id !== delivered.id,
   );
 
   async function nextInvoiceNumber() {
@@ -223,18 +231,43 @@ async function main() {
   if (delivered) {
     await prisma.caseEvent.createMany({
       data: [
-        { caseId: delivered.id, authorId: admin.id, type: "ASSIGNMENT", body: "Case assigned to reviewer." },
-        { caseId: delivered.id, authorId: reviewer.id, type: "NOTE", body: "Chronology drafted and cross-checked against source records." },
-        { caseId: delivered.id, authorId: reviewer.id, type: "STATUS_CHANGE", body: "Status changed from IN_PROGRESS to DELIVERED." },
+        {
+          caseId: delivered.id,
+          authorId: admin.id,
+          type: "ASSIGNMENT",
+          body: "Case assigned to reviewer.",
+        },
+        {
+          caseId: delivered.id,
+          authorId: reviewer.id,
+          type: "NOTE",
+          body: "Chronology drafted and cross-checked against source records.",
+        },
+        {
+          caseId: delivered.id,
+          authorId: reviewer.id,
+          type: "STATUS_CHANGE",
+          body: "Status changed from IN_PROGRESS to DELIVERED.",
+        },
       ],
     });
 
     // Consolidated invoice covering both delivered cases from this firm when
     // a second one exists; otherwise a plain single-case invoice.
     const lineItems = [
-      { caseId: delivered.id, description: `Medical records review — ${delivered.id}`, amountCents: 45000 },
+      {
+        caseId: delivered.id,
+        description: `Medical records review — ${delivered.id}`,
+        amountCents: 45000,
+      },
       ...(deliveredSameFirm
-        ? [{ caseId: deliveredSameFirm.id, description: `Medical records review — ${deliveredSameFirm.id}`, amountCents: 32000 }]
+        ? [
+            {
+              caseId: deliveredSameFirm.id,
+              description: `Medical records review — ${deliveredSameFirm.id}`,
+              amountCents: 32000,
+            },
+          ]
         : []),
     ];
     await prisma.invoice.create({
@@ -268,13 +301,23 @@ async function main() {
         status: "PENDING",
         dueAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
         lineItems: {
-          create: [{ caseId: inProgress.id, description: `Medical records review — ${inProgress.id}`, amountCents: 32000 }],
+          create: [
+            {
+              caseId: inProgress.id,
+              description: `Medical records review — ${inProgress.id}`,
+              amountCents: 32000,
+            },
+          ],
         },
       },
     });
   }
 
-  console.log("Seeded organizations:", { internalOrg: internalOrg.name, firmA: firmA.name, firmB: firmB.name });
+  console.log("Seeded organizations:", {
+    internalOrg: internalOrg.name,
+    firmA: firmA.name,
+    firmB: firmB.name,
+  });
   console.log("Seeded users:", {
     admin: admin.email,
     reviewer: reviewer.email,

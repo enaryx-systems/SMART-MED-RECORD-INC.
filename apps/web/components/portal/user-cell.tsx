@@ -1,7 +1,15 @@
 import { initials } from "@/lib/utils/initials";
 import { ROLE_COLOR, type Role } from "@/lib/types/portal";
 
-export function UserCell({ name, subtitle, role }: { name: string; subtitle?: string; role?: Role }) {
+export function UserCell({
+  name,
+  subtitle,
+  role,
+}: {
+  name: string;
+  subtitle?: string;
+  role?: Role;
+}) {
   return (
     <div className="flex items-center gap-2.5">
       <div

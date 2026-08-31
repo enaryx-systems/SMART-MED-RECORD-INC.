@@ -139,21 +139,39 @@ export default function AdminOrganizationDetailPage() {
   }
 
   const columns: DataTableColumn<Case>[] = [
-    { key: "caseNumber", header: "Case #", sortable: true, render: (c) => <span className="font-semibold text-pine">{c.caseNumber}</span> },
+    {
+      key: "caseNumber",
+      header: "Case #",
+      sortable: true,
+      render: (c) => <span className="font-semibold text-pine">{c.caseNumber}</span>,
+    },
     { key: "matterName", header: "Matter", sortable: true, render: (c) => c.matterName },
     {
       key: "client",
       header: "Client",
-      render: (c) => (c.owner ? <ColorPill colorKey={c.owner.email} label={c.owner.name} icon={User} /> : "—"),
+      render: (c) =>
+        c.owner ? <ColorPill colorKey={c.owner.email} label={c.owner.name} icon={User} /> : "—",
     },
     {
       key: "reviewer",
       header: "Reviewer",
-      render: (c) => <ReviewerBadge id={c.assignedReviewerId} name={c.assignedReviewer?.name ?? "Unassigned"} />,
+      render: (c) => (
+        <ReviewerBadge id={c.assignedReviewerId} name={c.assignedReviewer?.name ?? "Unassigned"} />
+      ),
     },
     { key: "caseType", header: "Case Type", render: (c) => CASE_TYPE_LABEL[c.caseType] },
-    { key: "status", header: "Status", sortable: true, render: (c) => <StatusPill status={c.status} /> },
-    { key: "createdAt", header: "Created", sortable: true, render: (c) => new Date(c.createdAt).toLocaleDateString() },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      render: (c) => <StatusPill status={c.status} />,
+    },
+    {
+      key: "createdAt",
+      header: "Created",
+      sortable: true,
+      render: (c) => new Date(c.createdAt).toLocaleDateString(),
+    },
   ];
 
   return (
@@ -234,7 +252,9 @@ export default function AdminOrganizationDetailPage() {
         {selected.size > 0 && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-[1.5px] border-emerald/30 bg-mint/30 px-4 py-2.5">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-bold text-emerald">{selected.size} case{selected.size === 1 ? "" : "s"} selected</span>
+              <span className="text-sm font-bold text-emerald">
+                {selected.size} case{selected.size === 1 ? "" : "s"} selected
+              </span>
               <DownloadMenu
                 label="Export selected"
                 onSelect={(format) => runExport(format, Array.from(selected.values()), data.name)}

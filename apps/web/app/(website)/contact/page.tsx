@@ -15,7 +15,9 @@ export default function Contact() {
             <span className="text-xs font-bold uppercase tracking-[.2em] text-emerald">
               Start a conversation
             </span>
-            <h1 className="mt-4 text-5xl text-pine">See what <span className="text-gold">clarity</span> looks like.</h1>
+            <h1 className="mt-4 text-5xl text-pine">
+              See what <span className="text-gold">clarity</span> looks like.
+            </h1>
             <p className="mt-6 leading-7 text-slate-600">
               Tell us about your typical case and we’ll prepare a free, confidential sample
               workflow.

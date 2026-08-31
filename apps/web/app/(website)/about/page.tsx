@@ -128,7 +128,9 @@ export default function AboutPage() {
             <span className="text-xs font-bold uppercase tracking-[.2em] text-emerald">
               About the company
             </span>
-            <h2 className="mt-3 text-4xl text-pine">Clear records. <span className="text-gold">Stronger case decisions.</span></h2>
+            <h2 className="mt-3 text-4xl text-pine">
+              Clear records. <span className="text-gold">Stronger case decisions.</span>
+            </h2>
           </div>
           <div className="space-y-5 text-slate-600">
             <p className="leading-7">

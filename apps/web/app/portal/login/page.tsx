@@ -53,10 +53,8 @@ export default function PortalLoginPage() {
                 card: "w-full rounded-2xl border-2 border-pine/15 bg-white px-6 py-8 shadow-none",
                 headerTitle: "text-pine text-2xl",
                 headerSubtitle: "text-ink/60",
-                formButtonPrimary:
-                  "bg-pine hover:bg-emerald text-sm normal-case rounded-xl py-3.5",
-                formFieldInput:
-                  "rounded-xl border-2 border-pine/25 bg-cream focus:border-emerald",
+                formButtonPrimary: "bg-pine hover:bg-emerald text-sm normal-case rounded-xl py-3.5",
+                formFieldInput: "rounded-xl border-2 border-pine/25 bg-cream focus:border-emerald",
                 footerActionLink: "text-emerald hover:text-pine",
               },
             }}

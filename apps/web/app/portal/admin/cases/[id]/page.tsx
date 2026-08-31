@@ -114,13 +114,18 @@ export default function AdminCaseDetailPage() {
   if (isLoading) return <p className="text-sm text-ink/50">Loading case…</p>;
   if (isError || !data) {
     return (
-      <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">Could not load this case.</p>
+      <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        Could not load this case.
+      </p>
     );
   }
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Case workspace" description="Full control over status, assignment, and delivery." />
+      <PageHeader
+        title="Case workspace"
+        description="Full control over status, assignment, and delivery."
+      />
       <CaseOverview data={data} showOrganization showAssignee />
       <CaseSummaryCard caseId={caseId} canGenerate />
       <CaseProgressCard status={data.status} />
@@ -149,7 +154,12 @@ export default function AdminCaseDetailPage() {
         </div>
       </div>
 
-      <DocumentList caseId={caseId} canUpload canManageExtraction uploadLabel="Upload reviewed deliverable" />
+      <DocumentList
+        caseId={caseId}
+        canUpload
+        canManageExtraction
+        uploadLabel="Upload reviewed deliverable"
+      />
 
       <div className="rounded-2xl border-[1.5px] border-pine/30 bg-white p-6 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)]">
         <h3 className="mb-4 text-lg font-bold text-pine">Invoices</h3>
@@ -159,41 +169,41 @@ export default function AdminCaseDetailPage() {
             below, or issue additional cases on a consolidated invoice from the Billing page.
           </p>
         ) : (
-        <form
-          className="mb-5 flex flex-wrap items-end gap-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!amount || !dueAt) return;
-            invoiceMutation.mutate();
-          }}
-        >
-          <div className="min-w-[200px] flex-1">
-            <label className="mb-1.5 block text-xs font-semibold text-ink/60">Description</label>
-            <TextInput
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Medical records review services"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-semibold text-ink/60">Amount (USD)</label>
-            <TextInput
-              type="number"
-              min="1"
-              step="0.01"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-28"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-semibold text-ink/60">Due date</label>
-            <TextInput type="date" value={dueAt} onChange={(e) => setDueAt(e.target.value)} />
-          </div>
-          <Button type="submit" disabled={invoiceMutation.isPending}>
-            {invoiceMutation.isPending ? "Issuing…" : "Issue invoice"}
-          </Button>
-        </form>
+          <form
+            className="mb-5 flex flex-wrap items-end gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!amount || !dueAt) return;
+              invoiceMutation.mutate();
+            }}
+          >
+            <div className="min-w-[200px] flex-1">
+              <label className="mb-1.5 block text-xs font-semibold text-ink/60">Description</label>
+              <TextInput
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Medical records review services"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-ink/60">Amount (USD)</label>
+              <TextInput
+                type="number"
+                min="1"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-28"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-ink/60">Due date</label>
+              <TextInput type="date" value={dueAt} onChange={(e) => setDueAt(e.target.value)} />
+            </div>
+            <Button type="submit" disabled={invoiceMutation.isPending}>
+              {invoiceMutation.isPending ? "Issuing…" : "Issue invoice"}
+            </Button>
+          </form>
         )}
         <InvoiceTable
           invoices={invoices?.data ?? []}

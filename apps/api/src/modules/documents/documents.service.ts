@@ -97,7 +97,9 @@ export class DocumentsService {
     // finished deliverable has nothing to extract. Unsupported file types
     // (docx, etc.) are silently skipped rather than queued to fail.
     if (kind === DocumentKind.CLIENT_UPLOAD && isExtractable(file.mimetype)) {
-      await this.prisma.documentExtraction.create({ data: { documentId: doc.id, status: "PENDING" } });
+      await this.prisma.documentExtraction.create({
+        data: { documentId: doc.id, status: "PENDING" },
+      });
       await enqueueWithTimeout(this.queue, "extract-document", { documentId: doc.id });
     }
 

@@ -20,7 +20,11 @@ import { OrgBadge } from "@/components/portal/org-badge";
 import { DueBadge } from "@/components/portal/due-badge";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setOrganizationFilter } from "@/redux/orgFilterSlice";
-import { CREATED_RANGE_OPTIONS, getCreatedRange, type CreatedRangePreset } from "@/lib/utils/date-range";
+import {
+  CREATED_RANGE_OPTIONS,
+  getCreatedRange,
+  type CreatedRangePreset,
+} from "@/lib/utils/date-range";
 
 const PAGE_SIZE = 15;
 
@@ -85,7 +89,10 @@ function ReviewerCasesTable() {
     queryKey: ["case-stats", "assigned", organizationId],
     queryFn: () => fetchCaseStats(organizationId ?? undefined),
   });
-  const { data: orgOptions } = useQuery({ queryKey: ["organization-options"], queryFn: fetchOrganizationOptions });
+  const { data: orgOptions } = useQuery({
+    queryKey: ["organization-options"],
+    queryFn: fetchOrganizationOptions,
+  });
 
   function onSortChange(column: string) {
     if (sortBy === column) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -97,11 +104,26 @@ function ReviewerCasesTable() {
   }
 
   const columns: DataTableColumn<Case>[] = [
-    { key: "caseNumber", header: "Case #", sortable: true, render: (c) => <span className="font-semibold text-pine">{c.caseNumber}</span> },
+    {
+      key: "caseNumber",
+      header: "Case #",
+      sortable: true,
+      render: (c) => <span className="font-semibold text-pine">{c.caseNumber}</span>,
+    },
     { key: "matterName", header: "Matter", sortable: true, render: (c) => c.matterName },
-    { key: "organization", header: "Organization", render: (c) => c.organization && <OrgBadge id={c.organization.id} name={c.organization.name} /> },
+    {
+      key: "organization",
+      header: "Organization",
+      render: (c) =>
+        c.organization && <OrgBadge id={c.organization.id} name={c.organization.name} />,
+    },
     { key: "caseType", header: "Case Type", render: (c) => CASE_TYPE_LABEL[c.caseType] },
-    { key: "status", header: "Status", sortable: true, render: (c) => <StatusPill status={c.status} /> },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      render: (c) => <StatusPill status={c.status} />,
+    },
     {
       key: "dueAt",
       header: "Due",
@@ -117,10 +139,7 @@ function ReviewerCasesTable() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="My queue"
-        description="Cases assigned to you for review and delivery."
-      />
+      <PageHeader title="My queue" description="Cases assigned to you for review and delivery." />
 
       <StatusFilterCards baseHref="/portal/reviewer/cases" status={status} stats={stats} />
 
@@ -128,44 +147,46 @@ function ReviewerCasesTable() {
         search={search}
         onSearchChange={setSearch}
         placeholder="Search by case number or matter name…"
-        columns={[
-          {
-            key: "organization",
-            label: "Organization",
-            dotColor: "#00453A",
-            value: organizationId ?? "",
-            onChange: (v) => {
-              dispatch(setOrganizationFilter(v || null));
-              setPage(1);
+        columns={
+          [
+            {
+              key: "organization",
+              label: "Organization",
+              dotColor: "#00453A",
+              value: organizationId ?? "",
+              onChange: (v) => {
+                dispatch(setOrganizationFilter(v || null));
+                setPage(1);
+              },
+              options: [
+                { value: "", label: "All organizations" },
+                ...(orgOptions ?? []).map((o) => ({ value: o.id, label: o.name })),
+              ],
             },
-            options: [
-              { value: "", label: "All organizations" },
-              ...(orgOptions ?? []).map((o) => ({ value: o.id, label: o.name })),
-            ],
-          },
-          {
-            key: "caseType",
-            label: "Case type",
-            dotColor: "#00856F",
-            value: caseType,
-            onChange: (v) => {
-              setCaseType(v as CaseType | "");
-              setPage(1);
+            {
+              key: "caseType",
+              label: "Case type",
+              dotColor: "#00856F",
+              value: caseType,
+              onChange: (v) => {
+                setCaseType(v as CaseType | "");
+                setPage(1);
+              },
+              options: [{ value: "", label: "All case types" }, ...CASE_TYPE_OPTIONS],
             },
-            options: [{ value: "", label: "All case types" }, ...CASE_TYPE_OPTIONS],
-          },
-          {
-            key: "created",
-            label: "Created",
-            dotColor: "#384633",
-            value: createdRange,
-            onChange: (v) => {
-              setCreatedRange(v as CreatedRangePreset);
-              setPage(1);
+            {
+              key: "created",
+              label: "Created",
+              dotColor: "#384633",
+              value: createdRange,
+              onChange: (v) => {
+                setCreatedRange(v as CreatedRangePreset);
+                setPage(1);
+              },
+              options: CREATED_RANGE_OPTIONS,
             },
-            options: CREATED_RANGE_OPTIONS,
-          },
-        ] satisfies FilterColumn[]}
+          ] satisfies FilterColumn[]
+        }
       />
 
       {isError && (

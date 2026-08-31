@@ -4,12 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, UploadCloud, UserPlus, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  deleteUser,
-  fetchOrganizationOptions,
-  fetchUsers,
-  setUserStatus,
-} from "@/lib/api/client";
+import { deleteUser, fetchOrganizationOptions, fetchUsers, setUserStatus } from "@/lib/api/client";
 import { PageHeader } from "@/components/portal/page-header";
 import { Button } from "@/components/portal/button";
 import { DataTable, type DataTableColumn } from "@/components/portal/data-table";
@@ -79,10 +74,14 @@ export default function AdminUsersPage() {
         search: search || undefined,
       }),
   });
-  const { data: orgOptions } = useQuery({ queryKey: ["organization-options"], queryFn: fetchOrganizationOptions });
+  const { data: orgOptions } = useQuery({
+    queryKey: ["organization-options"],
+    queryFn: fetchOrganizationOptions,
+  });
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => setUserStatus(id, isActive),
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+      setUserStatus(id, isActive),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
   });
 
@@ -93,7 +92,8 @@ export default function AdminUsersPage() {
       setDeleteError("");
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: (e: unknown) => setDeleteError(e instanceof Error ? e.message : "Could not delete this user."),
+    onError: (e: unknown) =>
+      setDeleteError(e instanceof Error ? e.message : "Could not delete this user."),
   });
 
   function onSortChange(column: string) {
@@ -131,10 +131,20 @@ export default function AdminUsersPage() {
   }
 
   const columns: DataTableColumn<UserSummary>[] = [
-    { key: "name", header: "Name", sortable: true, render: (u) => <UserCell name={u.name} role={u.role} /> },
+    {
+      key: "name",
+      header: "Name",
+      sortable: true,
+      render: (u) => <UserCell name={u.name} role={u.role} />,
+    },
     { key: "email", header: "Email", sortable: true, render: (u) => u.email },
     { key: "role", header: "Role", render: (u) => <RoleBadge role={u.role} /> },
-    { key: "organization", header: "Organization", render: (u) => u.organization && <OrgBadge id={u.organization.id} name={u.organization.name} /> },
+    {
+      key: "organization",
+      header: "Organization",
+      render: (u) =>
+        u.organization && <OrgBadge id={u.organization.id} name={u.organization.name} />,
+    },
     {
       key: "status",
       header: "Status",
@@ -217,8 +227,13 @@ export default function AdminUsersPage() {
       {selected.size > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-[1.5px] border-emerald/30 bg-mint/30 px-4 py-2.5">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-bold text-emerald">{selected.size} user{selected.size === 1 ? "" : "s"} selected</span>
-            <DownloadMenu label="Export selected" onSelect={(format) => runExport(format, Array.from(selected.values()))} />
+            <span className="text-sm font-bold text-emerald">
+              {selected.size} user{selected.size === 1 ? "" : "s"} selected
+            </span>
+            <DownloadMenu
+              label="Export selected"
+              onSelect={(format) => runExport(format, Array.from(selected.values()))}
+            />
           </div>
           <button
             type="button"
@@ -251,7 +266,9 @@ export default function AdminUsersPage() {
             user={u}
             onEdit={() => setEditingUser(u)}
             onResetPassword={() => setResettingUser(u)}
-            onToggleActive={() => statusMutation.mutate({ id: u.id, isActive: u.isActive === false })}
+            onToggleActive={() =>
+              statusMutation.mutate({ id: u.id, isActive: u.isActive === false })
+            }
             onDelete={() => {
               setDeleteError("");
               setDeletingUser(u);

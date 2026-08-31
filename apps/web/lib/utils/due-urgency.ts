@@ -33,7 +33,10 @@ export function getDueUrgency(
   const diff = dayDiff(new Date(dueAt), now);
 
   if (diff < 0) {
-    return { level: "overdue", label: `Overdue by ${Math.abs(diff)} day${Math.abs(diff) === 1 ? "" : "s"}` };
+    return {
+      level: "overdue",
+      label: `Overdue by ${Math.abs(diff)} day${Math.abs(diff) === 1 ? "" : "s"}`,
+    };
   }
   if (diff === 0) return { level: "urgent", label: "Due today" };
   if (diff === 1) return { level: "urgent", label: "Due tomorrow" };

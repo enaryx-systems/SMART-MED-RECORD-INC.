@@ -62,7 +62,11 @@ export default function PortalDashboardPage() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Total cases" value={data?.total ?? 0} color="#00453A" />
         <StatCard label="Active" value={active} color="#00856F" />
-        <StatCard label="Awaiting delivery" value={data?.counts.AWAITING_DELIVERY ?? 0} color="#4FB39E" />
+        <StatCard
+          label="Awaiting delivery"
+          value={data?.counts.AWAITING_DELIVERY ?? 0}
+          color="#4FB39E"
+        />
         <StatCard label="Delivered" value={data?.counts.DELIVERED ?? 0} color="#8A6425" />
       </div>
 

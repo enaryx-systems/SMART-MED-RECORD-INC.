@@ -61,9 +61,7 @@ const CLIENT_NAV: NavItem[] = [
   {
     label: "Our Sample",
     icon: FileText,
-    children: [
-      { label: "Sample SOP", href: "/Medical_Records_Review_SOP.pdf", external: true },
-    ],
+    children: [{ label: "Sample SOP", href: "/Medical_Records_Review_SOP.pdf", external: true }],
   },
 ];
 

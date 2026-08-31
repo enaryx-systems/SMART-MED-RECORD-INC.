@@ -22,7 +22,9 @@ function FilterColumnList({ column }: { column: FilterColumn }) {
     <div className="min-w-0">
       <div className="mb-2 flex items-center gap-1.5">
         <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: column.dotColor }} />
-        <span className="text-xs font-bold uppercase tracking-wide text-ink/60">{column.label}</span>
+        <span className="text-xs font-bold uppercase tracking-wide text-ink/60">
+          {column.label}
+        </span>
       </div>
       <ul className="no-scrollbar max-h-44 space-y-1 overflow-y-auto pr-1">
         {column.options.map((option) => (
@@ -69,7 +71,10 @@ export function SearchFilterBar({
   const activeCount = columns.filter((c) => c.value).length;
 
   return (
-    <div className="relative flex min-w-[260px] items-center gap-1 rounded-lg border-2 border-pine/25 bg-white pl-3 pr-1.5" ref={ref}>
+    <div
+      className="relative flex min-w-[260px] items-center gap-1 rounded-lg border-2 border-pine/25 bg-white pl-3 pr-1.5"
+      ref={ref}
+    >
       <Search size={16} className="shrink-0 text-ink/40" />
       <input
         value={search}
@@ -83,7 +88,9 @@ export function SearchFilterBar({
         aria-expanded={open}
         aria-label="Filters"
         className={`relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-fast ${
-          open || activeCount > 0 ? "bg-mint/70 text-emerald" : "text-ink/50 hover:bg-mint/40 hover:text-ink"
+          open || activeCount > 0
+            ? "bg-mint/70 text-emerald"
+            : "text-ink/50 hover:bg-mint/40 hover:text-ink"
         }`}
       >
         <SlidersHorizontal size={16} />

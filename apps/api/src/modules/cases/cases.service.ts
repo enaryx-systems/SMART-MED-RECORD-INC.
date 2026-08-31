@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { CaseStatus, CaseType, Role } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { EmailService } from "../../common/email/email.service";
@@ -37,11 +42,19 @@ const CASE_STATUS_VALUES = new Set<string>(ALL_STATUSES);
 const CASE_TYPE_VALUES = new Set<string>(Object.values(CaseType));
 
 function parseMultiValue<T extends string>(raw: string | undefined, allowed: Set<string>): T[] {
-  return (raw?.split(",").map((s) => s.trim().toUpperCase()).filter((v) => allowed.has(v)) ?? []) as T[];
+  return (raw
+    ?.split(",")
+    .map((s) => s.trim().toUpperCase())
+    .filter((v) => allowed.has(v)) ?? []) as T[];
 }
 
 function parseIdList(raw: string | undefined): string[] {
-  return raw?.split(",").map((s) => s.trim()).filter(Boolean) ?? [];
+  return (
+    raw
+      ?.split(",")
+      .map((s) => s.trim())
+      .filter(Boolean) ?? []
+  );
 }
 
 @Injectable()
@@ -70,7 +83,11 @@ export class CasesService {
     const caseTypes = parseMultiValue<CaseType>(query.caseType, CASE_TYPE_VALUES);
     const where = {
       ...this.scopeFor(user),
-      ...(statuses.length === 1 ? { status: statuses[0] } : statuses.length > 1 ? { status: { in: statuses } } : {}),
+      ...(statuses.length === 1
+        ? { status: statuses[0] }
+        : statuses.length > 1
+          ? { status: { in: statuses } }
+          : {}),
       ...(caseTypes.length === 1
         ? { caseType: caseTypes[0] }
         : caseTypes.length > 1
@@ -163,7 +180,9 @@ export class CasesService {
       }))
       .sort((a, b) => b.count - a.count);
 
-    const reviewerIds = byReviewer.map((r) => r.assignedReviewerId).filter((id): id is string => !!id);
+    const reviewerIds = byReviewer
+      .map((r) => r.assignedReviewerId)
+      .filter((id): id is string => !!id);
     const reviewers = reviewerIds.length
       ? await this.prisma.user.findMany({
           where: { id: { in: reviewerIds } },
@@ -277,7 +296,8 @@ export class CasesService {
     const missing: string[] = [];
     if (!found.matterName || found.matterName.trim().length < 2) missing.push("case name");
     if (!found.caseType) missing.push("case type");
-    if (!found.servicesDesired || found.servicesDesired.length === 0) missing.push("services desired");
+    if (!found.servicesDesired || found.servicesDesired.length === 0)
+      missing.push("services desired");
     if (missing.length > 0) {
       throw new BadRequestException(`Missing required fields: ${missing.join(", ")}.`);
     }

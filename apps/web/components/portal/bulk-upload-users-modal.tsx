@@ -84,7 +84,9 @@ export function BulkUploadUsersModal({ open, onClose }: { open: boolean; onClose
       const buffer = await file.arrayBuffer();
       const parsed = parseRows(buffer);
       if (parsed.length === 0) {
-        setParseError("No rows found — check the file has a header row and at least one user below it.");
+        setParseError(
+          "No rows found — check the file has a header row and at least one user below it.",
+        );
         setRows([]);
         return;
       }
@@ -103,7 +105,10 @@ export function BulkUploadUsersModal({ open, onClose }: { open: boolean; onClose
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-modal-backdrop flex items-center justify-center bg-ink/40 px-4" onClick={handleClose}>
+    <div
+      className="fixed inset-0 z-modal-backdrop flex items-center justify-center bg-ink/40 px-4"
+      onClick={handleClose}
+    >
       <div
         role="dialog"
         aria-modal="true"
@@ -113,7 +118,9 @@ export function BulkUploadUsersModal({ open, onClose }: { open: boolean; onClose
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="text-lg font-bold text-pine">Bulk Upload Users</h3>
-            <p className="mt-1 text-sm text-ink/60">Upload a CSV or Excel file to add multiple users at once.</p>
+            <p className="mt-1 text-sm text-ink/60">
+              Upload a CSV or Excel file to add multiple users at once.
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Button type="button" variant="secondary" onClick={downloadTemplate}>
@@ -138,14 +145,17 @@ export function BulkUploadUsersModal({ open, onClose }: { open: boolean; onClose
           </div>
           <div className="mt-2.5 flex flex-wrap gap-2">
             {REQUIRED_COLUMNS.map((c) => (
-              <span key={c} className="rounded-full border border-pine/25 bg-white px-3 py-1 text-xs font-semibold text-ink/70">
+              <span
+                key={c}
+                className="rounded-full border border-pine/25 bg-white px-3 py-1 text-xs font-semibold text-ink/70"
+              >
                 {c}
               </span>
             ))}
           </div>
           <p className="mt-2.5 text-xs text-ink/50">
-            Role must be one of: Client, Admin, Reviewer, Billing. Organization is only required for Client users —
-            it must match an existing organization's name exactly.
+            Role must be one of: Client, Admin, Reviewer, Billing. Organization is only required for
+            Client users — it must match an existing organization&apos;s name exactly.
           </p>
         </div>
 
@@ -182,8 +192,12 @@ export function BulkUploadUsersModal({ open, onClose }: { open: boolean; onClose
               <span className="text-sm font-semibold text-pine">{fileName}</span>
             ) : (
               <>
-                <span className="text-sm font-semibold text-ink">Click to upload or drag &amp; drop</span>
-                <span className="text-xs text-ink/50">CSV or Excel (.xlsx) · Max {MAX_ROWS} rows</span>
+                <span className="text-sm font-semibold text-ink">
+                  Click to upload or drag &amp; drop
+                </span>
+                <span className="text-xs text-ink/50">
+                  CSV or Excel (.xlsx) · Max {MAX_ROWS} rows
+                </span>
               </>
             )}
           </div>
@@ -192,12 +206,16 @@ export function BulkUploadUsersModal({ open, onClose }: { open: boolean; onClose
         {parseError && <p className="mt-3 text-sm text-red-700">{parseError}</p>}
 
         {!result && rows.length > 0 && (
-          <p className="mt-3 text-sm font-semibold text-emerald">{rows.length} user{rows.length === 1 ? "" : "s"} ready to upload.</p>
+          <p className="mt-3 text-sm font-semibold text-emerald">
+            {rows.length} user{rows.length === 1 ? "" : "s"} ready to upload.
+          </p>
         )}
 
         {uploadMutation.isError && (
           <p className="mt-3 text-sm text-red-700">
-            {uploadMutation.error instanceof Error ? uploadMutation.error.message : "Could not upload users."}
+            {uploadMutation.error instanceof Error
+              ? uploadMutation.error.message
+              : "Could not upload users."}
           </p>
         )}
 
@@ -239,7 +257,9 @@ export function BulkUploadUsersModal({ open, onClose }: { open: boolean; onClose
                 onClick={() => uploadMutation.mutate()}
                 disabled={rows.length === 0 || uploadMutation.isPending}
               >
-                {uploadMutation.isPending ? "Uploading…" : `Upload ${rows.length || ""} user${rows.length === 1 ? "" : "s"}`}
+                {uploadMutation.isPending
+                  ? "Uploading…"
+                  : `Upload ${rows.length || ""} user${rows.length === 1 ? "" : "s"}`}
               </Button>
             </>
           )}

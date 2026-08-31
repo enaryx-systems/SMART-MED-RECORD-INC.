@@ -53,7 +53,12 @@ export class StorageService {
   async upload(key: string, buffer: Buffer, contentType: string): Promise<void> {
     if (this.s3 && this.bucket) {
       await this.s3.send(
-        new PutObjectCommand({ Bucket: this.bucket, Key: key, Body: buffer, ContentType: contentType }),
+        new PutObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+          Body: buffer,
+          ContentType: contentType,
+        }),
       );
       return;
     }

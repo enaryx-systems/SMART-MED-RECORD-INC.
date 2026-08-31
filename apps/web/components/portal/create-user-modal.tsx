@@ -65,7 +65,6 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
 
   useEffect(() => {
     if (open) reset();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   function handleClose() {
@@ -116,7 +115,10 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
   }
 
   return (
-    <div className="fixed inset-0 z-modal-backdrop flex items-center justify-center bg-ink/40 px-4" onClick={handleClose}>
+    <div
+      className="fixed inset-0 z-modal-backdrop flex items-center justify-center bg-ink/40 px-4"
+      onClick={handleClose}
+    >
       <div className="relative w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
         <button
           type="button"
@@ -127,7 +129,11 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
           <X size={16} />
         </button>
 
-        <div role="dialog" aria-modal="true" className="max-h-[90vh] overflow-y-auto rounded-2xl border-[1.5px] border-pine/30 bg-white p-6 shadow-[0_24px_60px_rgba(0,69,58,0.25)]">
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="max-h-[90vh] overflow-y-auto rounded-2xl border-[1.5px] border-pine/30 bg-white p-6 shadow-[0_24px_60px_rgba(0,69,58,0.25)]"
+        >
           <h3 className="text-lg font-bold text-pine">Add New User</h3>
           <p className="mt-1 text-sm text-ink/60">Create a user account and send invite.</p>
 
@@ -149,10 +155,16 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
                     >
                       {done ? <Check size={13} /> : s.n}
                     </span>
-                    <span className={`text-sm font-semibold ${active || done ? "text-pine" : "text-ink/40"}`}>{s.label}</span>
+                    <span
+                      className={`text-sm font-semibold ${active || done ? "text-pine" : "text-ink/40"}`}
+                    >
+                      {s.label}
+                    </span>
                   </div>
                   {i < STEPS.length - 1 && (
-                    <div className={`mx-3 h-[2px] flex-1 rounded-full ${done ? "bg-emerald" : "bg-pine/15"}`} />
+                    <div
+                      className={`mx-3 h-[2px] flex-1 rounded-full ${done ? "bg-emerald" : "bg-pine/15"}`}
+                    />
                   )}
                 </li>
               );
@@ -171,7 +183,10 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-ink">First Name</label>
                   <div className="relative">
-                    <User size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" />
+                    <User
+                      size={14}
+                      className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink/35"
+                    />
                     <TextInput
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
@@ -184,7 +199,10 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-ink">Last Name</label>
                   <div className="relative">
-                    <User size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" />
+                    <User
+                      size={14}
+                      className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink/35"
+                    />
                     <TextInput
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
@@ -198,7 +216,10 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-ink">Work Email</label>
                 <div className="relative">
-                  <Mail size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" />
+                  <Mail
+                    size={14}
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink/35"
+                  />
                   <TextInput
                     type="email"
                     value={email}
@@ -246,7 +267,9 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
                     <span className="text-ink/50">Temp. Password</span>
                     <span className="font-mono tracking-widest text-ink">{"•".repeat(10)}</span>
                   </div>
-                  <p className="mt-2 text-xs text-ink/45">User will be prompted to change password on first login.</p>
+                  <p className="mt-2 text-xs text-ink/45">
+                    User will be prompted to change password on first login.
+                  </p>
                 </div>
               )}
 
@@ -283,7 +306,9 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
                     <div className="mt-0.5 text-sm font-semibold text-ink">{ROLE_LABEL[role]}</div>
                   </div>
                   <div>
-                    <div className="text-[11px] uppercase tracking-wide text-ink/40">Organization</div>
+                    <div className="text-[11px] uppercase tracking-wide text-ink/40">
+                      Organization
+                    </div>
                     <div className="mt-0.5 text-sm font-semibold text-ink">
                       {INTERNAL_ROLES.includes(role)
                         ? "Smart Med Records — Internal"
@@ -295,7 +320,9 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
 
               <div className="flex items-center justify-between rounded-xl border-2 border-pine/25 bg-white px-4 py-2.5">
                 <div>
-                  <div className="text-[11px] uppercase tracking-wide text-ink/40">Email Address</div>
+                  <div className="text-[11px] uppercase tracking-wide text-ink/40">
+                    Email Address
+                  </div>
                   <div className="text-sm font-semibold text-ink">{email}</div>
                 </div>
                 <button
@@ -310,15 +337,23 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
 
               <div className="flex items-center justify-between rounded-xl border-2 border-pine/25 bg-white px-4 py-2.5">
                 <div>
-                  <div className="text-[11px] uppercase tracking-wide text-ink/40">Temporary Password</div>
-                  <div className="font-mono text-sm font-semibold tracking-widest text-ink">{"•".repeat(12)}</div>
+                  <div className="text-[11px] uppercase tracking-wide text-ink/40">
+                    Temporary Password
+                  </div>
+                  <div className="font-mono text-sm font-semibold tracking-widest text-ink">
+                    {"•".repeat(12)}
+                  </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => copyField(tempPassword, () => setCopiedPassword(true))}
                   className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-ink/60 transition-colors duration-fast hover:bg-mint/60 hover:text-ink"
                 >
-                  {copiedPassword ? <Check size={14} className="text-emerald" /> : <Copy size={14} />}
+                  {copiedPassword ? (
+                    <Check size={14} className="text-emerald" />
+                  ) : (
+                    <Copy size={14} />
+                  )}
                   Copy
                 </button>
               </div>
@@ -326,10 +361,13 @@ export function CreateUserModal({ open, onClose }: { open: boolean; onClose: () 
               <div className="flex items-start gap-2.5 rounded-xl border border-emerald/25 bg-mint/30 p-4">
                 <Send size={16} className="mt-0.5 shrink-0 text-emerald" />
                 <div>
-                  <div className="text-sm font-bold text-pine">Welcome email will be sent automatically</div>
+                  <div className="text-sm font-bold text-pine">
+                    Welcome email will be sent automatically
+                  </div>
                   <p className="mt-1 text-xs text-ink/60">
-                    {firstName || "The user"} will receive login credentials and a getting started guide at{" "}
-                    {email}. They&rsquo;ll be prompted to change their password on first login.
+                    {firstName || "The user"} will receive login credentials and a getting started
+                    guide at {email}. They&rsquo;ll be prompted to change their password on first
+                    login.
                   </p>
                 </div>
               </div>

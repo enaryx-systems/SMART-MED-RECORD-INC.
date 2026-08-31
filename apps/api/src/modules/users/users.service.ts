@@ -63,12 +63,26 @@ export class UsersService {
     const { page, pageSize, skip, take } = parsePagination(query);
     const { column, dir } = parseSort(query, USER_SORT_COLUMNS, "createdAt");
     const search = query.search?.trim();
-    const orgIds = query.organizationId?.split(",").map((s) => s.trim()).filter(Boolean) ?? [];
-    const roles = (query.role?.split(",").map((s) => s.trim().toUpperCase()).filter((r) => ROLE_VALUES.has(r)) ??
-      []) as Role[];
+    const orgIds =
+      query.organizationId
+        ?.split(",")
+        .map((s) => s.trim())
+        .filter(Boolean) ?? [];
+    const roles = (query.role
+      ?.split(",")
+      .map((s) => s.trim().toUpperCase())
+      .filter((r) => ROLE_VALUES.has(r)) ?? []) as Role[];
     const where: Prisma.UserWhereInput = {
-      ...(orgIds.length === 1 ? { organizationId: orgIds[0] } : orgIds.length > 1 ? { organizationId: { in: orgIds } } : {}),
-      ...(roles.length === 1 ? { role: roles[0] } : roles.length > 1 ? { role: { in: roles } } : {}),
+      ...(orgIds.length === 1
+        ? { organizationId: orgIds[0] }
+        : orgIds.length > 1
+          ? { organizationId: { in: orgIds } }
+          : {}),
+      ...(roles.length === 1
+        ? { role: roles[0] }
+        : roles.length > 1
+          ? { role: { in: roles } }
+          : {}),
       ...(search
         ? {
             OR: [
@@ -169,7 +183,8 @@ export class UsersService {
     const internalOrg = organizations.find((o) => o.kind === "INTERNAL");
     const orgByName = new Map(organizations.map((o) => [o.name.trim().toLowerCase(), o]));
 
-    const results: { row: number; email: string; status: "created" | "failed"; error?: string }[] = [];
+    const results: { row: number; email: string; status: "created" | "failed"; error?: string }[] =
+      [];
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
@@ -177,7 +192,9 @@ export class UsersService {
       try {
         const role = ROLE_BY_LABEL[row.role.trim().toLowerCase()];
         if (!role) {
-          throw new Error(`Unrecognized role "${row.role}" (use Client, Admin, Reviewer, or Billing).`);
+          throw new Error(
+            `Unrecognized role "${row.role}" (use Client, Admin, Reviewer, or Billing).`,
+          );
         }
 
         const isInternal = role !== Role.CLIENT;
@@ -248,7 +265,9 @@ export class UsersService {
     if (!user) throw new NotFoundException("User not found.");
 
     if (dto.organizationId) {
-      const organization = await this.prisma.organization.findUnique({ where: { id: dto.organizationId } });
+      const organization = await this.prisma.organization.findUnique({
+        where: { id: dto.organizationId },
+      });
       if (!organization) throw new BadRequestException("Organization not found.");
     }
 
@@ -260,7 +279,9 @@ export class UsersService {
           lastName: rest.join(" ") || undefined,
         });
       } catch {
-        throw new BadRequestException("Could not update the identity-provider account for this user.");
+        throw new BadRequestException(
+          "Could not update the identity-provider account for this user.",
+        );
       }
     }
 

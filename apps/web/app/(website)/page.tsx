@@ -122,8 +122,7 @@ export default function Home() {
               <Sparkles size={14} /> AI-powered medico-legal intelligence
             </div>
             <h1 className="max-w-2xl text-5xl font-medium leading-[1.06] tracking-tight text-pine md:text-6xl">
-              Accurate medical insights.{" "}
-              <span className="text-gold">Stronger legal outcomes.</span>
+              Accurate medical insights. <span className="text-gold">Stronger legal outcomes.</span>
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-slate-600">
               Save time, control costs, and build stronger cases with AI-assisted,

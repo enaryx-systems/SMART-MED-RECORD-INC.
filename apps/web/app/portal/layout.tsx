@@ -46,7 +46,11 @@ function isAllowed(role: Role, pathname: string) {
   // gets the run of their portal routes here rather than being fenced to
   // /portal/admin only.
   if (role === "ADMIN") {
-    return pathname.startsWith(ROLE_PREFIX.ADMIN) || pathname.startsWith(ROLE_PREFIX.REVIEWER) || pathname.startsWith(ROLE_PREFIX.BILLING);
+    return (
+      pathname.startsWith(ROLE_PREFIX.ADMIN) ||
+      pathname.startsWith(ROLE_PREFIX.REVIEWER) ||
+      pathname.startsWith(ROLE_PREFIX.BILLING)
+    );
   }
   return pathname.startsWith(ROLE_PREFIX[role]);
 }
@@ -116,7 +120,9 @@ function PortalLayoutInner({ children }: { children: React.ReactNode }) {
         <Suspense fallback={null}>
           <PortalSidebar role={user.role} />
         </Suspense>
-        <main className="no-scrollbar flex-1 overflow-y-auto px-4 py-6 lg:px-6 lg:py-8">{children}</main>
+        <main className="no-scrollbar flex-1 overflow-y-auto px-4 py-6 lg:px-6 lg:py-8">
+          {children}
+        </main>
       </div>
     </div>
   );

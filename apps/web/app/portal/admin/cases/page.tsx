@@ -3,7 +3,12 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { fetchCases, fetchCaseStats, fetchOrganizationOptions, fetchReviewers } from "@/lib/api/client";
+import {
+  fetchCases,
+  fetchCaseStats,
+  fetchOrganizationOptions,
+  fetchReviewers,
+} from "@/lib/api/client";
 import {
   CASE_TYPE_LABEL,
   type Case,
@@ -21,7 +26,11 @@ import { ReviewerBadge } from "@/components/portal/reviewer-badge";
 import { DueBadge } from "@/components/portal/due-badge";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setOrganizationFilter } from "@/redux/orgFilterSlice";
-import { CREATED_RANGE_OPTIONS, getCreatedRange, type CreatedRangePreset } from "@/lib/utils/date-range";
+import {
+  CREATED_RANGE_OPTIONS,
+  getCreatedRange,
+  type CreatedRangePreset,
+} from "@/lib/utils/date-range";
 
 const PAGE_SIZE = 15;
 
@@ -88,7 +97,10 @@ function AdminCasesTable() {
     queryKey: ["case-stats", organizationId],
     queryFn: () => fetchCaseStats(organizationId ?? undefined),
   });
-  const { data: orgOptions } = useQuery({ queryKey: ["organization-options"], queryFn: fetchOrganizationOptions });
+  const { data: orgOptions } = useQuery({
+    queryKey: ["organization-options"],
+    queryFn: fetchOrganizationOptions,
+  });
   const { data: reviewers } = useQuery({ queryKey: ["reviewers"], queryFn: fetchReviewers });
 
   function onSortChange(column: string) {
@@ -101,16 +113,33 @@ function AdminCasesTable() {
   }
 
   const columns: DataTableColumn<Case>[] = [
-    { key: "caseNumber", header: "Case #", sortable: true, render: (c) => <span className="font-semibold text-pine">{c.caseNumber}</span> },
+    {
+      key: "caseNumber",
+      header: "Case #",
+      sortable: true,
+      render: (c) => <span className="font-semibold text-pine">{c.caseNumber}</span>,
+    },
     { key: "matterName", header: "Matter", sortable: true, render: (c) => c.matterName },
-    { key: "organization", header: "Organization", render: (c) => c.organization && <OrgBadge id={c.organization.id} name={c.organization.name} /> },
+    {
+      key: "organization",
+      header: "Organization",
+      render: (c) =>
+        c.organization && <OrgBadge id={c.organization.id} name={c.organization.name} />,
+    },
     { key: "caseType", header: "Case Type", render: (c) => CASE_TYPE_LABEL[c.caseType] },
     {
       key: "reviewer",
       header: "Reviewer",
-      render: (c) => <ReviewerBadge id={c.assignedReviewerId} name={c.assignedReviewer?.name ?? "Unassigned"} />,
+      render: (c) => (
+        <ReviewerBadge id={c.assignedReviewerId} name={c.assignedReviewer?.name ?? "Unassigned"} />
+      ),
     },
-    { key: "status", header: "Status", sortable: true, render: (c) => <StatusPill status={c.status} /> },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      render: (c) => <StatusPill status={c.status} />,
+    },
     {
       key: "dueAt",
       header: "Due",
@@ -122,7 +151,12 @@ function AdminCasesTable() {
         </span>
       ),
     },
-    { key: "createdAt", header: "Created", sortable: true, render: (c) => new Date(c.createdAt).toLocaleDateString() },
+    {
+      key: "createdAt",
+      header: "Created",
+      sortable: true,
+      render: (c) => new Date(c.createdAt).toLocaleDateString(),
+    },
   ];
 
   return (
@@ -135,58 +169,60 @@ function AdminCasesTable() {
         search={search}
         onSearchChange={setSearch}
         placeholder="Search by case number or matter name…"
-        columns={[
-          {
-            key: "organization",
-            label: "Organization",
-            dotColor: "#00453A",
-            value: organizationId ?? "",
-            onChange: (v) => {
-              dispatch(setOrganizationFilter(v || null));
-              setPage(1);
+        columns={
+          [
+            {
+              key: "organization",
+              label: "Organization",
+              dotColor: "#00453A",
+              value: organizationId ?? "",
+              onChange: (v) => {
+                dispatch(setOrganizationFilter(v || null));
+                setPage(1);
+              },
+              options: [
+                { value: "", label: "All organizations" },
+                ...(orgOptions ?? []).map((o) => ({ value: o.id, label: o.name })),
+              ],
             },
-            options: [
-              { value: "", label: "All organizations" },
-              ...(orgOptions ?? []).map((o) => ({ value: o.id, label: o.name })),
-            ],
-          },
-          {
-            key: "caseType",
-            label: "Case type",
-            dotColor: "#00856F",
-            value: caseType,
-            onChange: (v) => {
-              setCaseType(v as CaseType | "");
-              setPage(1);
+            {
+              key: "caseType",
+              label: "Case type",
+              dotColor: "#00856F",
+              value: caseType,
+              onChange: (v) => {
+                setCaseType(v as CaseType | "");
+                setPage(1);
+              },
+              options: [{ value: "", label: "All case types" }, ...CASE_TYPE_OPTIONS],
             },
-            options: [{ value: "", label: "All case types" }, ...CASE_TYPE_OPTIONS],
-          },
-          {
-            key: "reviewer",
-            label: "Reviewer",
-            dotColor: "#b78a3d",
-            value: reviewerId,
-            onChange: (v) => {
-              setReviewerId(v);
-              setPage(1);
+            {
+              key: "reviewer",
+              label: "Reviewer",
+              dotColor: "#b78a3d",
+              value: reviewerId,
+              onChange: (v) => {
+                setReviewerId(v);
+                setPage(1);
+              },
+              options: [
+                { value: "", label: "All reviewers" },
+                ...(reviewers ?? []).map((r) => ({ value: r.id, label: r.name })),
+              ],
             },
-            options: [
-              { value: "", label: "All reviewers" },
-              ...(reviewers ?? []).map((r) => ({ value: r.id, label: r.name })),
-            ],
-          },
-          {
-            key: "created",
-            label: "Created",
-            dotColor: "#384633",
-            value: createdRange,
-            onChange: (v) => {
-              setCreatedRange(v as CreatedRangePreset);
-              setPage(1);
+            {
+              key: "created",
+              label: "Created",
+              dotColor: "#384633",
+              value: createdRange,
+              onChange: (v) => {
+                setCreatedRange(v as CreatedRangePreset);
+                setPage(1);
+              },
+              options: CREATED_RANGE_OPTIONS,
             },
-            options: CREATED_RANGE_OPTIONS,
-          },
-        ] satisfies FilterColumn[]}
+          ] satisfies FilterColumn[]
+        }
       />
 
       {isError && (

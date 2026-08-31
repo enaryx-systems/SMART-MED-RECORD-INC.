@@ -6,7 +6,11 @@ import { Button } from "@/components/portal/button";
 
 export type DownloadFormat = "csv" | "excel" | "pdf";
 
-const FORMAT_OPTIONS: { value: DownloadFormat; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
+const FORMAT_OPTIONS: {
+  value: DownloadFormat;
+  label: string;
+  icon: React.ComponentType<{ size?: number }>;
+}[] = [
   { value: "csv", label: "CSV (.csv)", icon: FileText },
   { value: "excel", label: "Excel (.xlsx)", icon: FileSpreadsheet },
   { value: "pdf", label: "PDF (.pdf)", icon: FileText },
@@ -44,7 +48,10 @@ export function DownloadMenu({
       >
         <Download size={16} />
         {label}
-        <ChevronDown size={14} className={`transition-transform duration-fast ${open ? "rotate-180" : ""}`} />
+        <ChevronDown
+          size={14}
+          className={`transition-transform duration-fast ${open ? "rotate-180" : ""}`}
+        />
       </Button>
 
       {open && (

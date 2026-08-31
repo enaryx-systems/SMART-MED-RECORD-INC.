@@ -23,14 +23,24 @@ export default function AdminUserDetailPage() {
   const [resettingPassword, setResettingPassword] = useState(false);
   const [confirmingSuspend, setConfirmingSuspend] = useState(false);
 
-  const { data: user, isLoading, isError } = useQuery({
+  const {
+    data: user,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["user", params.id],
     queryFn: () => fetchUser(params.id),
   });
 
   const { data: recentCases } = useQuery({
     queryKey: ["cases", "for-user-org", user?.organizationId],
-    queryFn: () => fetchCases({ organizationId: user!.organizationId, pageSize: 5, sortBy: "createdAt", sortDir: "desc" }),
+    queryFn: () =>
+      fetchCases({
+        organizationId: user!.organizationId,
+        pageSize: 5,
+        sortBy: "createdAt",
+        sortDir: "desc",
+      }),
     enabled: !!user?.organizationId,
   });
 
@@ -45,7 +55,11 @@ export default function AdminUserDetailPage() {
 
   if (isLoading) return <p className="text-sm text-ink/50">Loading user…</p>;
   if (isError || !user) {
-    return <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">Could not load this user.</p>;
+    return (
+      <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        Could not load this user.
+      </p>
+    );
   }
 
   const suspended = user.isActive === false;
@@ -78,7 +92,9 @@ export default function AdminUserDetailPage() {
                 suspended ? "bg-red-50 text-red-600" : "bg-emerald/10 text-emerald"
               }`}
             >
-              <span className={`h-1.5 w-1.5 rounded-full ${suspended ? "bg-red-500" : "bg-emerald"}`} />
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${suspended ? "bg-red-500" : "bg-emerald"}`}
+              />
               {suspended ? "Suspended" : "Active"}
             </span>
           </div>
@@ -94,7 +110,9 @@ export default function AdminUserDetailPage() {
             </div>
             <div>
               <div className="text-xs text-ink/50">Organization</div>
-              <div className="mt-0.5 text-sm font-medium text-ink">{user.organization?.name ?? "—"}</div>
+              <div className="mt-0.5 text-sm font-medium text-ink">
+                {user.organization?.name ?? "—"}
+              </div>
             </div>
             <div>
               <div className="text-xs text-ink/50">Cases owned</div>
@@ -103,7 +121,9 @@ export default function AdminUserDetailPage() {
             {user.role === "REVIEWER" && (
               <div>
                 <div className="text-xs text-ink/50">Cases assigned</div>
-                <div className="mt-0.5 text-sm font-medium text-ink">{user._count?.assignedCases ?? 0}</div>
+                <div className="mt-0.5 text-sm font-medium text-ink">
+                  {user._count?.assignedCases ?? 0}
+                </div>
               </div>
             )}
             <div>
@@ -159,7 +179,10 @@ export default function AdminUserDetailPage() {
       </div>
 
       <EditUserModal user={editing ? user : null} onClose={() => setEditing(false)} />
-      <ResetPasswordModal user={resettingPassword ? user : null} onClose={() => setResettingPassword(false)} />
+      <ResetPasswordModal
+        user={resettingPassword ? user : null}
+        onClose={() => setResettingPassword(false)}
+      />
       <ConfirmModal
         open={confirmingSuspend}
         title={suspended ? "Activate this user?" : "Suspend this user?"}

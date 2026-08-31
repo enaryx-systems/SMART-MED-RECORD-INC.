@@ -20,7 +20,9 @@ export default function ReviewerCaseDetailPage() {
   if (isLoading) return <p className="text-sm text-ink/50">Loading case…</p>;
   if (isError || !data) {
     return (
-      <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">Could not load this case.</p>
+      <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+        Could not load this case.
+      </p>
     );
   }
 

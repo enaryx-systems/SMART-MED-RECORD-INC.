@@ -72,7 +72,10 @@ export function EditUserModal({
   if (!user) return null;
 
   return (
-    <div className="fixed inset-0 z-modal-backdrop flex items-center justify-center bg-ink/40 px-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-modal-backdrop flex items-center justify-center bg-ink/40 px-4"
+      onClick={onClose}
+    >
       <div
         role="dialog"
         aria-modal="true"
@@ -82,7 +85,9 @@ export function EditUserModal({
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="text-lg font-bold text-pine">Edit user</h3>
-            <p className="mt-1 text-sm text-ink/60">Update this account's name, role, or organization.</p>
+            <p className="mt-1 text-sm text-ink/60">
+              Update this account&apos;s name, role, or organization.
+            </p>
           </div>
           <button
             type="button"
@@ -135,7 +140,12 @@ export function EditUserModal({
           {error && <p className="sm:col-span-2 text-sm text-red-700">{error}</p>}
 
           <div className="flex justify-end gap-2 sm:col-span-2">
-            <Button type="button" variant="secondary" onClick={onClose} disabled={updateMutation.isPending}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClose}
+              disabled={updateMutation.isPending}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={updateMutation.isPending}>

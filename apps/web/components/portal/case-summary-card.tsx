@@ -6,7 +6,13 @@ import { fetchCaseSummary, generateCaseSummary } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/client";
 import { Button } from "@/components/portal/button";
 
-export function CaseSummaryCard({ caseId, canGenerate = false }: { caseId: string; canGenerate?: boolean }) {
+export function CaseSummaryCard({
+  caseId,
+  canGenerate = false,
+}: {
+  caseId: string;
+  canGenerate?: boolean;
+}) {
   const queryClient = useQueryClient();
 
   const { data: summary, isLoading } = useQuery({
@@ -30,7 +36,11 @@ export function CaseSummaryCard({ caseId, canGenerate = false }: { caseId: strin
           AI Case Summary
         </h3>
         {canGenerate && (
-          <Button variant="secondary" onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+          <Button
+            variant="secondary"
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending}
+          >
             <RefreshCw size={13} className={mutation.isPending ? "animate-spin" : ""} />
             {summary ? "Refresh" : "Generate"}
           </Button>
@@ -47,7 +57,9 @@ export function CaseSummaryCard({ caseId, canGenerate = false }: { caseId: strin
 
       {summary ? (
         <>
-          <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-ink/75">{summary.summary}</p>
+          <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-ink/75">
+            {summary.summary}
+          </p>
           <p className="mt-3 text-xs text-ink/40">
             Generated {new Date(summary.generatedAt).toLocaleString()}
           </p>

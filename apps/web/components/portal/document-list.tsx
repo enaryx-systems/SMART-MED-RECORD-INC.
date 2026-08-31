@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, Download, Eye, EyeOff, File as FileIcon, Loader2, Lock, Sparkles } from "lucide-react";
+import {
+  ChevronDown,
+  Download,
+  Eye,
+  EyeOff,
+  File as FileIcon,
+  Loader2,
+  Lock,
+  Sparkles,
+} from "lucide-react";
 import {
   downloadUrl,
   fetchDocuments,
@@ -70,7 +79,10 @@ function ExtractionChip({
         )}
         {STATUS_LABEL[status]}
         {status === "COMPLETE" && (
-          <ChevronDown size={12} className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
+          <ChevronDown
+            size={12}
+            className={`transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
         )}
         {status === "FAILED" && canManage && (
           <span
@@ -119,7 +131,15 @@ function ExtractionChip({
   );
 }
 
-function DocPreview({ mimeType, fileName, url }: { mimeType: string; fileName: string; url: string }) {
+function DocPreview({
+  mimeType,
+  fileName,
+  url,
+}: {
+  mimeType: string;
+  fileName: string;
+  url: string;
+}) {
   if (mimeType === "application/pdf") {
     return (
       <iframe
@@ -311,7 +331,12 @@ export function DocumentList({
           </div>
           <ul className="space-y-2">
             {deliverables.map((doc) => (
-              <DocRow key={doc.id} caseId={caseId} doc={doc} canManageExtraction={canManageExtraction} />
+              <DocRow
+                key={doc.id}
+                caseId={caseId}
+                doc={doc}
+                canManageExtraction={canManageExtraction}
+              />
             ))}
           </ul>
         </div>
@@ -327,7 +352,12 @@ export function DocumentList({
           ) : (
             <ul className="space-y-2">
               {clientUploads.map((doc) => (
-                <DocRow key={doc.id} caseId={caseId} doc={doc} canManageExtraction={canManageExtraction} />
+                <DocRow
+                  key={doc.id}
+                  caseId={caseId}
+                  doc={doc}
+                  canManageExtraction={canManageExtraction}
+                />
               ))}
             </ul>
           )}

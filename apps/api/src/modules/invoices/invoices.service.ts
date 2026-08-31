@@ -141,7 +141,9 @@ export class InvoicesService {
       throw new BadRequestException("One or more cases could not be found.");
     }
     if (cases.some((c) => c.organizationId !== dto.organizationId)) {
-      throw new BadRequestException("All cases on an invoice must belong to the invoiced organization.");
+      throw new BadRequestException(
+        "All cases on an invoice must belong to the invoiced organization.",
+      );
     }
 
     const amountCents = dto.lineItems.reduce((sum, li) => sum + li.amountCents, 0);
@@ -197,7 +199,10 @@ export class InvoicesService {
   }
 
   async update(user: AuthUser, id: string, dto: UpdateInvoiceDto) {
-    const invoice = await this.prisma.invoice.findUnique({ where: { id }, include: LINE_ITEM_INCLUDE });
+    const invoice = await this.prisma.invoice.findUnique({
+      where: { id },
+      include: LINE_ITEM_INCLUDE,
+    });
     if (!invoice) throw new NotFoundException("Invoice not found.");
     if (invoice.status !== "PENDING") {
       throw new ConflictException("Only pending invoices can be edited.");
@@ -218,7 +223,9 @@ export class InvoicesService {
       }
     }
 
-    const refreshedLineItems = await this.prisma.invoiceLineItem.findMany({ where: { invoiceId: id } });
+    const refreshedLineItems = await this.prisma.invoiceLineItem.findMany({
+      where: { invoiceId: id },
+    });
     const amountCents = refreshedLineItems.reduce((sum, li) => sum + li.amountCents, 0);
 
     const updated = await this.prisma.invoice.update({
@@ -243,7 +250,10 @@ export class InvoicesService {
   }
 
   async remove(user: AuthUser, id: string) {
-    const invoice = await this.prisma.invoice.findUnique({ where: { id }, include: LINE_ITEM_INCLUDE });
+    const invoice = await this.prisma.invoice.findUnique({
+      where: { id },
+      include: LINE_ITEM_INCLUDE,
+    });
     if (!invoice) throw new NotFoundException("Invoice not found.");
     if (invoice.status !== "PENDING") {
       throw new ConflictException("Only pending invoices can be deleted.");
@@ -283,7 +293,10 @@ export class InvoicesService {
   }
 
   async markPaid(user: AuthUser, id: string) {
-    const invoice = await this.prisma.invoice.findUnique({ where: { id }, include: LINE_ITEM_INCLUDE });
+    const invoice = await this.prisma.invoice.findUnique({
+      where: { id },
+      include: LINE_ITEM_INCLUDE,
+    });
     if (!invoice) throw new NotFoundException("Invoice not found.");
 
     const updated = await this.prisma.invoice.update({

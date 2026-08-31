@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, ChevronLeft, ChevronRight, PlayCircle, Save, ShieldCheck } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  PlayCircle,
+  Save,
+  ShieldCheck,
+} from "lucide-react";
 import { fetchDocuments, updateCaseStatus } from "@/lib/api/client";
 import { Stepper } from "@/components/portal/stepper";
 import { Button } from "@/components/portal/button";
@@ -17,7 +24,12 @@ const STEPS = [
   { label: "Delivered" },
 ];
 
-const STEP_TITLES = ["Step 1 — Client Submission", "Step 2 — Processing", "Step 3 — Final Review & QC", "Delivered"];
+const STEP_TITLES = [
+  "Step 1 — Client Submission",
+  "Step 2 — Processing",
+  "Step 3 — Final Review & QC",
+  "Delivered",
+];
 
 function stepIndexFor(status: CaseStatus) {
   switch (status) {
@@ -170,12 +182,17 @@ export function CaseReviewWizard({ caseId, status }: { caseId: string; status: C
       </div>
 
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold uppercase tracking-wide text-emerald">{STEP_TITLES[viewStep]}</h3>
-        {!isFrontier && <StepNav onPrevious={goPrevious} onNext={goNextReadOnly} nextLabel="Next" />}
+        <h3 className="text-xs font-bold uppercase tracking-wide text-emerald">
+          {STEP_TITLES[viewStep]}
+        </h3>
+        {!isFrontier && (
+          <StepNav onPrevious={goPrevious} onNext={goNextReadOnly} nextLabel="Next" />
+        )}
       </div>
       {!isFrontier && (
         <p className="-mt-3 text-xs text-ink/50">
-          You&rsquo;re reviewing a completed step. Use Next to catch back up to where this case is now.
+          You&rsquo;re reviewing a completed step. Use Next to catch back up to where this case is
+          now.
         </p>
       )}
 
@@ -189,7 +206,10 @@ export function CaseReviewWizard({ caseId, status }: { caseId: string; status: C
           <DocumentList caseId={caseId} canUpload={false} canManageExtraction />
           {isFrontier && (
             <div className="flex justify-end">
-              <Button onClick={() => statusMutation.mutate("IN_PROGRESS")} disabled={statusMutation.isPending}>
+              <Button
+                onClick={() => statusMutation.mutate("IN_PROGRESS")}
+                disabled={statusMutation.isPending}
+              >
                 <PlayCircle size={15} />
                 {statusMutation.isPending ? "Starting…" : "Begin Processing"}
               </Button>
@@ -206,7 +226,12 @@ export function CaseReviewWizard({ caseId, status }: { caseId: string; status: C
               interim files if needed.
             </p>
           </div>
-          <DocumentList caseId={caseId} canUpload canManageExtraction uploadLabel="Upload a working file" />
+          <DocumentList
+            caseId={caseId}
+            canUpload
+            canManageExtraction
+            uploadLabel="Upload a working file"
+          />
           <CaseTimeline caseId={caseId} />
           {isFrontier && (
             <div className="flex items-center justify-between">
@@ -215,11 +240,17 @@ export function CaseReviewWizard({ caseId, status }: { caseId: string; status: C
                 Previous
               </Button>
               {status === "ON_HOLD" ? (
-                <Button onClick={() => statusMutation.mutate("IN_PROGRESS")} disabled={statusMutation.isPending}>
+                <Button
+                  onClick={() => statusMutation.mutate("IN_PROGRESS")}
+                  disabled={statusMutation.isPending}
+                >
                   Resume Processing
                 </Button>
               ) : (
-                <Button onClick={() => statusMutation.mutate("AWAITING_DELIVERY")} disabled={statusMutation.isPending}>
+                <Button
+                  onClick={() => statusMutation.mutate("AWAITING_DELIVERY")}
+                  disabled={statusMutation.isPending}
+                >
                   <ChevronRight size={14} />
                   Save &amp; Send for Final Review
                 </Button>
@@ -254,12 +285,19 @@ export function CaseReviewWizard({ caseId, status }: { caseId: string; status: C
                   Save as Draft
                 </Button>
                 {draftSavedAt && (
-                  <span className="text-xs font-semibold text-emerald">Draft saved — held on this device.</span>
+                  <span className="text-xs font-semibold text-emerald">
+                    Draft saved — held on this device.
+                  </span>
                 )}
               </div>
             )}
           </div>
-          <DocumentList caseId={caseId} canUpload canManageExtraction uploadLabel="Upload the reviewed deliverable" />
+          <DocumentList
+            caseId={caseId}
+            canUpload
+            canManageExtraction
+            uploadLabel="Upload the reviewed deliverable"
+          />
           {!hasDeliverable && isFrontier && (
             <p className="text-xs font-semibold text-gold">
               Upload the reviewed deliverable above before delivering to the client.
@@ -290,7 +328,8 @@ export function CaseReviewWizard({ caseId, status }: { caseId: string; status: C
             <div>
               <div className="text-base font-bold text-pine">Delivered</div>
               <p className="text-sm text-ink/70">
-                This case has been delivered. The full activity log below is the record of reference.
+                This case has been delivered. The full activity log below is the record of
+                reference.
               </p>
             </div>
           </div>

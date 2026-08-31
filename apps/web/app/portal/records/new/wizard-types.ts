@@ -40,11 +40,9 @@ export const EMPTY_WIZARD_STATE: WizardState = {
 const step1Schema = z.object({
   matterName: z.string().trim().min(2, "Case name must be at least 2 characters."),
   caseType: z.string().min(1, "Select a case type."),
-  contactEmail: z
-    .string()
-    .refine((v) => v === "" || z.string().email().safeParse(v).success, {
-      message: "Enter a valid email address.",
-    }),
+  contactEmail: z.string().refine((v) => v === "" || z.string().email().safeParse(v).success, {
+    message: "Enter a valid email address.",
+  }),
 });
 
 const step2Schema = z.object({

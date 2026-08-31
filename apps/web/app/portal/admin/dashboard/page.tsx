@@ -1,7 +1,16 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { BadgeCheck, Building2, Clock3, FolderOpen, PackageCheck, ReceiptText, UserPlus, Wallet } from "lucide-react";
+import {
+  BadgeCheck,
+  Building2,
+  Clock3,
+  FolderOpen,
+  PackageCheck,
+  ReceiptText,
+  UserPlus,
+  Wallet,
+} from "lucide-react";
 import { fetchCaseStats, fetchInvoiceSummary, fetchOrganizationOptions } from "@/lib/api/client";
 import { CASE_STATUSES, STATUS_COLOR, STATUS_LABEL } from "@/lib/types/portal";
 import { DonutChart } from "@/components/portal/donut-chart";
@@ -23,7 +32,10 @@ export default function AdminDashboardPage() {
     queryKey: ["case-stats", organizationId],
     queryFn: () => fetchCaseStats(organizationId ?? undefined),
   });
-  const { data: orgOptions } = useQuery({ queryKey: ["organization-options"], queryFn: fetchOrganizationOptions });
+  const { data: orgOptions } = useQuery({
+    queryKey: ["organization-options"],
+    queryFn: fetchOrganizationOptions,
+  });
   const { data: invoiceSummary } = useQuery({
     queryKey: ["invoices", "summary", organizationId],
     queryFn: () => fetchInvoiceSummary(organizationId ?? undefined),
@@ -62,9 +74,24 @@ export default function AdminDashboardPage() {
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Total cases" value={stats?.total ?? 0} color="#00453A" icon={FolderOpen} />
-        <StatCard label="Organizations" value={orgOptions?.length ?? 0} color="#00856F" icon={Building2} />
-        <StatCard label="Needs assignment" value={Math.max(0, unassigned)} color="#B78A3D" icon={UserPlus} />
-        <StatCard label="Delivered" value={stats?.counts.DELIVERED ?? 0} color="#8A6425" icon={PackageCheck} />
+        <StatCard
+          label="Organizations"
+          value={orgOptions?.length ?? 0}
+          color="#00856F"
+          icon={Building2}
+        />
+        <StatCard
+          label="Needs assignment"
+          value={Math.max(0, unassigned)}
+          color="#B78A3D"
+          icon={UserPlus}
+        />
+        <StatCard
+          label="Delivered"
+          value={stats?.counts.DELIVERED ?? 0}
+          color="#8A6425"
+          icon={PackageCheck}
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -90,8 +117,18 @@ export default function AdminDashboardPage() {
             {formatAmount(invoiceSummary?.paidCents ?? 0)}
           </div>
         </div>
-        <StatCard label="Pending invoices" value={invoiceSummary?.pendingCount ?? 0} color="#B78A3D" icon={Clock3} />
-        <StatCard label="Paid invoices" value={invoiceSummary?.paidCount ?? 0} color="#00856F" icon={BadgeCheck} />
+        <StatCard
+          label="Pending invoices"
+          value={invoiceSummary?.pendingCount ?? 0}
+          color="#B78A3D"
+          icon={Clock3}
+        />
+        <StatCard
+          label="Paid invoices"
+          value={invoiceSummary?.paidCount ?? 0}
+          color="#00856F"
+          icon={BadgeCheck}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -101,7 +138,11 @@ export default function AdminDashboardPage() {
         </div>
         <div className="rounded-2xl border-[1.5px] border-pine/30 bg-white p-6 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)]">
           <h3 className="mb-6 text-lg font-bold text-pine">Cases by organization</h3>
-          {orgSlices.length > 0 ? <DonutChart slices={orgSlices} /> : <p className="text-sm text-ink/50">No data yet.</p>}
+          {orgSlices.length > 0 ? (
+            <DonutChart slices={orgSlices} />
+          ) : (
+            <p className="text-sm text-ink/50">No data yet.</p>
+          )}
         </div>
       </div>
     </div>

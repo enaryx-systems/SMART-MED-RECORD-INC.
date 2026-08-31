@@ -37,7 +37,8 @@ export function NotificationBell() {
 
   const { data: openCasesPage } = useQuery({
     queryKey: ["notifications", "due-soon"],
-    queryFn: () => fetchCases({ status: OPEN_STATUSES, sortBy: "dueAt", sortDir: "asc", pageSize: 30 }),
+    queryFn: () =>
+      fetchCases({ status: OPEN_STATUSES, sortBy: "dueAt", sortDir: "asc", pageSize: 30 }),
     refetchInterval: REFRESH_MS,
   });
 
@@ -75,7 +76,11 @@ export function NotificationBell() {
           </div>
 
           <div className="no-scrollbar max-h-96 overflow-y-auto">
-            {total === 0 && <p className="px-5 py-6 text-center text-sm text-ink/50">You&rsquo;re all caught up.</p>}
+            {total === 0 && (
+              <p className="px-5 py-6 text-center text-sm text-ink/50">
+                You&rsquo;re all caught up.
+              </p>
+            )}
 
             {newCases.length > 0 && (
               <div className="px-2 pt-2">
@@ -105,7 +110,9 @@ export function NotificationBell() {
 
             {dueSoon.length > 0 && (
               <div className="px-2 pb-2 pt-2">
-                <div className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-wide text-gold">Due soon</div>
+                <div className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-wide text-gold">
+                  Due soon
+                </div>
                 {dueSoon.map(({ case: c, urgency }) => (
                   <Link
                     key={c.id}
@@ -115,14 +122,22 @@ export function NotificationBell() {
                   >
                     <span
                       className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
-                        urgency.level === "overdue" ? "bg-red-50 text-red-600" : "bg-gold/15 text-gold"
+                        urgency.level === "overdue"
+                          ? "bg-red-50 text-red-600"
+                          : "bg-gold/15 text-gold"
                       }`}
                     >
-                      {urgency.level === "overdue" ? <AlertTriangle size={14} /> : <Clock size={14} />}
+                      {urgency.level === "overdue" ? (
+                        <AlertTriangle size={14} />
+                      ) : (
+                        <Clock size={14} />
+                      )}
                     </span>
                     <div className="min-w-0">
                       <div className="truncate text-sm font-semibold text-ink">{c.matterName}</div>
-                      <div className={`text-xs ${urgency.level === "overdue" ? "text-red-600" : "text-gold"}`}>
+                      <div
+                        className={`text-xs ${urgency.level === "overdue" ? "text-red-600" : "text-gold"}`}
+                      >
                         {c.caseNumber} · {urgency.label}
                       </div>
                     </div>

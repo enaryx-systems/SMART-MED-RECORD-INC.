@@ -9,7 +9,13 @@ import {
   PauseCircle,
   Truck,
 } from "lucide-react";
-import { CASE_STATUSES, STATUS_COLOR, STATUS_LABEL, type CaseStats, type CaseStatus } from "@/lib/types/portal";
+import {
+  CASE_STATUSES,
+  STATUS_COLOR,
+  STATUS_LABEL,
+  type CaseStats,
+  type CaseStatus,
+} from "@/lib/types/portal";
 
 const STATUS_ICON: Record<CaseStatus, React.ComponentType<{ size?: number }>> = {
   DRAFT: FileEdit,

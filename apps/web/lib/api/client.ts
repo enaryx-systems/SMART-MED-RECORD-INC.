@@ -91,11 +91,21 @@ export interface FetchCasesParams extends PageParams {
 
 export function fetchCases(params: FetchCasesParams = {}) {
   const qs = pageParams(params);
-  if (params.status) qs.set("status", Array.isArray(params.status) ? params.status.join(",") : params.status);
-  if (params.caseType) qs.set("caseType", Array.isArray(params.caseType) ? params.caseType.join(",") : params.caseType);
+  if (params.status)
+    qs.set("status", Array.isArray(params.status) ? params.status.join(",") : params.status);
+  if (params.caseType)
+    qs.set(
+      "caseType",
+      Array.isArray(params.caseType) ? params.caseType.join(",") : params.caseType,
+    );
   if (params.organizationId) qs.set("organizationId", params.organizationId);
-  if (params.reviewerId) qs.set("reviewerId", Array.isArray(params.reviewerId) ? params.reviewerId.join(",") : params.reviewerId);
-  if (params.ownerId) qs.set("ownerId", Array.isArray(params.ownerId) ? params.ownerId.join(",") : params.ownerId);
+  if (params.reviewerId)
+    qs.set(
+      "reviewerId",
+      Array.isArray(params.reviewerId) ? params.reviewerId.join(",") : params.reviewerId,
+    );
+  if (params.ownerId)
+    qs.set("ownerId", Array.isArray(params.ownerId) ? params.ownerId.join(",") : params.ownerId);
   if (params.createdFrom) qs.set("createdFrom", params.createdFrom);
   if (params.createdTo) qs.set("createdTo", params.createdTo);
   if (params.search) qs.set("search", params.search);
@@ -218,7 +228,12 @@ export interface FetchUsersParams extends PageParams {
 export function fetchUsers(params: FetchUsersParams = {}) {
   const qs = pageParams(params);
   if (params.organizationId) {
-    qs.set("organizationId", Array.isArray(params.organizationId) ? params.organizationId.join(",") : params.organizationId);
+    qs.set(
+      "organizationId",
+      Array.isArray(params.organizationId)
+        ? params.organizationId.join(",")
+        : params.organizationId,
+    );
   }
   if (params.role) {
     qs.set("role", Array.isArray(params.role) ? params.role.join(",") : params.role);

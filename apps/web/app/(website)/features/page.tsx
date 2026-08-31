@@ -393,11 +393,13 @@ export default function Features() {
                 <Sparkles size={14} /> One case-intelligence platform
               </span>
               <h1 className="mt-7 max-w-3xl text-5xl leading-[1.08] text-pine md:text-6xl">
-                See the chronology in minutes. Trust the <span className="text-gold">final</span> in court.
+                See the chronology in minutes. Trust the <span className="text-gold">final</span> in
+                court.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Instant AI drafts give your team answers now. Licensed medical <span className="text-gold font-medium">reviewers</span> verify,
-                refine, and certify the court-ready final—all in one secure workspace.
+                Instant AI drafts give your team answers now. Licensed medical{" "}
+                <span className="text-gold font-medium">reviewers</span> verify, refine, and certify
+                the court-ready final—all in one secure workspace.
               </p>
               <div className="mt-8 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
                 <Link

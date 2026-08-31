@@ -3,10 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import { RotateCcw, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/portal/button";
-import { CASE_STATUSES, CASE_TYPE_LABEL, STATUS_LABEL, type CaseStatus, type CaseType } from "@/lib/types/portal";
-import { CREATED_RANGE_OPTIONS, monthKeyLabel, type CreatedRangePreset } from "@/lib/utils/date-range";
+import {
+  CASE_STATUSES,
+  CASE_TYPE_LABEL,
+  STATUS_LABEL,
+  type CaseStatus,
+  type CaseType,
+} from "@/lib/types/portal";
+import {
+  CREATED_RANGE_OPTIONS,
+  monthKeyLabel,
+  type CreatedRangePreset,
+} from "@/lib/utils/date-range";
 
-const CASE_TYPE_OPTIONS = (Object.keys(CASE_TYPE_LABEL) as CaseType[]).map((t) => ({ value: t, label: CASE_TYPE_LABEL[t] }));
+const CASE_TYPE_OPTIONS = (Object.keys(CASE_TYPE_LABEL) as CaseType[]).map((t) => ({
+  value: t,
+  label: CASE_TYPE_LABEL[t],
+}));
 
 export interface CaseFilterState {
   statuses: CaseStatus[];
@@ -82,7 +95,9 @@ export function CaseFilterPanel({
         onClick={() => setOpen((v) => !v)}
         aria-label="Filters"
         className={`relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-fast ${
-          open || activeCount > 0 ? "bg-mint/70 text-emerald" : "text-ink/50 hover:bg-mint/40 hover:text-ink"
+          open || activeCount > 0
+            ? "bg-mint/70 text-emerald"
+            : "text-ink/50 hover:bg-mint/40 hover:text-ink"
         }`}
       >
         <SlidersHorizontal size={16} />
@@ -103,7 +118,10 @@ export function CaseFilterPanel({
               </div>
               <div className="no-scrollbar max-h-44 space-y-1 overflow-y-auto pr-1">
                 {CASE_STATUSES.map((s) => (
-                  <label key={s} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink/80 hover:bg-mint/40">
+                  <label
+                    key={s}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink/80 hover:bg-mint/40"
+                  >
                     <input
                       type="checkbox"
                       checked={draft.statuses.includes(s)}
@@ -122,11 +140,16 @@ export function CaseFilterPanel({
               </div>
               <div className="no-scrollbar max-h-44 space-y-1 overflow-y-auto pr-1">
                 {CASE_TYPE_OPTIONS.map((opt) => (
-                  <label key={opt.value} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink/80 hover:bg-mint/40">
+                  <label
+                    key={opt.value}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink/80 hover:bg-mint/40"
+                  >
                     <input
                       type="checkbox"
                       checked={draft.caseTypes.includes(opt.value)}
-                      onChange={() => setDraft((d) => ({ ...d, caseTypes: toggle(d.caseTypes, opt.value) }))}
+                      onChange={() =>
+                        setDraft((d) => ({ ...d, caseTypes: toggle(d.caseTypes, opt.value) }))
+                      }
                       className="h-4 w-4 rounded border-2 border-pine/40 accent-emerald"
                     />
                     <span className="truncate">{opt.label}</span>
@@ -140,13 +163,20 @@ export function CaseFilterPanel({
                 Client
               </div>
               <div className="no-scrollbar max-h-44 space-y-1 overflow-y-auto pr-1">
-                {clientOptions.length === 0 && <p className="px-2 py-1.5 text-sm text-ink/40">No clients yet.</p>}
+                {clientOptions.length === 0 && (
+                  <p className="px-2 py-1.5 text-sm text-ink/40">No clients yet.</p>
+                )}
                 {clientOptions.map((opt) => (
-                  <label key={opt.value} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink/80 hover:bg-mint/40">
+                  <label
+                    key={opt.value}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink/80 hover:bg-mint/40"
+                  >
                     <input
                       type="checkbox"
                       checked={draft.ownerIds.includes(opt.value)}
-                      onChange={() => setDraft((d) => ({ ...d, ownerIds: toggle(d.ownerIds, opt.value) }))}
+                      onChange={() =>
+                        setDraft((d) => ({ ...d, ownerIds: toggle(d.ownerIds, opt.value) }))
+                      }
                       className="h-4 w-4 rounded border-2 border-pine/40 accent-emerald"
                     />
                     <span className="truncate">{opt.label}</span>
@@ -160,13 +190,20 @@ export function CaseFilterPanel({
                 Reviewer
               </div>
               <div className="no-scrollbar max-h-44 space-y-1 overflow-y-auto pr-1">
-                {reviewerOptions.length === 0 && <p className="px-2 py-1.5 text-sm text-ink/40">No reviewers yet.</p>}
+                {reviewerOptions.length === 0 && (
+                  <p className="px-2 py-1.5 text-sm text-ink/40">No reviewers yet.</p>
+                )}
                 {reviewerOptions.map((opt) => (
-                  <label key={opt.value} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink/80 hover:bg-mint/40">
+                  <label
+                    key={opt.value}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink/80 hover:bg-mint/40"
+                  >
                     <input
                       type="checkbox"
                       checked={draft.reviewerIds.includes(opt.value)}
-                      onChange={() => setDraft((d) => ({ ...d, reviewerIds: toggle(d.reviewerIds, opt.value) }))}
+                      onChange={() =>
+                        setDraft((d) => ({ ...d, reviewerIds: toggle(d.reviewerIds, opt.value) }))
+                      }
                       className="h-4 w-4 rounded border-2 border-pine/40 accent-emerald"
                     />
                     <span className="truncate">{opt.label}</span>
@@ -186,7 +223,9 @@ export function CaseFilterPanel({
                 <button
                   key={opt.value || "all"}
                   type="button"
-                  onClick={() => setDraft((d) => ({ ...d, createdRange: opt.value, createdMonth: null }))}
+                  onClick={() =>
+                    setDraft((d) => ({ ...d, createdRange: opt.value, createdMonth: null }))
+                  }
                   className={`rounded-full border-2 px-3 py-1.5 text-xs font-semibold transition-colors duration-fast ${
                     draft.createdRange === opt.value && !draft.createdMonth
                       ? "border-emerald bg-emerald text-white"

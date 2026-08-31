@@ -47,7 +47,10 @@ export function getMonthRange(monthKey: string): { from: string; to: string } {
 
 export function monthKeyLabel(monthKey: string): string {
   const [year, month] = monthKey.split("-").map(Number);
-  return new Date(year, month - 1, 1).toLocaleDateString(undefined, { month: "short", year: "numeric" });
+  return new Date(year, month - 1, 1).toLocaleDateString(undefined, {
+    month: "short",
+    year: "numeric",
+  });
 }
 
 // Distinct past (before the current calendar month) year-month keys found in

@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, ChevronsUpDown, ChevronUp, ChevronDown as ChevronDownIcon } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
+  ChevronUp,
+  ChevronDown as ChevronDownIcon,
+} from "lucide-react";
 import type { SortDir } from "@/lib/types/portal";
 
 export interface DataTableColumn<T> {
@@ -12,7 +18,15 @@ export interface DataTableColumn<T> {
   className?: string;
 }
 
-function HeaderCheckbox({ checked, indeterminate, onChange }: { checked: boolean; indeterminate: boolean; onChange: () => void }) {
+function HeaderCheckbox({
+  checked,
+  indeterminate,
+  onChange,
+}: {
+  checked: boolean;
+  indeterminate: boolean;
+  onChange: () => void;
+}) {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (ref.current) ref.current.indeterminate = indeterminate;
@@ -88,7 +102,10 @@ export function DataTable<T>({
                 </th>
               )}
               {columns.map((col) => (
-                <th key={col.key} className={`px-4 py-2.5 text-xs font-bold text-ink ${col.className ?? ""}`}>
+                <th
+                  key={col.key}
+                  className={`px-4 py-2.5 text-xs font-bold text-ink ${col.className ?? ""}`}
+                >
                   {col.sortable ? (
                     <button
                       type="button"
@@ -135,7 +152,9 @@ export function DataTable<T>({
                   key={rowKey(row)}
                   onClick={() => onRowClick?.(row)}
                   className={`border-t border-[#c9ddd6] odd:bg-white even:bg-[#f4f9f6] ${
-                    onRowClick ? "cursor-pointer transition-colors duration-fast hover:bg-mint/30" : ""
+                    onRowClick
+                      ? "cursor-pointer transition-colors duration-fast hover:bg-mint/30"
+                      : ""
                   }`}
                 >
                   {selectable && (
@@ -149,7 +168,10 @@ export function DataTable<T>({
                     </td>
                   )}
                   {columns.map((col) => (
-                    <td key={col.key} className={`px-4 py-2.5 text-sm text-ink/80 ${col.className ?? ""}`}>
+                    <td
+                      key={col.key}
+                      className={`px-4 py-2.5 text-sm text-ink/80 ${col.className ?? ""}`}
+                    >
                       {col.render(row)}
                     </td>
                   ))}
@@ -165,9 +187,7 @@ export function DataTable<T>({
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-mint px-4 py-3 text-xs text-ink/60">
-        <span>
-          {total === 0 ? "No results" : `Showing ${from}–${to} of ${total}`}
-        </span>
+        <span>{total === 0 ? "No results" : `Showing ${from}–${to} of ${total}`}</span>
         <div className="flex items-center gap-2">
           <button
             type="button"

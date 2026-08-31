@@ -15,7 +15,9 @@ export function DueBadge({ dueAt, status }: { dueAt: string | null; status: Case
   const { bg, text, icon: Icon } = LEVEL_STYLE[urgency.level];
 
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${bg} ${text}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${bg} ${text}`}
+    >
       <Icon size={12} />
       {urgency.label}
     </span>

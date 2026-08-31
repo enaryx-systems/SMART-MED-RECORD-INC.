@@ -46,17 +46,23 @@ export default function FinanceDashboardPage() {
       />
 
       {isError && (
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">Could not load invoices.</p>
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+          Could not load invoices.
+        </p>
       )}
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <div className="rounded-2xl border-[1.5px] border-pine/30 bg-white p-6 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)]">
           <div className="text-sm font-semibold text-ink/75">Outstanding</div>
-          <div className="mt-3 text-3xl font-bold text-gold">{formatAmount(summary?.outstandingCents ?? 0)}</div>
+          <div className="mt-3 text-3xl font-bold text-gold">
+            {formatAmount(summary?.outstandingCents ?? 0)}
+          </div>
         </div>
         <div className="rounded-2xl border-[1.5px] border-pine/30 bg-white p-6 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)]">
           <div className="text-sm font-semibold text-ink/75">Collected</div>
-          <div className="mt-3 text-3xl font-bold text-emerald">{formatAmount(summary?.paidCents ?? 0)}</div>
+          <div className="mt-3 text-3xl font-bold text-emerald">
+            {formatAmount(summary?.paidCents ?? 0)}
+          </div>
         </div>
         <StatCard label="Pending invoices" value={summary?.pendingCount ?? 0} color="#B78A3D" />
         <StatCard label="Paid invoices" value={summary?.paidCount ?? 0} color="#00856F" />
@@ -64,7 +70,9 @@ export default function FinanceDashboardPage() {
 
       <div className="rounded-2xl border-[1.5px] border-pine/30 bg-white p-6 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)]">
         <h3 className="mb-4 text-lg font-bold text-pine">Pending invoices</h3>
-        <p className="-mt-3 mb-4 text-xs text-ink/50">Not yet paid, soonest due first — paid invoices aren&rsquo;t shown here.</p>
+        <p className="-mt-3 mb-4 text-xs text-ink/50">
+          Not yet paid, soonest due first — paid invoices aren&rsquo;t shown here.
+        </p>
         <InvoiceTable
           invoices={pending?.data ?? []}
           showCase

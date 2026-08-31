@@ -32,7 +32,8 @@ export default function AdminOrganizationsPage() {
       setName("");
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
     },
-    onError: (e: unknown) => setError(e instanceof Error ? e.message : "Could not create organization."),
+    onError: (e: unknown) =>
+      setError(e instanceof Error ? e.message : "Could not create organization."),
   });
 
   function onSortChange(column: string) {
@@ -45,7 +46,12 @@ export default function AdminOrganizationsPage() {
   }
 
   const columns: DataTableColumn<Organization>[] = [
-    { key: "name", header: "Organization", sortable: true, render: (o) => <span className="font-semibold text-pine">{o.name}</span> },
+    {
+      key: "name",
+      header: "Organization",
+      sortable: true,
+      render: (o) => <span className="font-semibold text-pine">{o.name}</span>,
+    },
     { key: "users", header: "Users", render: (o) => o._count?.users ?? 0 },
     { key: "cases", header: "Cases", render: (o) => o._count?.cases ?? 0 },
   ];

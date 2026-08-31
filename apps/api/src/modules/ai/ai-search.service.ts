@@ -47,7 +47,10 @@ export class AiSearchService {
   async embedDocument(documentId: string): Promise<void> {
     const doc = await this.prisma.document.findUniqueOrThrow({
       where: { id: documentId },
-      include: { extraction: true, case: { select: { id: true, organizationId: true, assignedReviewerId: true } } },
+      include: {
+        extraction: true,
+        case: { select: { id: true, organizationId: true, assignedReviewerId: true } },
+      },
     });
 
     const text = doc.extraction?.extractedText?.trim();
@@ -69,7 +72,10 @@ export class AiSearchService {
     }
 
     for (let i = 0; i < chunks.length; i++) {
-      const embedding = await openai.embeddings.create({ model: EMBEDDING_MODEL, input: chunks[i] });
+      const embedding = await openai.embeddings.create({
+        model: EMBEDDING_MODEL,
+        input: chunks[i],
+      });
       const vector = embedding.data[0].embedding;
       const pointId = `${documentId}-${i}`;
 
@@ -108,7 +114,10 @@ export class AiSearchService {
     const vector = embedding.data[0].embedding;
 
     const scopeFilter = this.scopeFilter(user);
-    const must = [...(scopeFilter?.must ?? []), ...(caseId ? [{ key: "caseId", match: { value: caseId } }] : [])];
+    const must = [
+      ...(scopeFilter?.must ?? []),
+      ...(caseId ? [{ key: "caseId", match: { value: caseId } }] : []),
+    ];
 
     const result = await qdrant.query(COLLECTION, {
       query: vector,
@@ -131,7 +140,12 @@ export class AiSearchService {
     const [docs, chunks] = await Promise.all([
       this.prisma.document.findMany({
         where: { id: { in: documentIds } },
-        select: { id: true, fileName: true, caseId: true, case: { select: { caseNumber: true, matterName: true } } },
+        select: {
+          id: true,
+          fileName: true,
+          caseId: true,
+          case: { select: { caseNumber: true, matterName: true } },
+        },
       }),
       this.prisma.documentChunk.findMany({
         where: { qdrantPointId: { in: points.map((p) => String(p.id)) } },

@@ -7,7 +7,13 @@ import { resetUserPassword } from "@/lib/api/client";
 import { Button } from "@/components/portal/button";
 import type { UserSummary } from "@/lib/types/portal";
 
-export function ResetPasswordModal({ user, onClose }: { user: UserSummary | null; onClose: () => void }) {
+export function ResetPasswordModal({
+  user,
+  onClose,
+}: {
+  user: UserSummary | null;
+  onClose: () => void;
+}) {
   const [copied, setCopied] = useState(false);
 
   const resetMutation = useMutation({
@@ -40,7 +46,10 @@ export function ResetPasswordModal({ user, onClose }: { user: UserSummary | null
   if (!user) return null;
 
   return (
-    <div className="fixed inset-0 z-modal-backdrop flex items-center justify-center bg-ink/40 px-4" onClick={handleClose}>
+    <div
+      className="fixed inset-0 z-modal-backdrop flex items-center justify-center bg-ink/40 px-4"
+      onClick={handleClose}
+    >
       <div
         role="dialog"
         aria-modal="true"
@@ -58,10 +67,14 @@ export function ResetPasswordModal({ user, onClose }: { user: UserSummary | null
         </div>
 
         <div className="mt-5">
-          {resetMutation.isPending && <p className="text-sm text-ink/60">Generating a new password…</p>}
+          {resetMutation.isPending && (
+            <p className="text-sm text-ink/60">Generating a new password…</p>
+          )}
           {resetMutation.isError && (
             <p className="text-sm text-red-700">
-              {resetMutation.error instanceof Error ? resetMutation.error.message : "Could not reset the password."}
+              {resetMutation.error instanceof Error
+                ? resetMutation.error.message
+                : "Could not reset the password."}
             </p>
           )}
           {resetMutation.data && (
@@ -70,7 +83,9 @@ export function ResetPasswordModal({ user, onClose }: { user: UserSummary | null
                 A new temporary password was generated and emailed to {user.email}.
               </p>
               <div className="flex items-center gap-2 rounded-lg border-2 border-pine/25 bg-white px-3 py-2.5">
-                <code className="flex-1 select-all font-mono text-sm text-ink">{resetMutation.data.password}</code>
+                <code className="flex-1 select-all font-mono text-sm text-ink">
+                  {resetMutation.data.password}
+                </code>
                 <button
                   type="button"
                   onClick={() => {

@@ -16,7 +16,9 @@ export async function enqueueWithTimeout(
   try {
     await Promise.race([
       queue.add(name, data),
-      new Promise((_, reject) => setTimeout(() => reject(new Error("queue unavailable (timeout)")), timeoutMs)),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("queue unavailable (timeout)")), timeoutMs),
+      ),
     ]);
     return true;
   } catch (err) {
