@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { LogOut, Mail, ShieldCheck } from "lucide-react";
 import type { AuthUser } from "@/lib/types/portal";
 import { initials } from "@/lib/utils/initials";
+import { NotificationBell } from "@/components/portal/notification-bell";
 
 export function PortalHeader({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
   const [open, setOpen] = useState(false);
@@ -19,20 +21,27 @@ export function PortalHeader({ user, onLogout }: { user: AuthUser; onLogout: () 
   }, [open]);
 
   return (
-    <header className="flex items-stretch border-b-2 border-mint bg-[#ffffff] shadow-card">
-      <div className="hidden w-64 shrink-0 items-center gap-2 overflow-hidden border-r-2 border-mint px-3 py-3 lg:flex">
-        <img
+    <header className="flex items-stretch bg-[#ffffff] shadow-card">
+      <div className="hidden w-64 shrink-0 items-center gap-2 overflow-hidden px-3 py-3 lg:flex">
+        <Image
           src="/images/brand/white_bg_logo-removebg-preview.png"
           alt="Smart Med Records"
+          width={453}
+          height={503}
+          priority
           className="h-12 w-auto shrink-0 object-contain"
         />
-        <img
+        <Image
           src="/images/brand/white_bg_text-removebg-preview.png"
           alt="Smart Med Records Inc."
+          width={936}
+          height={267}
+          priority
           className="h-12 w-auto object-contain"
         />
       </div>
       <div className="flex flex-1 items-center justify-end gap-2.5 px-5 py-2.5 lg:px-6">
+        {user.role === "ADMIN" && <NotificationBell />}
         <div className="relative" ref={menuRef}>
           <button
             type="button"

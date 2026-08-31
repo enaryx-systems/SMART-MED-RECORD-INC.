@@ -1,11 +1,16 @@
-import type { Invoice } from "@/lib/types/portal";
+import type { Invoice, InvoiceLineItem, Organization } from "@prisma/client";
+
+type InvoiceForPdf = Invoice & {
+  organization: Pick<Organization, "id" | "name">;
+  lineItems: (InvoiceLineItem & { case: { caseNumber: string } })[];
+};
 
 function formatAmount(cents: number) {
   return (cents / 100).toLocaleString(undefined, { style: "currency", currency: "USD" });
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+function formatDate(date: Date) {
+  return date.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
 }
 
 function escapeHtml(value: string) {
@@ -17,21 +22,12 @@ function escapeHtml(value: string) {
 }
 
 /**
- * Opens a self-contained, print-ready invoice document in a new tab and
- * triggers the browser's print dialog — the "Save as PDF" destination there
- * is the download path, since no server-side PDF pipeline exists yet.
- * Layout follows a standard banded-header / info-grid / itemized-table /
- * banded-footer invoice structure, in the portal's own pine/emerald/gold
- * palette rather than the plain black-and-orange of a generic template.
+ * Server-side counterpart of apps/web/lib/utils/invoice-print.ts's HTML
+ * template — deliberately duplicated rather than shared (the two apps
+ * install independently) but kept visually identical, since Puppeteer
+ * renders this exact markup to a PDF.
  */
-export function openInvoicePrintWindow(invoice: Invoice) {
-  const win = window.open("", "_blank", "width=850,height=1100");
-  if (!win) return;
-
-  // The dark-bg logo variant (light-on-transparent) is the one meant to sit
-  // on a colored band — same asset the portal header uses on its pine bar.
-  const logoUrl = `${window.location.origin}/images/brand/dark_bg_logo-removebg-preview.png`;
-
+export function renderInvoiceHtml(invoice: InvoiceForPdf, logoDataUri: string): string {
   const lineItemRows = invoice.lineItems
     .map(
       (li, i) => `
@@ -43,7 +39,7 @@ export function openInvoicePrintWindow(invoice: Invoice) {
     )
     .join("");
 
-  const html = `<!doctype html>
+  return `<!doctype html>
 <html>
 <head>
 <meta charset="utf-8" />
@@ -51,7 +47,7 @@ export function openInvoicePrintWindow(invoice: Invoice) {
 <style>
   * { box-sizing: border-box; }
   body { font-family: Arial, Helvetica, sans-serif; color: #384633; margin: 0; }
-  .sheet { max-width: 800px; margin: 24px auto; border: 1px solid #DCE9E2; }
+  .sheet { max-width: 800px; margin: 0 auto; border: 1px solid #DCE9E2; }
 
   .band-top {
     background: linear-gradient(135deg, #00453A, #00856F);
@@ -107,7 +103,7 @@ export function openInvoicePrintWindow(invoice: Invoice) {
   <div class="sheet">
     <div class="band-top">
       <div class="brand">
-        <img src="${logoUrl}" alt="" />
+        <img src="${logoDataUri}" alt="" />
         <div class="brand-text">
           <div class="name">SMART MED RECORDS</div>
           <div class="tagline">MEDICAL-LEGAL INTELLIGENCE</div>
@@ -130,7 +126,7 @@ export function openInvoicePrintWindow(invoice: Invoice) {
         </div>
         <div class="block" style="text-align: right;">
           <div class="label">Bill To</div>
-          <div class="value">${escapeHtml(invoice.organization?.name ?? "—")}</div>
+          <div class="value">${escapeHtml(invoice.organization.name)}</div>
           <span class="status ${invoice.status === "PAID" ? "paid" : "pending"}">${invoice.status}</span>
         </div>
       </div>
@@ -174,10 +170,4 @@ export function openInvoicePrintWindow(invoice: Invoice) {
   </div>
 </body>
 </html>`;
-
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  win.focus();
-  win.onload = () => win.print();
 }

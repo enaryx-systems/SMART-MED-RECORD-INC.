@@ -1,7 +1,8 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { CaseStatus, CaseType, Role } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
-import type { AuthUser } from "../../common/auth/jwt.strategy";
+import { EmailService } from "../../common/email/email.service";
+import type { AuthUser } from "../../common/auth/auth-user";
 import { parsePagination, parseSort, type PageQuery } from "../../common/pagination/pagination";
 import { CreateCaseDto } from "./dto/create-case.dto";
 import { UpdateCaseDto } from "./dto/update-case.dto";
@@ -22,17 +23,33 @@ const ALL_STATUSES: CaseStatus[] = [
 const CASE_SORT_COLUMNS = ["createdAt", "caseNumber", "matterName", "status", "dueAt"] as const;
 
 export interface ListCasesQuery extends PageQuery {
-  status?: CaseStatus;
-  caseType?: CaseType;
+  status?: string;
+  caseType?: string;
   organizationId?: string;
   reviewerId?: string;
+  ownerId?: string;
   createdFrom?: string;
   createdTo?: string;
+  search?: string;
+}
+
+const CASE_STATUS_VALUES = new Set<string>(ALL_STATUSES);
+const CASE_TYPE_VALUES = new Set<string>(Object.values(CaseType));
+
+function parseMultiValue<T extends string>(raw: string | undefined, allowed: Set<string>): T[] {
+  return (raw?.split(",").map((s) => s.trim().toUpperCase()).filter((v) => allowed.has(v)) ?? []) as T[];
+}
+
+function parseIdList(raw: string | undefined): string[] {
+  return raw?.split(",").map((s) => s.trim()).filter(Boolean) ?? [];
 }
 
 @Injectable()
 export class CasesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private email: EmailService,
+  ) {}
 
   private scopeFor(user: AuthUser) {
     switch (user.role) {
@@ -49,18 +66,43 @@ export class CasesService {
   async list(user: AuthUser, query: ListCasesQuery) {
     const { page, pageSize, skip, take } = parsePagination(query);
     const { column, dir } = parseSort(query, CASE_SORT_COLUMNS, "createdAt");
+    const statuses = parseMultiValue<CaseStatus>(query.status, CASE_STATUS_VALUES);
+    const caseTypes = parseMultiValue<CaseType>(query.caseType, CASE_TYPE_VALUES);
     const where = {
       ...this.scopeFor(user),
-      ...(query.status ? { status: query.status } : {}),
-      ...(query.caseType ? { caseType: query.caseType } : {}),
+      ...(statuses.length === 1 ? { status: statuses[0] } : statuses.length > 1 ? { status: { in: statuses } } : {}),
+      ...(caseTypes.length === 1
+        ? { caseType: caseTypes[0] }
+        : caseTypes.length > 1
+          ? { caseType: { in: caseTypes } }
+          : {}),
       ...(query.organizationId ? { organizationId: query.organizationId } : {}),
-      ...(query.reviewerId ? { assignedReviewerId: query.reviewerId } : {}),
+      ...(() => {
+        const reviewerIds = parseIdList(query.reviewerId);
+        if (reviewerIds.length === 1) return { assignedReviewerId: reviewerIds[0] };
+        if (reviewerIds.length > 1) return { assignedReviewerId: { in: reviewerIds } };
+        return {};
+      })(),
+      ...(() => {
+        const ownerIds = parseIdList(query.ownerId);
+        if (ownerIds.length === 1) return { ownerId: ownerIds[0] };
+        if (ownerIds.length > 1) return { ownerId: { in: ownerIds } };
+        return {};
+      })(),
       ...(query.createdFrom || query.createdTo
         ? {
             createdAt: {
               ...(query.createdFrom ? { gte: new Date(query.createdFrom) } : {}),
               ...(query.createdTo ? { lte: new Date(query.createdTo) } : {}),
             },
+          }
+        : {}),
+      ...(query.search?.trim()
+        ? {
+            OR: [
+              { matterName: { contains: query.search.trim(), mode: "insensitive" as const } },
+              { caseNumber: { contains: query.search.trim(), mode: "insensitive" as const } },
+            ],
           }
         : {}),
     };
@@ -259,6 +301,11 @@ export class CasesService {
         type: "STATUS_CHANGE",
         body: `Status changed from ${found.status} to ${dto.status}.`,
       },
+    });
+    void this.email.send({
+      to: found.owner.email,
+      subject: `Case ${found.caseNumber} status updated`,
+      text: `Your case ${found.caseNumber} (${found.matterName}) is now ${dto.status}.`,
     });
     return updated;
   }

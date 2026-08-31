@@ -1,6 +1,6 @@
 import { CASE_TYPES } from "@/lib/data/case-options";
 import { Dropdown } from "@/components/portal/dropdown";
-import type { WizardState } from "./wizard-types";
+import { step1FieldError, type WizardState } from "./wizard-types";
 
 export function StepCaseDetails({
   state,
@@ -22,7 +22,7 @@ export function StepCaseDetails({
             value={state.matterName}
             onChange={(e) => onChange({ matterName: e.target.value })}
             placeholder="e.g. Smith v. Acme Corp"
-            className="w-full rounded-lg border-2 border-pine/25 bg-cream px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
+            className="w-full rounded-lg border-2 border-pine/25 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
           />
         </div>
         <div>
@@ -45,7 +45,7 @@ export function StepCaseDetails({
             id="attorneyName"
             value={state.attorneyName}
             onChange={(e) => onChange({ attorneyName: e.target.value })}
-            className="w-full rounded-lg border-2 border-pine/25 bg-cream px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
+            className="w-full rounded-lg border-2 border-pine/25 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
           />
         </div>
         <div>
@@ -56,7 +56,7 @@ export function StepCaseDetails({
             id="contactName"
             value={state.contactName}
             onChange={(e) => onChange({ contactName: e.target.value })}
-            className="w-full rounded-lg border-2 border-pine/25 bg-cream px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
+            className="w-full rounded-lg border-2 border-pine/25 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
           />
         </div>
         <div>
@@ -68,8 +68,11 @@ export function StepCaseDetails({
             type="email"
             value={state.contactEmail}
             onChange={(e) => onChange({ contactEmail: e.target.value })}
-            className="w-full rounded-lg border-2 border-pine/25 bg-cream px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
+            className="w-full rounded-lg border-2 border-pine/25 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
           />
+          {state.contactEmail !== "" && step1FieldError(state, "contactEmail") && (
+            <p className="mt-1 text-xs text-red-600">{step1FieldError(state, "contactEmail")}</p>
+          )}
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-semibold text-ink" htmlFor="contactPhone">
@@ -79,7 +82,7 @@ export function StepCaseDetails({
             id="contactPhone"
             value={state.contactPhone}
             onChange={(e) => onChange({ contactPhone: e.target.value })}
-            className="w-full rounded-lg border-2 border-pine/25 bg-cream px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
+            className="w-full rounded-lg border-2 border-pine/25 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
           />
         </div>
       </div>
@@ -93,7 +96,7 @@ export function StepCaseDetails({
           rows={2}
           value={state.caseOverview}
           onChange={(e) => onChange({ caseOverview: e.target.value })}
-          className="w-full rounded-lg border-2 border-pine/25 bg-cream px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
+          className="w-full rounded-lg border-2 border-pine/25 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
         />
       </div>
 
@@ -106,7 +109,7 @@ export function StepCaseDetails({
           rows={2}
           value={state.caseIssues}
           onChange={(e) => onChange({ caseIssues: e.target.value })}
-          className="w-full rounded-lg border-2 border-pine/25 bg-cream px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
+          className="w-full rounded-lg border-2 border-pine/25 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
         />
       </div>
 
@@ -122,7 +125,7 @@ export function StepCaseDetails({
           rows={2}
           value={state.specificInstructions}
           onChange={(e) => onChange({ specificInstructions: e.target.value })}
-          className="w-full rounded-lg border-2 border-pine/25 bg-cream px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
+          className="w-full rounded-lg border-2 border-pine/25 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
         />
       </div>
     </div>

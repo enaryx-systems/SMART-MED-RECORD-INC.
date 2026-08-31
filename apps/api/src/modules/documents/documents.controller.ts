@@ -14,7 +14,7 @@ import type { Response } from "express";
 import { Role } from "@prisma/client";
 import { CurrentUser } from "../../common/auth/current-user.decorator";
 import { Roles } from "../../common/auth/roles.decorator";
-import type { AuthUser } from "../../common/auth/jwt.strategy";
+import type { AuthUser } from "../../common/auth/auth-user";
 import { DocumentsService } from "./documents.service";
 
 // Case ids are Prisma cuids; reject anything else before it's used to build

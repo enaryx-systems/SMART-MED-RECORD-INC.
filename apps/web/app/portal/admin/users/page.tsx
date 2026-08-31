@@ -1,77 +1,99 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Search, UploadCloud, UserPlus, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createUser, fetchOrganizationOptions, fetchUsers, setUserStatus } from "@/lib/api/client";
+import {
+  deleteUser,
+  fetchOrganizationOptions,
+  fetchUsers,
+  setUserStatus,
+} from "@/lib/api/client";
 import { PageHeader } from "@/components/portal/page-header";
-import { OrganizationFilter } from "@/components/portal/organization-filter";
-import { Dropdown } from "@/components/portal/dropdown";
 import { Button } from "@/components/portal/button";
-import { TextInput } from "@/components/portal/text-input";
 import { DataTable, type DataTableColumn } from "@/components/portal/data-table";
 import { RoleBadge } from "@/components/portal/role-badge";
 import { UserCell } from "@/components/portal/user-cell";
 import { OrgBadge } from "@/components/portal/org-badge";
-import { ROLE_LABEL, type Role, type SortDir, type UserSummary } from "@/lib/types/portal";
-import { useAppSelector } from "@/redux/hooks";
+import { CreateUserModal } from "@/components/portal/create-user-modal";
+import { EditUserModal } from "@/components/portal/edit-user-modal";
+import { ResetPasswordModal } from "@/components/portal/reset-password-modal";
+import { ConfirmModal } from "@/components/portal/confirm-modal";
+import { UserFilterPanel } from "@/components/portal/user-filter-panel";
+import { UserRowMenu } from "@/components/portal/user-row-menu";
+import { DownloadMenu, type DownloadFormat } from "@/components/portal/download-menu";
+import { BulkUploadUsersModal } from "@/components/portal/bulk-upload-users-modal";
+import { downloadUsersCsv, downloadUsersExcel, printUsersPdf } from "@/lib/utils/user-export";
+import type { Role, SortDir, UserSummary } from "@/lib/types/portal";
 
 const PAGE_SIZE = 15;
 
-const ROLE_OPTIONS = (Object.keys(ROLE_LABEL) as Role[]).map((r) => ({
-  value: r,
-  label: ROLE_LABEL[r],
-}));
+function useDebounced<T>(value: T, delayMs: number) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(t);
+  }, [value, delayMs]);
+  return debounced;
+}
 
-const INTERNAL_ROLES: Role[] = ["ADMIN", "REVIEWER", "BILLING"];
+function runExport(format: DownloadFormat, users: UserSummary[]) {
+  if (users.length === 0) return;
+  if (format === "csv") downloadUsersCsv(users);
+  else if (format === "excel") downloadUsersExcel(users);
+  else printUsersPdf(users);
+}
 
 export default function AdminUsersPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
-  const organizationId = useAppSelector((state) => state.orgFilter.organizationId);
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
-  const [roleFilter, setRoleFilter] = useState<Role | "">("");
+  const [searchInput, setSearchInput] = useState("");
+  const search = useDebounced(searchInput, 300);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [orgIds, setOrgIds] = useState<string[]>([]);
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState<Role>("CLIENT");
-  const [newUserOrgId, setNewUserOrgId] = useState("");
-  const [error, setError] = useState("");
+  const [selected, setSelected] = useState<Map<string, UserSummary>>(new Map());
+  const [modalOpen, setModalOpen] = useState(false);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserSummary | null>(null);
+  const [resettingUser, setResettingUser] = useState<UserSummary | null>(null);
+  const [deletingUser, setDeletingUser] = useState<UserSummary | null>(null);
+  const [deleteError, setDeleteError] = useState("");
+
+  useEffect(() => setPage(1), [search, roles, orgIds]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["users", page, sortBy, sortDir, organizationId, roleFilter],
+    queryKey: ["users", page, sortBy, sortDir, orgIds, roles, search],
     queryFn: () =>
       fetchUsers({
         page,
         pageSize: PAGE_SIZE,
         sortBy,
         sortDir,
-        organizationId: organizationId ?? undefined,
-        role: roleFilter || undefined,
+        organizationId: orgIds.length ? orgIds : undefined,
+        role: roles.length ? roles : undefined,
+        search: search || undefined,
       }),
   });
   const { data: orgOptions } = useQuery({ queryKey: ["organization-options"], queryFn: fetchOrganizationOptions });
 
-  const orgFormOptions = INTERNAL_ROLES.includes(role)
-    ? [{ value: "org_internal", label: "Smart Med Records — Internal" }]
-    : (orgOptions ?? []).map((o) => ({ value: o.id, label: o.name }));
-
-  const createMutation = useMutation({
-    mutationFn: createUser,
-    onSuccess: () => {
-      setName("");
-      setEmail("");
-      setPassword("");
-      setNewUserOrgId("");
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-    },
-    onError: (e: unknown) => setError(e instanceof Error ? e.message : "Could not create user."),
-  });
-
   const statusMutation = useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => setUserStatus(id, isActive),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteUser(id),
+    onSuccess: () => {
+      setDeletingUser(null);
+      setDeleteError("");
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (e: unknown) => setDeleteError(e instanceof Error ? e.message : "Could not delete this user."),
   });
 
   function onSortChange(column: string) {
@@ -83,8 +105,33 @@ export default function AdminUsersPage() {
     setPage(1);
   }
 
+  const rows = data?.data ?? [];
+  const selectedIds = useMemo(() => new Set(selected.keys()), [selected]);
+
+  function toggleRow(id: string) {
+    setSelected((prev) => {
+      const next = new Map(prev);
+      if (next.has(id)) next.delete(id);
+      else {
+        const row = rows.find((r) => r.id === id);
+        if (row) next.set(id, row);
+      }
+      return next;
+    });
+  }
+
+  function toggleAllOnPage() {
+    const allSelected = rows.length > 0 && rows.every((r) => selected.has(r.id));
+    setSelected((prev) => {
+      const next = new Map(prev);
+      if (allSelected) rows.forEach((r) => next.delete(r.id));
+      else rows.forEach((r) => next.set(r.id, r));
+      return next;
+    });
+  }
+
   const columns: DataTableColumn<UserSummary>[] = [
-    { key: "name", header: "Name", sortable: true, render: (u) => <UserCell name={u.name} /> },
+    { key: "name", header: "Name", sortable: true, render: (u) => <UserCell name={u.name} role={u.role} /> },
     { key: "email", header: "Email", sortable: true, render: (u) => u.email },
     { key: "role", header: "Role", render: (u) => <RoleBadge role={u.role} /> },
     { key: "organization", header: "Organization", render: (u) => u.organization && <OrgBadge id={u.organization.id} name={u.organization.name} /> },
@@ -92,10 +139,14 @@ export default function AdminUsersPage() {
       key: "status",
       header: "Status",
       render: (u) =>
-        u.isActive ? (
-          <span className="text-xs font-bold text-emerald">Active</span>
+        u.isActive === false ? (
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-red-500">
+            <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> Suspended
+          </span>
         ) : (
-          <span className="text-xs font-bold text-red-500">Deactivated</span>
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald" /> Active
+          </span>
         ),
     },
   ];
@@ -105,86 +156,83 @@ export default function AdminUsersPage() {
       <PageHeader
         title="Users"
         description="Every account across every organization and internal staff."
-        actions={<OrganizationFilter />}
+        actions={
+          <>
+            <DownloadMenu
+              disabled={rows.length === 0}
+              onSelect={async (format) => {
+                const full = await fetchUsers({
+                  page: 1,
+                  pageSize: 1000,
+                  sortBy,
+                  sortDir,
+                  organizationId: orgIds.length ? orgIds : undefined,
+                  role: roles.length ? roles : undefined,
+                  search: search || undefined,
+                });
+                runExport(format, full.data);
+              }}
+            />
+            <Button variant="secondary" size="md" onClick={() => setBulkUploadOpen(true)}>
+              <UploadCloud size={16} />
+              Bulk Upload
+            </Button>
+            <Button size="md" onClick={() => setModalOpen(true)}>
+              <UserPlus size={16} />
+              Add user
+            </Button>
+          </>
+        }
       />
 
-      <form
-        className="grid gap-4 rounded-2xl border-[1.5px] border-pine/30 bg-white p-5 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)] sm:grid-cols-2 lg:grid-cols-5"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setError("");
-          const resolvedOrg = INTERNAL_ROLES.includes(role) ? "org_internal" : newUserOrgId;
-          if (!resolvedOrg) {
-            setError("Choose an organization.");
-            return;
-          }
-          createMutation.mutate({ name, email, password, role, organizationId: resolvedOrg });
-        }}
-      >
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-ink">Name</label>
-          <TextInput value={name} onChange={(e) => setName(e.target.value)} required />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-ink">Email</label>
-          <TextInput type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-ink">Temp password</label>
-          <TextInput
-            type="text"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={8}
-          />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-ink">Role</label>
-          <Dropdown
-            value={role}
-            onChange={(v) => {
-              setRole(v as Role);
-              setNewUserOrgId("");
-            }}
-            options={ROLE_OPTIONS}
-          />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-ink">Organization</label>
-          <Dropdown
-            value={INTERNAL_ROLES.includes(role) ? "org_internal" : newUserOrgId}
-            onChange={setNewUserOrgId}
-            options={orgFormOptions}
-            placeholder="Choose organization"
-          />
-        </div>
-        <div className="lg:col-span-5">
-          <Button type="submit" size="md" disabled={createMutation.isPending}>
-            {createMutation.isPending ? "Creating…" : "Create user"}
-          </Button>
-        </div>
-      </form>
-      {error && <p className="text-sm text-red-700">{error}</p>}
-
-      <div className="flex items-center gap-3">
-        <span className="text-xs font-bold uppercase tracking-wide text-emerald">Filter by role</span>
-        <div className="w-48">
-          <Dropdown
-            value={roleFilter}
-            onChange={(v) => {
-              setRoleFilter(v as Role | "");
-              setPage(1);
-            }}
-            options={[{ value: "", label: "All roles" }, ...ROLE_OPTIONS]}
-            placeholder="All roles"
-          />
-        </div>
+      <div className="flex min-w-[260px] items-center gap-1 rounded-lg border-2 border-pine/25 bg-white pl-3 pr-1.5">
+        <Search size={16} className="shrink-0 text-ink/40" />
+        <input
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="Search name or email…"
+          className="h-10 flex-1 bg-transparent px-2 text-sm text-ink outline-none placeholder:text-ink/40"
+        />
+        {searchInput && (
+          <button
+            type="button"
+            onClick={() => setSearchInput("")}
+            className="shrink-0 rounded p-1 text-ink/40 transition-colors duration-fast hover:text-ink"
+            aria-label="Clear search"
+          >
+            <X size={14} />
+          </button>
+        )}
+        <UserFilterPanel
+          orgOptions={(orgOptions ?? []).map((o) => ({ value: o.id, label: o.name }))}
+          roles={roles}
+          orgIds={orgIds}
+          onApply={(nextRoles, nextOrgIds) => {
+            setRoles(nextRoles);
+            setOrgIds(nextOrgIds);
+          }}
+        />
       </div>
+
+      {selected.size > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-[1.5px] border-emerald/30 bg-mint/30 px-4 py-2.5">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-bold text-emerald">{selected.size} user{selected.size === 1 ? "" : "s"} selected</span>
+            <DownloadMenu label="Export selected" onSelect={(format) => runExport(format, Array.from(selected.values()))} />
+          </div>
+          <button
+            type="button"
+            onClick={() => setSelected(new Map())}
+            className="text-sm font-semibold text-ink/60 hover:text-ink"
+          >
+            Deselect all
+          </button>
+        </div>
+      )}
 
       <DataTable
         columns={columns}
-        rows={data?.data ?? []}
+        rows={rows}
         rowKey={(u) => u.id}
         isLoading={isLoading}
         page={data?.page ?? page}
@@ -194,14 +242,40 @@ export default function AdminUsersPage() {
         sortBy={sortBy}
         sortDir={sortDir}
         onSortChange={onSortChange}
+        onRowClick={(u) => router.push(`/portal/admin/users/${u.id}`)}
+        selectedIds={selectedIds}
+        onToggleRow={toggleRow}
+        onToggleAll={toggleAllOnPage}
         renderActions={(u) => (
-          <Button
-            variant="secondary"
-            onClick={() => statusMutation.mutate({ id: u.id, isActive: !u.isActive })}
-          >
-            {u.isActive ? "Deactivate" : "Activate"}
-          </Button>
+          <UserRowMenu
+            user={u}
+            onEdit={() => setEditingUser(u)}
+            onResetPassword={() => setResettingUser(u)}
+            onToggleActive={() => statusMutation.mutate({ id: u.id, isActive: u.isActive === false })}
+            onDelete={() => {
+              setDeleteError("");
+              setDeletingUser(u);
+            }}
+          />
         )}
+      />
+
+      <CreateUserModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <BulkUploadUsersModal open={bulkUploadOpen} onClose={() => setBulkUploadOpen(false)} />
+      <EditUserModal user={editingUser} onClose={() => setEditingUser(null)} />
+      <ResetPasswordModal user={resettingUser} onClose={() => setResettingUser(null)} />
+      <ConfirmModal
+        open={!!deletingUser}
+        title="Delete user?"
+        description={
+          deleteError ||
+          `This permanently removes ${deletingUser?.name}'s account and identity-provider login. This cannot be undone.`
+        }
+        confirmLabel="Delete"
+        danger
+        pending={deleteMutation.isPending}
+        onConfirm={() => deletingUser && deleteMutation.mutate(deletingUser.id)}
+        onClose={() => setDeletingUser(null)}
       />
     </div>
   );

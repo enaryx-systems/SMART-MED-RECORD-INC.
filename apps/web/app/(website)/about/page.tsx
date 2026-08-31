@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   BadgeCheck,
@@ -110,9 +111,12 @@ export default function AboutPage() {
               </div>
             </div>
             <div className="overflow-hidden rounded-3xl border border-emerald/25 bg-cream p-3 shadow-soft">
-              <img
+              <Image
                 src="/images/website/about-team.png"
                 alt="Medical and legal professionals collaborating around secure source-linked case intelligence"
+                width={1693}
+                height={929}
+                priority
                 className="aspect-[16/10] w-full rounded-2xl object-cover"
               />
             </div>

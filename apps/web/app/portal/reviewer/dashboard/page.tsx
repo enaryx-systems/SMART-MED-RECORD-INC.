@@ -7,11 +7,11 @@ import { DonutChart } from "@/components/portal/donut-chart";
 import { StatCard } from "@/components/portal/stat-card";
 import { PageHeader } from "@/components/portal/page-header";
 import { OrganizationFilter } from "@/components/portal/organization-filter";
-import { getSession } from "@/lib/auth/session";
+import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { useAppSelector } from "@/redux/hooks";
 
 export default function ReviewerDashboardPage() {
-  const session = getSession();
+  const { user } = useCurrentUser();
   const organizationId = useAppSelector((state) => state.orgFilter.organizationId);
   const { data, isError } = useQuery({
     queryKey: ["case-stats", organizationId],
@@ -31,7 +31,7 @@ export default function ReviewerDashboardPage() {
     <div className="space-y-8">
       <PageHeader
         title="My queue"
-        description={`Welcome${session ? `, ${session.user.name.split(" ")[0]}` : ""}. Cases assigned to you.`}
+        description={`Welcome${user ? `, ${user.name.split(" ")[0]}` : ""}. Cases assigned to you.`}
         actions={<OrganizationFilter />}
       />
 

@@ -15,6 +15,7 @@ import {
 } from "@/lib/api/client";
 import { PageHeader } from "@/components/portal/page-header";
 import { CaseOverview } from "@/components/portal/case-overview";
+import { CaseSummaryCard } from "@/components/portal/case-summary-card";
 import { CaseProgressCard } from "@/components/portal/case-progress-card";
 import { DocumentList } from "@/components/portal/document-list";
 import { CaseTimeline } from "@/components/portal/case-timeline";
@@ -121,6 +122,7 @@ export default function AdminCaseDetailPage() {
     <div className="space-y-6">
       <PageHeader title="Case workspace" description="Full control over status, assignment, and delivery." />
       <CaseOverview data={data} showOrganization showAssignee />
+      <CaseSummaryCard caseId={caseId} canGenerate />
       <CaseProgressCard status={data.status} />
 
       <div className="grid gap-6 sm:grid-cols-2">
@@ -147,7 +149,7 @@ export default function AdminCaseDetailPage() {
         </div>
       </div>
 
-      <DocumentList caseId={caseId} canUpload uploadLabel="Upload reviewed deliverable" />
+      <DocumentList caseId={caseId} canUpload canManageExtraction uploadLabel="Upload reviewed deliverable" />
 
       <div className="rounded-2xl border-[1.5px] border-pine/30 bg-white p-6 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)]">
         <h3 className="mb-4 text-lg font-bold text-pine">Invoices</h3>

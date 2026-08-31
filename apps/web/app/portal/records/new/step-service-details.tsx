@@ -22,7 +22,7 @@ export function StepServiceDetails({
           {SERVICES_DESIRED.map((service) => (
             <label
               key={service}
-              className="flex items-center gap-2.5 rounded-xl border bg-cream px-4 py-2.5 text-sm text-ink"
+              className="flex items-center gap-2.5 rounded-xl border bg-white px-4 py-2.5 text-sm text-ink"
             >
               <input
                 type="checkbox"
@@ -44,7 +44,7 @@ export function StepServiceDetails({
           {ADDITIONAL_SERVICES.map((service) => (
             <label
               key={service}
-              className="flex items-center gap-2.5 rounded-xl border bg-cream px-4 py-2.5 text-sm text-ink"
+              className="flex items-center gap-2.5 rounded-xl border bg-white px-4 py-2.5 text-sm text-ink"
             >
               <input
                 type="checkbox"
@@ -69,7 +69,7 @@ export function StepServiceDetails({
           rows={2}
           value={state.otherServicesNote}
           onChange={(e) => onChange({ otherServicesNote: e.target.value })}
-          className="w-full rounded-xl border-2 border-pine/25 bg-cream px-4 py-3 outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
+          className="w-full rounded-xl border-2 border-pine/25 bg-white px-4 py-3 outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
         />
       </div>
 

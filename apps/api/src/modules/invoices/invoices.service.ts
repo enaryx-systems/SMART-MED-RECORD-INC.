@@ -1,11 +1,25 @@
+import * as fs from "fs";
+import * as path from "path";
 import { BadRequestException, ConflictException, NotFoundException } from "@nestjs/common";
 import { Injectable } from "@nestjs/common";
 import { InvoiceStatus, Prisma, Role } from "@prisma/client";
+import puppeteer from "puppeteer";
 import { PrismaService } from "../../common/prisma/prisma.service";
-import type { AuthUser } from "../../common/auth/jwt.strategy";
+import { EmailService } from "../../common/email/email.service";
+import type { AuthUser } from "../../common/auth/auth-user";
 import { parsePagination, parseSort, type PageQuery } from "../../common/pagination/pagination";
 import { CreateInvoiceDto } from "./dto/create-invoice.dto";
 import { UpdateInvoiceDto } from "./dto/update-invoice.dto";
+import { renderInvoiceHtml } from "./invoice-pdf.template";
+
+let cachedLogoDataUri: string | undefined;
+function logoDataUri(): string {
+  if (!cachedLogoDataUri) {
+    const buffer = fs.readFileSync(path.join(process.cwd(), "assets", "invoice-logo.png"));
+    cachedLogoDataUri = `data:image/png;base64,${buffer.toString("base64")}`;
+  }
+  return cachedLogoDataUri;
+}
 
 const INVOICE_SORT_COLUMNS = ["number", "amountCents", "dueAt", "status", "createdAt"] as const;
 
@@ -24,7 +38,18 @@ export interface ListInvoicesQuery extends PageQuery {
 
 @Injectable()
 export class InvoicesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private email: EmailService,
+  ) {}
+
+  private async notifyOrganization(organizationId: string, subject: string, text: string) {
+    const users = await this.prisma.user.findMany({
+      where: { organizationId },
+      select: { email: true },
+    });
+    for (const u of users) void this.email.send({ to: u.email, subject, text });
+  }
 
   private orgWhere(user: AuthUser, organizationId?: string) {
     if (user.role === Role.CLIENT) return user.organizationId;
@@ -162,6 +187,12 @@ export class InvoicesService {
       })),
     });
 
+    void this.notifyOrganization(
+      dto.organizationId,
+      `Invoice ${invoice.number} issued`,
+      `A new invoice (${invoice.number}) for $${(amountCents / 100).toFixed(2)} covering ${dto.lineItems.length} case(s) has been issued, due ${new Date(dto.dueAt).toLocaleDateString()}.`,
+    );
+
     return invoice;
   }
 
@@ -233,6 +264,24 @@ export class InvoicesService {
     return { id };
   }
 
+  async renderPdf(user: AuthUser, id: string): Promise<Buffer> {
+    const invoice = await this.findOne(user, id);
+
+    const browser = await puppeteer.launch({
+      headless: true,
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    try {
+      const page = await browser.newPage();
+      await page.setContent(renderInvoiceHtml(invoice, logoDataUri()), { waitUntil: "load" });
+      const pdf = await page.pdf({ format: "A4", printBackground: true });
+      return Buffer.from(pdf);
+    } finally {
+      await browser.close();
+    }
+  }
+
   async markPaid(user: AuthUser, id: string) {
     const invoice = await this.prisma.invoice.findUnique({ where: { id }, include: LINE_ITEM_INCLUDE });
     if (!invoice) throw new NotFoundException("Invoice not found.");
@@ -251,6 +300,12 @@ export class InvoicesService {
         body: `Invoice ${invoice.number} marked paid.`,
       })),
     });
+
+    void this.notifyOrganization(
+      invoice.organizationId,
+      `Invoice ${invoice.number} paid`,
+      `Payment for invoice ${invoice.number} has been received. Any deliverables tied to it are now available to download.`,
+    );
 
     return updated;
   }

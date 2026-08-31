@@ -42,3 +42,16 @@ a {
   font-family: var(--font-portal-heading), Arial, Helvetica, sans-serif;
   font-weight: 600;
 }
+
+/*
+ * Scrollable regions that should keep working (wheel/touch/keyboard scroll,
+ * arrow-key overflow) but never show a track — the portal's own main content
+ * area and every filter-panel checkbox list.
+ */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

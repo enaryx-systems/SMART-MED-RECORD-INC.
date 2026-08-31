@@ -30,7 +30,7 @@ export function StatusFilterDropdown({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`flex w-full min-w-[170px] items-center justify-between gap-2.5 rounded-lg border-[1.5px] bg-mint px-4 py-2 text-xs font-semibold text-pine transition-colors duration-fast ${
+        className={`flex w-full min-w-[170px] items-center justify-between gap-2.5 rounded-lg border-[1.5px] bg-white px-4 py-2 text-xs font-semibold text-pine transition-colors duration-fast ${
           open ? "border-emerald" : "border-pine/30 hover:border-pine/50"
         }`}
       >

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCaseStats } from "@/lib/api/client";
-import { getSession } from "@/lib/auth/session";
+import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { CASE_STATUSES, STATUS_COLOR, STATUS_LABEL, type CaseStatus } from "@/lib/types/portal";
 import { DonutChart } from "@/components/portal/donut-chart";
 import { BarChart } from "@/components/portal/bar-chart";
@@ -15,7 +15,7 @@ import { PageHeader } from "@/components/portal/page-header";
 import { Button } from "@/components/portal/button";
 
 export default function PortalDashboardPage() {
-  const session = getSession();
+  const { user } = useCurrentUser();
   const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<CaseStatus | "">("");
   const { data, isError } = useQuery({
@@ -36,7 +36,7 @@ export default function PortalDashboardPage() {
     <div className="space-y-8">
       <PageHeader
         title="Dashboard"
-        description={`Welcome${session ? `, ${session.user.name.split(" ")[0]}` : ""}. Here's where your cases stand today.`}
+        description={`Welcome${user ? `, ${user.name.split(" ")[0]}` : ""}. Here's where your cases stand today.`}
         actions={
           <>
             <StatusFilterDropdown

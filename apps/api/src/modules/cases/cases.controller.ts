@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, Query } from "@nestjs/common";
-import { CaseStatus, CaseType, Role } from "@prisma/client";
+import { Role } from "@prisma/client";
 import { CasesService, type ListCasesQuery } from "./cases.service";
 import { CreateCaseDto } from "./dto/create-case.dto";
 import { UpdateCaseDto } from "./dto/update-case.dto";
@@ -8,7 +8,7 @@ import { AssignCaseDto } from "./dto/assign-case.dto";
 import { CreateCaseEventDto } from "./dto/create-case-event.dto";
 import { CurrentUser } from "../../common/auth/current-user.decorator";
 import { Roles } from "../../common/auth/roles.decorator";
-import type { AuthUser } from "../../common/auth/jwt.strategy";
+import type { AuthUser } from "../../common/auth/auth-user";
 
 @Controller("cases")
 export class CasesController {
@@ -16,10 +16,7 @@ export class CasesController {
 
   @Roles(Role.CLIENT, Role.ADMIN, Role.REVIEWER)
   @Get()
-  list(
-    @CurrentUser() user: AuthUser,
-    @Query() query: ListCasesQuery & { status?: CaseStatus; caseType?: CaseType },
-  ) {
+  list(@CurrentUser() user: AuthUser, @Query() query: ListCasesQuery) {
     return this.casesService.list(user, query);
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCases, fetchCaseStats, fetchOrganizationOptions, fetchReviewers } from "@/lib/api/client";
@@ -15,7 +15,7 @@ import { PageHeader } from "@/components/portal/page-header";
 import { DataTable, type DataTableColumn } from "@/components/portal/data-table";
 import { StatusPill } from "@/components/portal/status-pill";
 import { StatusFilterCards } from "@/components/portal/status-filter-cards";
-import { Dropdown } from "@/components/portal/dropdown";
+import { SearchFilterBar, type FilterColumn } from "@/components/portal/search-filter-bar";
 import { OrgBadge } from "@/components/portal/org-badge";
 import { ReviewerBadge } from "@/components/portal/reviewer-badge";
 import { DueBadge } from "@/components/portal/due-badge";
@@ -39,14 +39,35 @@ function AdminCasesTable() {
   const [caseType, setCaseType] = useState<CaseType | "">("");
   const [reviewerId, setReviewerId] = useState("");
   const [createdRange, setCreatedRange] = useState<CreatedRangePreset>("");
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const { from: createdFrom, to: createdTo } = getCreatedRange(createdRange);
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [search]);
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["cases", status ?? "all", caseType, reviewerId, createdRange, page, sortBy, sortDir, organizationId],
+    queryKey: [
+      "cases",
+      status ?? "all",
+      caseType,
+      reviewerId,
+      createdRange,
+      debouncedSearch,
+      page,
+      sortBy,
+      sortDir,
+      organizationId,
+    ],
     queryFn: () =>
       fetchCases({
         status,
@@ -54,6 +75,7 @@ function AdminCasesTable() {
         reviewerId: reviewerId || undefined,
         createdFrom,
         createdTo,
+        search: debouncedSearch || undefined,
         page,
         pageSize: PAGE_SIZE,
         sortBy,
@@ -109,70 +131,63 @@ function AdminCasesTable() {
 
       <StatusFilterCards baseHref="/portal/admin/cases" status={status} stats={stats} />
 
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold uppercase tracking-wide text-emerald">Organization</span>
-          <div className="w-56">
-            <Dropdown
-              value={organizationId ?? ""}
-              onChange={(v) => {
-                dispatch(setOrganizationFilter(v || null));
-                setPage(1);
-              }}
-              options={[
-                { value: "", label: "All organizations" },
-                ...(orgOptions ?? []).map((o) => ({ value: o.id, label: o.name })),
-              ]}
-              placeholder="All organizations"
-            />
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold uppercase tracking-wide text-emerald">Case type</span>
-          <div className="w-56">
-            <Dropdown
-              value={caseType}
-              onChange={(v) => {
-                setCaseType(v as CaseType | "");
-                setPage(1);
-              }}
-              options={[{ value: "", label: "All case types" }, ...CASE_TYPE_OPTIONS]}
-              placeholder="All case types"
-            />
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold uppercase tracking-wide text-emerald">Reviewer</span>
-          <div className="w-56">
-            <Dropdown
-              value={reviewerId}
-              onChange={(v) => {
-                setReviewerId(v);
-                setPage(1);
-              }}
-              options={[
-                { value: "", label: "All reviewers" },
-                ...(reviewers ?? []).map((r) => ({ value: r.id, label: r.name })),
-              ]}
-              placeholder="All reviewers"
-            />
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold uppercase tracking-wide text-emerald">Created</span>
-          <div className="w-56">
-            <Dropdown
-              value={createdRange}
-              onChange={(v) => {
-                setCreatedRange(v as CreatedRangePreset);
-                setPage(1);
-              }}
-              options={CREATED_RANGE_OPTIONS}
-              placeholder="All time"
-            />
-          </div>
-        </div>
-      </div>
+      <SearchFilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search by case number or matter name…"
+        columns={[
+          {
+            key: "organization",
+            label: "Organization",
+            dotColor: "#00453A",
+            value: organizationId ?? "",
+            onChange: (v) => {
+              dispatch(setOrganizationFilter(v || null));
+              setPage(1);
+            },
+            options: [
+              { value: "", label: "All organizations" },
+              ...(orgOptions ?? []).map((o) => ({ value: o.id, label: o.name })),
+            ],
+          },
+          {
+            key: "caseType",
+            label: "Case type",
+            dotColor: "#00856F",
+            value: caseType,
+            onChange: (v) => {
+              setCaseType(v as CaseType | "");
+              setPage(1);
+            },
+            options: [{ value: "", label: "All case types" }, ...CASE_TYPE_OPTIONS],
+          },
+          {
+            key: "reviewer",
+            label: "Reviewer",
+            dotColor: "#b78a3d",
+            value: reviewerId,
+            onChange: (v) => {
+              setReviewerId(v);
+              setPage(1);
+            },
+            options: [
+              { value: "", label: "All reviewers" },
+              ...(reviewers ?? []).map((r) => ({ value: r.id, label: r.name })),
+            ],
+          },
+          {
+            key: "created",
+            label: "Created",
+            dotColor: "#384633",
+            value: createdRange,
+            onChange: (v) => {
+              setCreatedRange(v as CreatedRangePreset);
+              setPage(1);
+            },
+            options: CREATED_RANGE_OPTIONS,
+          },
+        ] satisfies FilterColumn[]}
+      />
 
       {isError && (
         <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">

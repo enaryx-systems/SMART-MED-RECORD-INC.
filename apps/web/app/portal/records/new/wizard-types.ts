@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { CaseType, DeliverySpeed } from "@/lib/types/portal";
 
 export interface WizardState {
@@ -36,10 +37,33 @@ export const EMPTY_WIZARD_STATE: WizardState = {
   batesReference: false,
 };
 
+const step1Schema = z.object({
+  matterName: z.string().trim().min(2, "Case name must be at least 2 characters."),
+  caseType: z.string().min(1, "Select a case type."),
+  contactEmail: z
+    .string()
+    .refine((v) => v === "" || z.string().email().safeParse(v).success, {
+      message: "Enter a valid email address.",
+    }),
+});
+
+const step2Schema = z.object({
+  servicesDesired: z.array(z.string()).min(1, "Select at least one service."),
+});
+
 export function isStep1Valid(state: WizardState) {
-  return state.matterName.trim().length >= 2 && state.caseType !== "";
+  return step1Schema.safeParse(state).success;
 }
 
 export function isStep2Valid(state: WizardState) {
-  return state.servicesDesired.length > 0;
+  return step2Schema.safeParse(state).success;
+}
+
+// Per-field error message for a single field, for inline display — the
+// step-valid checks above stay boolean (unchanged call sites), this is for
+// the form to surface a specific reason rather than a generic "required".
+export function step1FieldError(state: WizardState, field: keyof z.infer<typeof step1Schema>) {
+  const result = step1Schema.safeParse(state);
+  if (result.success) return undefined;
+  return result.error.issues.find((issue) => issue.path[0] === field)?.message;
 }

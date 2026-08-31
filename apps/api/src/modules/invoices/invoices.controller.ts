@@ -1,11 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Res } from "@nestjs/common";
+import type { Response } from "express";
 import { Role } from "@prisma/client";
 import { InvoicesService, type ListInvoicesQuery } from "./invoices.service";
 import { CreateInvoiceDto } from "./dto/create-invoice.dto";
 import { UpdateInvoiceDto } from "./dto/update-invoice.dto";
 import { Roles } from "../../common/auth/roles.decorator";
 import { CurrentUser } from "../../common/auth/current-user.decorator";
-import type { AuthUser } from "../../common/auth/jwt.strategy";
+import type { AuthUser } from "../../common/auth/auth-user";
 
 @Controller("invoices")
 export class InvoicesController {
@@ -33,6 +34,16 @@ export class InvoicesController {
   @Get(":id")
   findOne(@CurrentUser() user: AuthUser, @Param("id") id: string) {
     return this.invoicesService.findOne(user, id);
+  }
+
+  @Roles(Role.CLIENT, Role.ADMIN, Role.BILLING)
+  @Get(":id/pdf")
+  async pdf(@CurrentUser() user: AuthUser, @Param("id") id: string, @Res() res: Response) {
+    const invoice = await this.invoicesService.findOne(user, id);
+    const buffer = await this.invoicesService.renderPdf(user, id);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${invoice.number}.pdf"`);
+    res.send(buffer);
   }
 
   @Roles(Role.ADMIN, Role.BILLING)

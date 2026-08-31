@@ -41,7 +41,7 @@ function Card({
       href={href}
       className={`flex items-center gap-3 rounded-2xl border-[1.5px] p-4 transition-[transform,box-shadow,border-color] duration-[250ms] ease hover:-translate-y-[3px] hover:shadow-[0_16px_34px_rgba(0,69,58,0.12),0_3px_8px_rgba(183,138,61,0.1)] ${
         active
-          ? "border-emerald bg-mint/40 shadow-card ring-1 ring-emerald"
+          ? "border-emerald bg-white shadow-card ring-1 ring-emerald"
           : "border-pine/30 bg-white shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)] hover:border-gold/50"
       }`}
     >

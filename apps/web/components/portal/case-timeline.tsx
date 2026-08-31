@@ -92,7 +92,7 @@ export function CaseTimeline({ caseId }: { caseId: string }) {
           onChange={(e) => setComment(e.target.value)}
           placeholder="Add a comment for this case…"
           rows={2}
-          className="w-full flex-1 resize-none rounded-xl border-2 border-pine/25 bg-cream px-4 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
+          className="w-full flex-1 resize-none rounded-xl border-2 border-pine/25 bg-white px-4 py-2.5 text-sm outline-none focus:border-emerald focus:shadow-[0_0_0_3px_rgba(0,133,111,0.09)]"
         />
         <button
           type="submit"

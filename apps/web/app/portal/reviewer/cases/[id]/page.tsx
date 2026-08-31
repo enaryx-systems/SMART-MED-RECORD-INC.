@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchCase } from "@/lib/api/client";
 import { PageHeader } from "@/components/portal/page-header";
 import { CaseOverview } from "@/components/portal/case-overview";
+import { CaseSummaryCard } from "@/components/portal/case-summary-card";
 import { CaseReviewWizard } from "@/components/portal/case-review-wizard";
 
 export default function ReviewerCaseDetailPage() {
@@ -30,6 +31,7 @@ export default function ReviewerCaseDetailPage() {
         description="Client submission through final delivery, one step at a time."
       />
       <CaseOverview data={data} showOrganization />
+      <CaseSummaryCard caseId={caseId} canGenerate />
       <CaseReviewWizard caseId={caseId} status={data.status} />
     </div>
   );

@@ -43,7 +43,7 @@ export function Dropdown({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={`flex h-10 w-full items-center justify-between gap-2.5 rounded-lg border-2 bg-cream px-3 text-left text-sm outline-none transition-colors duration-fast ${
+        className={`flex h-10 w-full items-center justify-between gap-2.5 rounded-lg border-2 bg-white px-3 text-left text-sm outline-none transition-colors duration-fast ${
           open ? "border-emerald shadow-[0_0_0_3px_rgba(0,133,111,0.09)]" : "border-pine/25"
         } ${selected ? "text-ink" : "text-ink/40"}`}
       >
@@ -57,7 +57,7 @@ export function Dropdown({
       {open && (
         <div
           role="listbox"
-          className="absolute left-0 top-[calc(100%+6px)] z-dropdown max-h-64 w-full overflow-auto rounded-xl border-[1.5px] border-pine/30 bg-white p-1 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)]"
+          className="no-scrollbar absolute left-0 top-[calc(100%+6px)] z-dropdown max-h-64 w-full overflow-auto rounded-xl border-[1.5px] border-pine/30 bg-white p-1 shadow-[0_16px_36px_rgba(0,69,58,0.16),0_4px_10px_rgba(0,69,58,0.08)]"
         >
           {options.map((option) => (
             <button

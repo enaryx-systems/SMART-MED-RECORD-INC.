@@ -1,14 +1,23 @@
 import * as path from "path";
 import { randomUUID } from "crypto";
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { InjectQueue } from "@nestjs/bullmq";
+import { Queue } from "bullmq";
 import type { Response } from "express";
 import { DocumentKind, Role } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { StorageService } from "../../common/storage/storage.service";
-import type { AuthUser } from "../../common/auth/jwt.strategy";
+import { DOCUMENT_PROCESSING_QUEUE } from "../../common/queue/queue.module";
+import { enqueueWithTimeout } from "../../common/queue/enqueue-with-timeout";
+import type { AuthUser } from "../../common/auth/auth-user";
 import { CasesService } from "../cases/cases.service";
 
 const TERMINAL_STATUSES = new Set(["DELIVERED", "CANCELED"]);
+const EXTRACTABLE_MIME_TYPES = new Set(["application/pdf"]);
+
+function isExtractable(mimeType: string) {
+  return EXTRACTABLE_MIME_TYPES.has(mimeType) || mimeType.startsWith("image/");
+}
 
 @Injectable()
 export class DocumentsService {
@@ -16,6 +25,7 @@ export class DocumentsService {
     private prisma: PrismaService,
     private casesService: CasesService,
     private storage: StorageService,
+    @InjectQueue(DOCUMENT_PROCESSING_QUEUE) private queue: Queue,
   ) {}
 
   // A case unlocks its deliverable once its invoice (if any) is paid — no
@@ -34,6 +44,7 @@ export class DocumentsService {
     const docs = await this.prisma.document.findMany({
       where: { caseId },
       orderBy: { createdAt: "desc" },
+      include: { extraction: { select: { status: true } } },
     });
 
     if (user.role !== Role.CLIENT) {
@@ -81,6 +92,14 @@ export class DocumentsService {
             : `Document uploaded: ${file.originalname}`,
       },
     });
+
+    // Only client-submitted source records get AI extraction — a reviewer's
+    // finished deliverable has nothing to extract. Unsupported file types
+    // (docx, etc.) are silently skipped rather than queued to fail.
+    if (kind === DocumentKind.CLIENT_UPLOAD && isExtractable(file.mimetype)) {
+      await this.prisma.documentExtraction.create({ data: { documentId: doc.id, status: "PENDING" } });
+      await enqueueWithTimeout(this.queue, "extract-document", { documentId: doc.id });
+    }
 
     return doc;
   }

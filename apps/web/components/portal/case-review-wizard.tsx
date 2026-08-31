@@ -186,7 +186,7 @@ export function CaseReviewWizard({ caseId, status }: { caseId: string; status: C
               Review everything the client submitted before starting work on this case.
             </p>
           </div>
-          <DocumentList caseId={caseId} canUpload={false} />
+          <DocumentList caseId={caseId} canUpload={false} canManageExtraction />
           {isFrontier && (
             <div className="flex justify-end">
               <Button onClick={() => statusMutation.mutate("IN_PROGRESS")} disabled={statusMutation.isPending}>
@@ -206,7 +206,7 @@ export function CaseReviewWizard({ caseId, status }: { caseId: string; status: C
               interim files if needed.
             </p>
           </div>
-          <DocumentList caseId={caseId} canUpload uploadLabel="Upload a working file" />
+          <DocumentList caseId={caseId} canUpload canManageExtraction uploadLabel="Upload a working file" />
           <CaseTimeline caseId={caseId} />
           {isFrontier && (
             <div className="flex items-center justify-between">
@@ -259,7 +259,7 @@ export function CaseReviewWizard({ caseId, status }: { caseId: string; status: C
               </div>
             )}
           </div>
-          <DocumentList caseId={caseId} canUpload uploadLabel="Upload the reviewed deliverable" />
+          <DocumentList caseId={caseId} canUpload canManageExtraction uploadLabel="Upload the reviewed deliverable" />
           {!hasDeliverable && isFrontier && (
             <p className="text-xs font-semibold text-gold">
               Upload the reviewed deliverable above before delivering to the client.
@@ -300,7 +300,7 @@ export function CaseReviewWizard({ caseId, status }: { caseId: string; status: C
               Previous
             </Button>
           )}
-          <DocumentList caseId={caseId} canUpload={false} />
+          <DocumentList caseId={caseId} canUpload={false} canManageExtraction />
           <CaseTimeline caseId={caseId} />
         </div>
       )}

@@ -1,8 +1,35 @@
 import { PrismaClient, CaseStatus, CaseType, OrgKind, Role } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { createClerkClient } from "@clerk/backend";
 import { SERVICES_DESIRED_CATALOG } from "../src/modules/cases/case-catalog";
 
 const prisma = new PrismaClient();
+
+if (!process.env.CLERK_SECRET_KEY) {
+  console.error(
+    "CLERK_SECRET_KEY is not set — demo users need a real Clerk identity to log in. " +
+      "Set it in apps/api/.env before seeding.",
+  );
+  process.exit(1);
+}
+const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+
+// Seeding runs repeatedly against the same demo emails, but Clerk user
+// creation isn't itself idempotent — reuse the existing Clerk identity for an
+// email if one is already there instead of erroring on every re-seed.
+async function findOrCreateClerkUser(opts: { email: string; name: string; password: string }) {
+  const existing = await clerk.users.getUserList({ emailAddress: [opts.email] });
+  if (existing.data[0]) return existing.data[0].id;
+
+  const [firstName, ...rest] = opts.name.trim().split(/\s+/);
+  const created = await clerk.users.createUser({
+    emailAddress: [opts.email],
+    password: opts.password,
+    firstName,
+    lastName: rest.join(" ") || undefined,
+    skipPasswordChecks: false,
+  });
+  return created.id;
+}
 
 const STATUSES: CaseStatus[] = [
   "DRAFT",
@@ -32,13 +59,13 @@ async function upsertUser(opts: {
   organizationId: string;
   password: string;
 }) {
-  const passwordHash = await bcrypt.hash(opts.password, 10);
+  const clerkUserId = await findOrCreateClerkUser(opts);
   return prisma.user.upsert({
     where: { email: opts.email },
-    update: { name: opts.name, role: opts.role, organizationId: opts.organizationId },
+    update: { name: opts.name, role: opts.role, organizationId: opts.organizationId, clerkUserId },
     create: {
       email: opts.email,
-      passwordHash,
+      clerkUserId,
       name: opts.name,
       role: opts.role,
       organizationId: opts.organizationId,
@@ -72,7 +99,7 @@ async function main() {
     name: "Alex Morgan",
     role: Role.ADMIN,
     organizationId: internalOrg.id,
-    password: "Admin123!",
+    password: "AdminPortal123!",
   });
 
   const reviewer = await upsertUser({
@@ -80,7 +107,7 @@ async function main() {
     name: "Riley Chen",
     role: Role.REVIEWER,
     organizationId: internalOrg.id,
-    password: "Reviewer123!",
+    password: "ReviewerPortal123!",
   });
 
   const billing = await upsertUser({
@@ -88,7 +115,7 @@ async function main() {
     name: "Sam Patel",
     role: Role.BILLING,
     organizationId: internalOrg.id,
-    password: "Billing123!",
+    password: "BillingPortal123!",
   });
 
   const clientA1 = await upsertUser({
@@ -96,7 +123,7 @@ async function main() {
     name: "Jordan Blake",
     role: Role.CLIENT,
     organizationId: firmA.id,
-    password: "Client123!",
+    password: "ClientPortal123!",
   });
 
   const clientA2 = await upsertUser({
@@ -104,7 +131,7 @@ async function main() {
     name: "Casey Rivera",
     role: Role.CLIENT,
     organizationId: firmA.id,
-    password: "Client123!",
+    password: "ClientPortal123!",
   });
 
   const clientB1 = await upsertUser({
@@ -112,7 +139,7 @@ async function main() {
     name: "Taylor Nguyen",
     role: Role.CLIENT,
     organizationId: firmB.id,
-    password: "Client123!",
+    password: "ClientPortal123!",
   });
 
   // --- Cases -------------------------------------------------------------

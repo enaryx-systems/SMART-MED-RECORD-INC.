@@ -78,7 +78,7 @@ model Organization {
 model User {
   id                String     @id @default(cuid())
   email             String     @unique
-  passwordHash      String
+  clerkUserId       String     @unique
   name              String
   role              Role       @default(CLIENT)
   isActive          Boolean    @default(true)
@@ -123,6 +123,7 @@ model Case {
   documents           Document[]
   events              CaseEvent[]
   invoiceLineItem     InvoiceLineItem?
+  summary             CaseSummary?
 }
 
 model Document {
@@ -137,6 +138,53 @@ model Document {
   uploadedById String
   uploadedBy   User         @relation(fields: [uploadedById], references: [id])
   createdAt    DateTime     @default(now())
+  extraction   DocumentExtraction?
+  chunks       DocumentChunk[]
+}
+
+enum ExtractionStatus {
+  PENDING
+  PROCESSING
+  COMPLETE
+  FAILED
+}
+
+model DocumentExtraction {
+  id             String           @id @default(cuid())
+  documentId     String           @unique
+  document       Document         @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  status         ExtractionStatus @default(PENDING)
+  extractedText  String?          @db.Text
+  structuredData Json?
+  model          String?
+  error          String?          @db.Text
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model CaseSummary {
+  id          String   @id @default(cuid())
+  caseId      String   @unique
+  case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  summary     String   @db.Text
+  model       String?
+  generatedAt DateTime @default(now())
+}
+
+// Maps a Qdrant vector point back to its source text/document/case, since
+// Qdrant's own filter is a performance optimization, not the authorization
+// boundary — every search result is re-checked against the caller's RBAC
+// scope using this table before it's returned.
+model DocumentChunk {
+  id            String   @id @default(cuid())
+  documentId    String
+  document      Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  chunkIndex    Int
+  text          String   @db.Text
+  qdrantPointId String   @unique
+  createdAt     DateTime @default(now())
+
+  @@unique([documentId, chunkIndex])
 }
 
 model CaseEvent {

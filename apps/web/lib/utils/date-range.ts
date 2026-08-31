@@ -36,3 +36,31 @@ export function getCreatedRange(preset: CreatedRangePreset): { from?: string; to
       return {};
   }
 }
+
+// A specific calendar month, e.g. "2026-01" -> Jan 1 through Jan 31 (local time).
+export function getMonthRange(monthKey: string): { from: string; to: string } {
+  const [year, month] = monthKey.split("-").map(Number);
+  const from = new Date(year, month - 1, 1);
+  const to = new Date(year, month, 0, 23, 59, 59, 999);
+  return { from: from.toISOString(), to: to.toISOString() };
+}
+
+export function monthKeyLabel(monthKey: string): string {
+  const [year, month] = monthKey.split("-").map(Number);
+  return new Date(year, month - 1, 1).toLocaleDateString(undefined, { month: "short", year: "numeric" });
+}
+
+// Distinct past (before the current calendar month) year-month keys found in
+// the given createdAt timestamps, newest first — so a specific-month filter
+// chip is only ever offered when that month actually has records.
+export function pastMonthsWithData(createdAtDates: string[]): string[] {
+  const now = new Date();
+  const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const keys = new Set<string>();
+  for (const iso of createdAtDates) {
+    const d = new Date(iso);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    if (key < currentKey) keys.add(key);
+  }
+  return Array.from(keys).sort().reverse();
+}

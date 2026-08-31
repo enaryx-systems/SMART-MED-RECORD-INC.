@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchCase, fetchInvoices } from "@/lib/api/client";
 import { PageHeader } from "@/components/portal/page-header";
 import { CaseOverview } from "@/components/portal/case-overview";
+import { CaseSummaryCard } from "@/components/portal/case-summary-card";
 import { CaseProgressCard } from "@/components/portal/case-progress-card";
 import { DocumentList } from "@/components/portal/document-list";
 import { CaseTimeline } from "@/components/portal/case-timeline";
@@ -44,6 +45,7 @@ export default function ClientCaseDetailPage() {
     <div className="space-y-6">
       <PageHeader title="Case detail" description="Track documents, delivery, and billing for this matter." />
       <CaseOverview data={data} />
+      <CaseSummaryCard caseId={caseId} />
       <CaseProgressCard status={data.status} />
       <DocumentList
         caseId={caseId}

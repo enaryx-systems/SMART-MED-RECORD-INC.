@@ -11,7 +11,7 @@ import {
   uploadDocument,
   type CaseInput,
 } from "@/lib/api/client";
-import { getSession } from "@/lib/auth/session";
+import { useCurrentUser } from "@/lib/auth/use-current-user";
 import type { CaseType } from "@/lib/types/portal";
 import { Stepper } from "@/components/portal/stepper";
 import { PageHeader } from "@/components/portal/page-header";
@@ -47,6 +47,7 @@ function NewRecordWizard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const resumeId = searchParams.get("caseId");
+  const { user } = useCurrentUser();
 
   const [hydrated, setHydrated] = useState(false);
   const [step, setStep] = useState(0);
@@ -100,9 +101,6 @@ function NewRecordWizard() {
           } catch {
             // ignore corrupt scratch data
           }
-        } else {
-          const session = getSession();
-          if (session) setState((s) => ({ ...s, contactName: session.user.name }));
         }
       }
       if (!cancelled) setHydrated(true);
@@ -119,6 +117,11 @@ function NewRecordWizard() {
     if (!hydrated || resumeId) return;
     window.localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
   }, [state, hydrated, resumeId]);
+
+  useEffect(() => {
+    if (!user || resumeId) return;
+    setState((s) => (s.contactName ? s : { ...s, contactName: user.name }));
+  }, [user, resumeId]);
 
   function onChange(patch: Partial<WizardState>) {
     setError("");

@@ -1,11 +1,16 @@
 import type {
+  AuthUser,
+  BulkCreateResult,
+  BulkCreateUserRow,
   Case,
   CaseDocument,
   CaseEvent,
   CaseStats,
   CaseStatus,
+  CaseSummary,
   CaseType,
   DeliverySpeed,
+  DocumentExtraction,
   Invoice,
   InvoiceCaseOption,
   InvoiceStatus,
@@ -14,11 +19,11 @@ import type {
   OrgOption,
   Paginated,
   Role,
-  Session,
+  SearchResult,
   SortDir,
   UserSummary,
 } from "@/lib/types/portal";
-import { clearSession, getSession } from "@/lib/auth/session";
+import { getAuthToken } from "@/lib/auth/token";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
 
@@ -32,16 +37,15 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const session = getSession();
+  const token = await getAuthToken();
   const headers = new Headers(init.headers);
   const isFormData = init.body instanceof FormData;
   if (!isFormData) headers.set("Content-Type", "application/json");
-  if (session) headers.set("Authorization", `Bearer ${session.token}`);
+  if (token) headers.set("Authorization", `Bearer ${token}`);
 
   const res = await fetch(`${API_URL}${path}`, { ...init, headers });
 
   if (res.status === 401) {
-    clearSession();
     throw new ApiError("Session expired. Please sign in again.", 401);
   }
 
@@ -70,34 +74,31 @@ function pageParams(params: PageParams) {
   return qs;
 }
 
-export function login(email: string, password: string) {
-  return request<Session>("/auth/login", {
-    method: "POST",
-    body: JSON.stringify({ email, password }),
-  });
-}
-
 export function fetchMe() {
-  return request<Session["user"]>("/auth/me");
+  return request<AuthUser>("/auth/me");
 }
 
 export interface FetchCasesParams extends PageParams {
-  status?: CaseStatus;
-  caseType?: CaseType;
+  status?: CaseStatus | CaseStatus[];
+  caseType?: CaseType | CaseType[];
   organizationId?: string;
-  reviewerId?: string;
+  reviewerId?: string | string[];
+  ownerId?: string | string[];
   createdFrom?: string;
   createdTo?: string;
+  search?: string;
 }
 
 export function fetchCases(params: FetchCasesParams = {}) {
   const qs = pageParams(params);
-  if (params.status) qs.set("status", params.status);
-  if (params.caseType) qs.set("caseType", params.caseType);
+  if (params.status) qs.set("status", Array.isArray(params.status) ? params.status.join(",") : params.status);
+  if (params.caseType) qs.set("caseType", Array.isArray(params.caseType) ? params.caseType.join(",") : params.caseType);
   if (params.organizationId) qs.set("organizationId", params.organizationId);
-  if (params.reviewerId) qs.set("reviewerId", params.reviewerId);
+  if (params.reviewerId) qs.set("reviewerId", Array.isArray(params.reviewerId) ? params.reviewerId.join(",") : params.reviewerId);
+  if (params.ownerId) qs.set("ownerId", Array.isArray(params.ownerId) ? params.ownerId.join(",") : params.ownerId);
   if (params.createdFrom) qs.set("createdFrom", params.createdFrom);
   if (params.createdTo) qs.set("createdTo", params.createdTo);
+  if (params.search) qs.set("search", params.search);
   return request<Paginated<Case>>(`/cases?${qs.toString()}`);
 }
 
@@ -209,15 +210,25 @@ export function createOrganization(name: string) {
 }
 
 export interface FetchUsersParams extends PageParams {
-  organizationId?: string;
-  role?: Role;
+  organizationId?: string | string[];
+  role?: Role | Role[];
+  search?: string;
 }
 
 export function fetchUsers(params: FetchUsersParams = {}) {
   const qs = pageParams(params);
-  if (params.organizationId) qs.set("organizationId", params.organizationId);
-  if (params.role) qs.set("role", params.role);
+  if (params.organizationId) {
+    qs.set("organizationId", Array.isArray(params.organizationId) ? params.organizationId.join(",") : params.organizationId);
+  }
+  if (params.role) {
+    qs.set("role", Array.isArray(params.role) ? params.role.join(",") : params.role);
+  }
+  if (params.search) qs.set("search", params.search);
   return request<Paginated<UserSummary>>(`/users?${qs.toString()}`);
+}
+
+export function fetchUser(id: string) {
+  return request<UserSummary>(`/users/${id}`);
 }
 
 export function fetchReviewers() {
@@ -247,6 +258,34 @@ export function setUserStatus(id: string, isActive: boolean) {
   return request<UserSummary>(`/users/${id}/status`, {
     method: "PATCH",
     body: JSON.stringify({ isActive }),
+  });
+}
+
+export interface UpdateUserInput {
+  name?: string;
+  role?: Role;
+  organizationId?: string;
+}
+
+export function updateUser(id: string, input: UpdateUserInput) {
+  return request<UserSummary>(`/users/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
+export function resetUserPassword(id: string) {
+  return request<{ password: string }>(`/users/${id}/reset-password`, { method: "POST" });
+}
+
+export function deleteUser(id: string) {
+  return request<{ id: string }>(`/users/${id}`, { method: "DELETE" });
+}
+
+export function bulkCreateUsers(rows: BulkCreateUserRow[]) {
+  return request<BulkCreateResult>("/users/bulk", {
+    method: "POST",
+    body: JSON.stringify({ rows }),
   });
 }
 
@@ -315,4 +354,46 @@ export function deleteInvoice(id: string) {
 
 export function markInvoicePaid(id: string) {
   return request<Invoice>(`/invoices/${id}/pay`, { method: "PATCH" });
+}
+
+// Server-rendered (Puppeteer) PDF — a plain <a href> can't attach the auth
+// header, so this fetches the bytes directly and triggers a browser download,
+// the same pattern used for gated document downloads.
+export async function downloadInvoicePdf(invoice: Invoice) {
+  const token = await getAuthToken();
+  const res = await fetch(`${API_URL}/invoices/${invoice.id}/pdf`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+  if (!res.ok) throw new ApiError("Could not generate the invoice PDF.", res.status);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${invoice.number}.pdf`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export function triggerExtraction(caseId: string, documentId: string) {
+  return request<{ queued: true }>(`/cases/${caseId}/documents/${documentId}/extract`, {
+    method: "POST",
+  });
+}
+
+export function fetchExtraction(caseId: string, documentId: string) {
+  return request<DocumentExtraction | null>(`/cases/${caseId}/documents/${documentId}/extraction`);
+}
+
+export function generateCaseSummary(caseId: string) {
+  return request<CaseSummary>(`/cases/${caseId}/summary`, { method: "POST" });
+}
+
+export function fetchCaseSummary(caseId: string) {
+  return request<CaseSummary | null>(`/cases/${caseId}/summary`);
+}
+
+export function searchDocuments(q: string, caseId?: string) {
+  const qs = new URLSearchParams({ q });
+  if (caseId) qs.set("caseId", caseId);
+  return request<SearchResult[]>(`/search?${qs.toString()}`);
 }

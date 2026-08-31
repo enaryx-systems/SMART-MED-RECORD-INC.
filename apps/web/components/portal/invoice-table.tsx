@@ -3,7 +3,7 @@
 import { Download, Eye, FileSpreadsheet, Pencil, Trash2 } from "lucide-react";
 import type { Invoice, SortDir } from "@/lib/types/portal";
 import { DataTable, type DataTableColumn } from "@/components/portal/data-table";
-import { openInvoicePrintWindow } from "@/lib/utils/invoice-print";
+import { downloadInvoicePdf } from "@/lib/api/client";
 import { downloadInvoiceExcel } from "@/lib/utils/invoice-excel";
 
 function formatAmount(cents: number) {
@@ -87,7 +87,7 @@ export function InvoiceTable({
           </button>
           <button
             type="button"
-            onClick={() => openInvoicePrintWindow(invoice)}
+            onClick={() => downloadInvoicePdf(invoice)}
             className="rounded-full p-1.5 text-ink/50 transition-colors duration-fast hover:bg-mint/60 hover:text-emerald"
             aria-label="Download invoice as PDF"
             title="Download PDF"

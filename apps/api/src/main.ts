@@ -1,7 +1,12 @@
 import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import * as Sentry from "@sentry/nestjs";
 import { AppModule } from "./app.module";
+
+// Initializing with an empty DSN is Sentry's own documented no-op path —
+// nothing to gate manually when SENTRY_DSN is unset.
+Sentry.init({ dsn: process.env.SENTRY_DSN });
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

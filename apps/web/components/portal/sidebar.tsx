@@ -14,6 +14,7 @@ import {
   LifeBuoy,
   ListChecks,
   Receipt,
+  Search,
   Users,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -48,11 +49,13 @@ const CLIENT_NAV: NavItem[] = [
     label: "Cases",
     icon: FolderOpen,
     children: [
+      { label: "All Cases", href: "/portal/cases" },
       { label: "On Hold", href: "/portal/cases?status=ON_HOLD" },
       { label: "Canceled", href: "/portal/cases?status=CANCELED" },
       { label: "Delivered", href: "/portal/cases?status=DELIVERED" },
     ],
   },
+  { label: "Search", icon: Search, href: "/portal/search" },
   { label: "Billing", icon: Receipt, href: "/portal/billing" },
   { label: "Support", icon: LifeBuoy, href: "/portal/support" },
   {
@@ -68,7 +71,9 @@ const ADMIN_NAV: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/portal/admin/dashboard" },
   { label: "Organizations", icon: Building2, href: "/portal/admin/organizations" },
   { label: "Case Queue", icon: FolderOpen, href: "/portal/admin/cases" },
+  { label: "Reviewer Queue", icon: ListChecks, href: "/portal/reviewer/cases" },
   { label: "Users", icon: Users, href: "/portal/admin/users" },
+  { label: "Search", icon: Search, href: "/portal/search" },
   { label: "Billing", icon: Receipt, href: "/portal/admin/billing" },
   { label: "Support", icon: LifeBuoy, href: "/portal/support" },
 ];
@@ -76,6 +81,7 @@ const ADMIN_NAV: NavItem[] = [
 const REVIEWER_NAV: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/portal/reviewer/dashboard" },
   { label: "My Queue", icon: ListChecks, href: "/portal/reviewer/cases" },
+  { label: "Search", icon: Search, href: "/portal/search" },
   { label: "Support", icon: LifeBuoy, href: "/portal/support" },
 ];
 
@@ -122,11 +128,11 @@ export function PortalSidebar({ role }: { role: Role }) {
     <aside
       onMouseEnter={() => dispatch(setSidebarOpen(true))}
       onMouseLeave={() => dispatch(setSidebarOpen(false))}
-      className={`relative hidden shrink-0 flex-col border-r-2 border-mint bg-white text-ink/80 shadow-card transition-[width] duration-base lg:flex ${
+      className={`relative hidden shrink-0 flex-col bg-white text-ink/80 shadow-card transition-[width] duration-base lg:flex ${
         expandedView ? "w-64" : "w-20"
       }`}
     >
-      <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden px-3 py-4 [&::-webkit-scrollbar]:h-[5px] [&::-webkit-scrollbar]:w-[5px] [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-[#bdd1cb]">
+      <nav className="flex-1 space-y-2.5 overflow-y-auto overflow-x-hidden px-3 py-4 [&::-webkit-scrollbar]:h-[5px] [&::-webkit-scrollbar]:w-[5px] [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-[#bdd1cb]">
         {nav.map((item) => {
           const Icon = item.icon;
           if (!item.children) {

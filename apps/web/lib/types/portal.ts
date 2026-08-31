@@ -16,6 +16,15 @@ export const ROLE_LABEL: Record<Role, string> = {
   BILLING: "Billing",
 };
 
+// One solid color per role, reused for avatars/badges so a role reads the
+// same color everywhere in the portal.
+export const ROLE_COLOR: Record<Role, string> = {
+  CLIENT: "#00856F",
+  ADMIN: "#00453A",
+  REVIEWER: "#B78A3D",
+  BILLING: "#7C5295",
+};
+
 export type CaseStatus =
   | "DRAFT"
   | "NEW"
@@ -107,11 +116,6 @@ export interface AuthUser {
   organizationName: string;
 }
 
-export interface Session {
-  token: string;
-  user: AuthUser;
-}
-
 export interface OrgRef {
   id: string;
   name: string;
@@ -126,7 +130,20 @@ export interface UserSummary {
   createdAt?: string;
   organizationId?: string;
   organization?: OrgRef;
-  _count?: { cases: number };
+  _count?: { cases: number; assignedCases?: number };
+}
+
+export interface BulkCreateUserRow {
+  name: string;
+  email: string;
+  role: string;
+  organization?: string;
+}
+
+export interface BulkCreateResult {
+  created: number;
+  failed: number;
+  results: { row: number; email: string; status: "created" | "failed"; error?: string }[];
 }
 
 export interface OrgCaseSummary {
@@ -192,6 +209,8 @@ export interface CaseStats {
   byReviewer: CaseReviewerBreakdown[];
 }
 
+export type ExtractionStatus = "PENDING" | "PROCESSING" | "COMPLETE" | "FAILED";
+
 export interface CaseDocument {
   id: string;
   caseId: string;
@@ -201,6 +220,45 @@ export interface CaseDocument {
   kind: DocumentKind;
   createdAt: string;
   locked: boolean;
+  extraction?: { status: ExtractionStatus } | null;
+}
+
+export interface ExtractedRecord {
+  documentType?: string | null;
+  providerName?: string | null;
+  datesOfService: string[];
+  diagnoses: string[];
+  summary?: string | null;
+}
+
+export interface DocumentExtraction {
+  id: string;
+  documentId: string;
+  status: ExtractionStatus;
+  extractedText: string | null;
+  structuredData: ExtractedRecord | null;
+  model: string | null;
+  error: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CaseSummary {
+  id: string;
+  caseId: string;
+  summary: string;
+  model: string | null;
+  generatedAt: string;
+}
+
+export interface SearchResult {
+  score: number;
+  caseId: string;
+  caseNumber?: string;
+  matterName?: string;
+  documentId: string;
+  fileName?: string;
+  snippet: string;
 }
 
 export interface CaseEvent {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   Activity,
   ArrowRight,
@@ -415,9 +416,12 @@ export default function Features() {
               </div>
             </div>
             <div className="relative overflow-hidden rounded-3xl lg:h-[420px]">
-              <img
+              <Image
                 src="/images/website/resources-hero.png"
                 alt="Secure medical records transformed into a source-linked chronology and verified by a physician for legal use"
+                width={1024}
+                height={1536}
+                priority
                 className="aspect-[4/5] w-full object-cover lg:aspect-auto lg:h-full"
               />
               <div className="absolute right-6 top-6 rounded-full border border-white/60 bg-ivory/85 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-emerald shadow-card backdrop-blur">

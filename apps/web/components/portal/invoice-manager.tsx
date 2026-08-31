@@ -221,7 +221,7 @@ function InvoiceCreateForm({ onCreated }: { onCreated: () => void }) {
                   <div
                     key={c.id}
                     className={`flex flex-wrap items-center gap-3 rounded-xl border-2 p-3 ${
-                      isSelected ? "border-emerald bg-mint/30" : "border-pine/15 bg-cream"
+                      isSelected ? "border-emerald bg-mint/30" : "border-pine/15 bg-white"
                     }`}
                   >
                     <label className="flex min-w-[160px] items-center gap-2 text-sm font-semibold text-pine">

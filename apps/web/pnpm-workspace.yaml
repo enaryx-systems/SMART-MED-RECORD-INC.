@@ -1,3 +1,4 @@
 allowBuilds:
+  '@sentry/cli': set this to true or false
   sharp: true
 nodeLinker: hoisted

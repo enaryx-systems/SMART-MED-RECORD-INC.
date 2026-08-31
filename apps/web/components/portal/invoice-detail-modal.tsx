@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { Download, FileSpreadsheet, X } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateInvoice } from "@/lib/api/client";
-import { openInvoicePrintWindow } from "@/lib/utils/invoice-print";
+import { downloadInvoicePdf, updateInvoice } from "@/lib/api/client";
 import { downloadInvoiceExcel } from "@/lib/utils/invoice-excel";
 import { Button } from "@/components/portal/button";
 import { TextInput } from "@/components/portal/text-input";
@@ -160,7 +159,7 @@ export function InvoiceDetailModal({
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-2">
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => openInvoicePrintWindow(invoice)}>
+            <Button variant="secondary" onClick={() => downloadInvoicePdf(invoice)}>
               <Download size={14} /> PDF
             </Button>
             <Button variant="secondary" onClick={() => downloadInvoiceExcel(invoice)}>

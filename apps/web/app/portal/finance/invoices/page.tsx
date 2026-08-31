@@ -1,5 +1,4 @@
 import { PageHeader } from "@/components/portal/page-header";
-import { OrganizationFilter } from "@/components/portal/organization-filter";
 import { InvoiceManager } from "@/components/portal/invoice-manager";
 
 export default function FinanceInvoicesPage() {
@@ -8,7 +7,6 @@ export default function FinanceInvoicesPage() {
       <PageHeader
         title="Invoices"
         description="Case numbers and organizations only — no case documents or clinical content."
-        actions={<OrganizationFilter />}
       />
       <InvoiceManager />
     </div>

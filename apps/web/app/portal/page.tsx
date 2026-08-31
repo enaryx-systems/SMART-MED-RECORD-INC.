@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getSession } from "@/lib/auth/session";
+import { useCurrentUser } from "@/lib/auth/use-current-user";
 import type { Role } from "@/lib/types/portal";
 
 const ROLE_HOME: Record<Role, string> = {
@@ -14,11 +14,16 @@ const ROLE_HOME: Record<Role, string> = {
 
 export default function PortalIndexPage() {
   const router = useRouter();
+  const { user, isLoading, isSignedIn } = useCurrentUser();
 
   useEffect(() => {
-    const session = getSession();
-    router.replace(session ? ROLE_HOME[session.user.role] : "/portal/login");
-  }, [router]);
+    if (isLoading) return;
+    if (!isSignedIn || !user) {
+      router.replace("/portal/login");
+      return;
+    }
+    router.replace(ROLE_HOME[user.role]);
+  }, [isLoading, isSignedIn, user, router]);
 
   return null;
 }

@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/portal/page-header";
 import { OrganizationFilter } from "@/components/portal/organization-filter";
 import { InvoiceTable } from "@/components/portal/invoice-table";
 import { InvoiceDetailModal } from "@/components/portal/invoice-detail-modal";
-import { getSession } from "@/lib/auth/session";
+import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { useAppSelector } from "@/redux/hooks";
 import { useState } from "react";
 import type { Invoice } from "@/lib/types/portal";
@@ -17,7 +17,7 @@ function formatAmount(cents: number) {
 }
 
 export default function FinanceDashboardPage() {
-  const session = getSession();
+  const { user } = useCurrentUser();
   const organizationId = useAppSelector((state) => state.orgFilter.organizationId);
   const [viewing, setViewing] = useState<Invoice | null>(null);
 
@@ -41,7 +41,7 @@ export default function FinanceDashboardPage() {
     <div className="space-y-8">
       <PageHeader
         title="Finance dashboard"
-        description={`Welcome${session ? `, ${session.user.name.split(" ")[0]}` : ""}. Invoice status across every organization.`}
+        description={`Welcome${user ? `, ${user.name.split(" ")[0]}` : ""}. Invoice status across every organization.`}
         actions={<OrganizationFilter />}
       />
 
