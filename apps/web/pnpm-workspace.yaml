@@ -2,3 +2,18 @@ allowBuilds:
   "@sentry/cli": set this to true or false
   sharp: true
 nodeLinker: hoisted
+
+# Advisories with a published fix we cannot take yet without a framework bump.
+# Re-audit and drop entries when Next.js / Tailwind ship the patched transitives.
+#   xlsx            GHSA-4r6h-8v6p-xvw6, GHSA-5pgg-2g8v-p4x9 — parse-path only; this
+#                   app never parses spreadsheets, it only writes them.
+#   postcss (Next)  GHSA-6g55-p6wh-862q, GHSA-r28c-9q8g-f849 — build-time source-map
+#                   reading; not reachable at runtime.
+#   sharp (Next)    GHSA-f88m-g3jw-g9cj — libvips CVEs in the image optimizer.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-4r6h-8v6p-xvw6
+    - GHSA-5pgg-2g8v-p4x9
+    - GHSA-6g55-p6wh-862q
+    - GHSA-r28c-9q8g-f849
+    - GHSA-f88m-g3jw-g9cj
