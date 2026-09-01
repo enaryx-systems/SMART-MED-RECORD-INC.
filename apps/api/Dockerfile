@@ -12,7 +12,15 @@ RUN pnpm run prisma:generate
 RUN pnpm run build
 
 FROM node:22-alpine
-RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont
+# apk upgrade pulls in patched OS packages (e.g. libssl3/libcrypto3) released
+# after this base image tag was built. The rm afterward drops node:22-alpine's
+# bundled npm/corepack — this image only ever runs `node dist/main`, so their
+# transitive CVEs (tar, sigstore, pacote, ...) are dead weight, not an attack
+# surface; Trivy's image scan still flags them if left in place.
+RUN apk upgrade --no-cache \
+  && apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+    /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 WORKDIR /app/apps/api
 ENV NODE_ENV=production
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
