@@ -39,11 +39,10 @@ export class AiExtractionService {
   async extract(documentId: string): Promise<void> {
     const doc = await this.prisma.document.findUniqueOrThrow({ where: { id: documentId } });
 
-    await this.prisma.documentExtraction.upsert({
-      where: { documentId },
-      update: { status: "PROCESSING", error: null },
-      create: { documentId, status: "PROCESSING" },
-    });
+    // Progress is tracked with independent single-row writes rather than one
+    // transaction — the row must be visible as PROCESSING while the (multi-second)
+    // download and model call run, and settle to COMPLETE/FAILED afterwards.
+    await this.markProcessing(documentId);
 
     try {
       const buffer = await this.storage.download(doc.storageKey);
@@ -53,27 +52,47 @@ export class AiExtractionService {
       const raw = await this.runExtraction(openai, extractedText, imageDataUrl);
       const parsed = ExtractedRecordSchema.parse(JSON.parse(raw));
 
-      await this.prisma.documentExtraction.update({
-        where: { documentId },
-        data: {
-          status: "COMPLETE",
-          extractedText: extractedText || null,
-          structuredData: parsed,
-          model: EXTRACTION_MODEL,
-          error: null,
-        },
-      });
+      await this.markComplete(documentId, extractedText, parsed);
     } catch (err) {
       this.logger.error(`Extraction failed for document ${documentId}`, err as Error);
-      await this.prisma.documentExtraction.update({
-        where: { documentId },
-        data: {
-          status: "FAILED",
-          error: err instanceof Error ? err.message : "Unknown extraction error.",
-        },
-      });
+      await this.markFailed(
+        documentId,
+        err instanceof Error ? err.message : "Unknown extraction error.",
+      );
       throw err;
     }
+  }
+
+  private markProcessing(documentId: string) {
+    return this.prisma.documentExtraction.upsert({
+      where: { documentId },
+      update: { status: "PROCESSING", error: null },
+      create: { documentId, status: "PROCESSING" },
+    });
+  }
+
+  private markComplete(
+    documentId: string,
+    extractedText: string,
+    parsed: ReturnType<typeof ExtractedRecordSchema.parse>,
+  ) {
+    return this.prisma.documentExtraction.update({
+      where: { documentId },
+      data: {
+        status: "COMPLETE",
+        extractedText: extractedText || null,
+        structuredData: parsed,
+        model: EXTRACTION_MODEL,
+        error: null,
+      },
+    });
+  }
+
+  private markFailed(documentId: string, error: string) {
+    return this.prisma.documentExtraction.update({
+      where: { documentId },
+      data: { status: "FAILED", error },
+    });
   }
 
   /** Text PDFs are read directly (cheap, no vision call needed); image files

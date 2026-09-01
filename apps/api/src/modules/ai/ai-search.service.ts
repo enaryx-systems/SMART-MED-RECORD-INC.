@@ -68,9 +68,14 @@ export class AiSearchService {
     const existing = await this.prisma.documentChunk.findMany({ where: { documentId } });
     if (existing.length > 0) {
       await qdrant.delete(COLLECTION, { points: existing.map((c) => c.qdrantPointId) });
-      await this.prisma.documentChunk.deleteMany({ where: { documentId } });
     }
 
+    const chunkRows: {
+      documentId: string;
+      chunkIndex: number;
+      text: string;
+      qdrantPointId: string;
+    }[] = [];
     for (let i = 0; i < chunks.length; i++) {
       const embedding = await openai.embeddings.create({
         model: EMBEDDING_MODEL,
@@ -90,10 +95,14 @@ export class AiSearchService {
         points: [{ id: pointId, vector, payload: payload as unknown as Record<string, unknown> }],
       });
 
-      await this.prisma.documentChunk.create({
-        data: { documentId, chunkIndex: i, text: chunks[i], qdrantPointId: pointId },
-      });
+      chunkRows.push({ documentId, chunkIndex: i, text: chunks[i], qdrantPointId: pointId });
     }
+
+    // Swap the row set atomically once every embedding/upsert has landed in Qdrant.
+    await this.prisma.$transaction([
+      this.prisma.documentChunk.deleteMany({ where: { documentId } }),
+      this.prisma.documentChunk.createMany({ data: chunkRows }),
+    ]);
   }
 
   private scopeFilter(user: AuthUser) {
