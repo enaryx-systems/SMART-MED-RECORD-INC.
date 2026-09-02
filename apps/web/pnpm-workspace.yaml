@@ -3,6 +3,16 @@ allowBuilds:
   sharp: true
 nodeLinker: hoisted
 
+# Next 15.5.23 pins postcss to exactly 8.4.31 and sharp to ^0.34.3 in its own
+# nested tree; both carry HIGH advisories with a released fix that Next has not
+# picked up yet (postcss CVE-2026-45623 / CVE-2026-73646 — source-map path
+# traversal + DoS, build-time only; sharp GHSA-f88m-g3jw-g9cj — libvips CVEs in
+# the /_next/image optimizer). Force both to the patched lines. Drop these once
+# a Next release ships the bumps itself.
+overrides:
+  postcss: ^8.5.26
+  sharp: ^0.35.4
+
 # Advisories with a published fix we cannot take yet without a framework bump.
 # Re-audit and drop entries when Next.js / Tailwind ship the patched transitives.
 #   xlsx            GHSA-4r6h-8v6p-xvw6, GHSA-5pgg-2g8v-p4x9 — parse-path only; this
