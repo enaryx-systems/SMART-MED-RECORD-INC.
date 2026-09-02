@@ -6,6 +6,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/brand/logo";
 
+// Hidden on deploys where the portal is turned off (see next.config.ts).
+const portalEnabled = process.env.NEXT_PUBLIC_PORTAL_ENABLED === "true";
+
 const navigation = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/#services", dropdown: true },
@@ -64,12 +67,14 @@ export function PublicHeader() {
         </nav>
 
         <div className="hidden shrink-0 gap-3 lg:flex">
-          <Link
-            href="/portal/login"
-            className="rounded-lg border border-pine px-5 py-2.5 text-sm font-semibold text-pine transition-colors hover:bg-pine hover:text-white"
-          >
-            Log in
-          </Link>
+          {portalEnabled && (
+            <Link
+              href="/portal/login"
+              className="rounded-lg border border-pine px-5 py-2.5 text-sm font-semibold text-pine transition-colors hover:bg-pine hover:text-white"
+            >
+              Log in
+            </Link>
+          )}
           <Link
             href="/contact"
             className="rounded-lg bg-pine px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pine/15 transition-colors hover:bg-emerald"
@@ -114,12 +119,14 @@ export function PublicHeader() {
                 </Link>
               );
             })}
-            <Link
-              href="/portal/login"
-              className="mt-2 rounded-lg bg-pine px-4 py-3 text-center text-white"
-            >
-              Client portal
-            </Link>
+            {portalEnabled && (
+              <Link
+                href="/portal/login"
+                className="mt-2 rounded-lg bg-pine px-4 py-3 text-center text-white"
+              >
+                Client portal
+              </Link>
+            )}
           </nav>
         </div>
       )}

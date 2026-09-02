@@ -116,6 +116,12 @@ pnpm run build    # next build (output: standalone)
   (`apps/web/vercel.json` restricts branch deploys to `development`; see the root `README.md`'s
   branch workflow section). There is no custom build/deploy GitHub Action for it — Vercel handles
   build and deploy itself once the repo is imported with `apps/web` as the Root Directory.
+- **The Vercel deploy currently serves the marketing site only.** `apps/web` is one Next app
+  holding both areas, but `apps/api` has no host yet, so the portal can't reach its backend.
+  `NEXT_PUBLIC_PORTAL_ENABLED` gates it: unset (the Vercel default) → `next.config.ts` redirects
+  every `/portal/*` request to `/` and the header/footer drop their portal links; set to `true`
+  (and redeploy) once the API is hosted. `middleware.ts` also only runs `clerkMiddleware()` when
+  the flag is on, so the marketing build needs no Clerk keys.
 - **`apps/api` currently has no production host.** `apps/api/Dockerfile` and the root
   `docker-compose.yml` exist for local/self-hosted use, but there is no CI deploy step and no
   cloud target configured. Treat this as a known gap, not an oversight — don't invent Kubernetes

@@ -2,6 +2,9 @@ import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
 
+// Hidden on deploys where the portal is turned off (see next.config.ts).
+const portalEnabled = process.env.NEXT_PUBLIC_PORTAL_ENABLED === "true";
+
 const socialLinks = [
   { label: "LinkedIn", href: "https://www.linkedin.com", Icon: Linkedin },
   { label: "Facebook", href: "https://www.facebook.com", Icon: Facebook },
@@ -40,7 +43,7 @@ export function PublicFooter() {
           <h4 className="font-semibold">Platform</h4>
           <div className="mt-4 flex flex-col gap-3 text-sm text-white/65">
             <Link href="/features">Features</Link>
-            <Link href="/portal/login">Client portal</Link>
+            {portalEnabled && <Link href="/portal/login">Client portal</Link>}
             <a href="#security">Security</a>
             <a href="#services">Services</a>
           </div>
