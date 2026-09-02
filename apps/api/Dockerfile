@@ -10,12 +10,18 @@ RUN pnpm install --frozen-lockfile
 COPY apps/api .
 RUN pnpm run prisma:generate
 RUN pnpm run build
-# devDependencies (the `prisma` CLI, ts-node, @nestjs/cli, typescript, ...) are
-# only needed to compile and to run prisma:generate above — the compiled
-# dist/main never imports them. Pruning before the runtime stage's node_modules
-# copy drops that whole devDependency tree, deepmerge-ts (pulled in only via
-# the prisma CLI's @prisma/config) included.
-RUN pnpm prune --prod
+# Strip everything the compiled dist/main never imports before the runtime
+# stage copies node_modules:
+#  --prod         drops devDependencies (ts-node, @nestjs/cli, typescript, ...)
+#  --no-optional  drops the `prisma` CLI, which @prisma/client pulls back in as
+#                 an optionalDependency — it (via @prisma/config) is the only
+#                 path deepmerge-ts (CVE-2026-40345, HIGH) reaches this image.
+# The generated .prisma/client and @prisma/client runtime stay put; migrations
+# are never run from this container (CMD is `node dist/main`).
+RUN pnpm prune --prod --no-optional
+# Fail the build here (not at container start) if the prune removed something
+# the generated Prisma client needs to load.
+RUN node -e "if (typeof require('@prisma/client').PrismaClient !== 'function') process.exit(1); console.log('prisma client OK')"
 
 FROM node:22-alpine
 # apk upgrade pulls in patched OS packages (e.g. libssl3/libcrypto3) released
